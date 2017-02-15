@@ -8,7 +8,7 @@ from selenium import webdriver
 from urlparse import urljoin, urlparse
 
 from record import Record
-from custom import css_selectors, xpath_selectors
+from custom import css_selectors, xpath_selectors, page_references
 
 post_selector = 'div.fbUserContent._5pcr'
 login_file = 'login.txt'
@@ -35,14 +35,39 @@ class FBScraper(object):
 
     def scrape_userid(self, targetid):
         #self.driver.get(targeturl)
+        self._scrape_all_likes(targetid)
         self._scrape_all_friends(targetid)
+
+    def _scrape_all_likes(self, targetid):
+        likes_scraped = 0
+        rec = Record(timestring() + 'likes', ['name', 'url'])
+
+        #load the likes page
+        likesurl = self._targeturl(targetid) + page_references.get('likes_page')
+        self.driver.get(likesurl)
+
+        all_likes = self.driver.find_elements_by_xpath(xpath_selectors.get('likes_selector'))
+        while len(all_likes) > likes_scraped:
+            for like in all_likes[likes_scraped:]:
+                name = like.text
+                page_url = stripquery(like.get_attribute('href'))
+                rec.add_record({'name': name, 'url': page_url})
+                likes_scraped += 1
+
+            #scroll to the bottom of the page
+            self._run_js("window.scrollTo(0, document.body.scrollHeight);")
+            #wait for the friends to populate
+            time.sleep(3)
+            all_likes = self.driver.find_elements_by_xpath(xpath_selectors.get('likes_selector'))
+
+        print('Scraped {} likes into {}'.format(likes_scraped, rec.filename))
 
     def _scrape_all_friends(self, targetid):
         friends_scraped = 0
         rec = Record(timestring() + 'friends', ['name', 'profile'])
 
         #load the friends page
-        friendsurl = self._targeturl(targetid) + '&sk=friends'
+        friendsurl = self._targeturl(targetid) + page_references.get('friends_page')
         self.driver.get(friendsurl)
 
         all_friends = self.driver.find_elements_by_xpath(xpath_selectors.get('friends_selector'))

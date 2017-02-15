@@ -8,5 +8,11 @@ css_selectors = {
 
 
 xpath_selectors = {
-        'friends_selector': "//ul[contains(@data-pnref, 'friends')]//div[contains(@class, 'uiProfileBlockContent')]//a[@data-hovercard]",
+    'friends_selector': "//ul[contains(@data-pnref, 'friends')]//div[contains(@class, 'uiProfileBlockContent')]//a[@data-hovercard]",
+    'likes_selector': "//div[contains(@id, 'pagelet_timeline_medley_likes')]//li//a[@data-hovercard and not(*)]",
+}
+
+page_references = {
+    'friends_page': '&sk=friends',
+    'likes_page': '&sk=likes',
 }

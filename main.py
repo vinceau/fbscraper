@@ -8,6 +8,7 @@ from selenium import webdriver
 from urlparse import urljoin, urlparse
 
 from record import Record
+from custom import css_selectors, xpath_selectors
 
 post_selector = 'div.fbUserContent._5pcr'
 login_file = 'login.txt'
@@ -22,9 +23,9 @@ class FBScraper(object):
 
     def login(self, user, password):
         self.driver.get('https://www.facebook.com/login.php')
-        self._run_js("document.querySelector('#email').value = '{}';".format(user))
-        self._run_js("document.querySelector('#pass').value = '{}';".format(password))
-        self._run_js("document.querySelector('#login_form').submit();")
+        self._run_js("document.querySelector('{}').value = '{}';".format(css_selectors.get('email_field'), user))
+        self._run_js("document.querySelector('{}').value = '{}';".format(css_selectors.get('password_field'), password))
+        self._run_js("document.querySelector('{}').submit();".format(css_selectors.get('login_form')))
         time.sleep(3)
         return 'login' not in self.driver.current_url
         
@@ -44,8 +45,7 @@ class FBScraper(object):
         friendsurl = self._targeturl(targetid) + '&sk=friends'
         self.driver.get(friendsurl)
 
-        friends_selector = "//ul[contains(@data-pnref, 'friends')]//div[contains(@class, 'uiProfileBlockContent')]//a[@data-hovercard]"
-        all_friends = self.driver.find_elements_by_xpath(friends_selector)
+        all_friends = self.driver.find_elements_by_xpath(xpath_selectors.get('friends_selector'))
         while len(all_friends) > friends_scraped:
             for friend in all_friends[friends_scraped:]:
                 name = friend.text
@@ -57,7 +57,7 @@ class FBScraper(object):
             self._run_js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for the friends to populate
             time.sleep(3)
-            all_friends = self.driver.find_elements_by_xpath(friends_selector)
+            all_friends = self.driver.find_elements_by_xpath(xpath_selectors.get('friends_selector'))
 
         print('Scraped {} friends into {}'.format(friends_scraped, rec.filename))
 

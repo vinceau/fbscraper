@@ -82,8 +82,12 @@ class FBScraper(object):
         likesurl = self._targeturl(targetid) + page_references.get('likes_page')
         self.driver.get(likesurl)
 
-        all_likes = self.driver.find_elements_by_xpath(xpath_selectors.get('likes_selector'))
-        while len(all_likes) > likes_scraped:
+        while True:
+            all_likes = self.driver.find_elements_by_xpath(xpath_selectors.get('likes_selector'))
+            #break if no more likes
+            if len(all_likes) <= likes_scraped:
+                break
+
             for like in all_likes[likes_scraped:]:
                 name = like.text
                 page_url = stripquery(like.get_attribute('href'))
@@ -94,7 +98,6 @@ class FBScraper(object):
             self._run_js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for the friends to populate
             time.sleep(delay)
-            all_likes = self.driver.find_elements_by_xpath(xpath_selectors.get('likes_selector'))
 
         print('Scraped {} likes into {}'.format(likes_scraped, rec.filename))
 
@@ -106,8 +109,12 @@ class FBScraper(object):
         friendsurl = self._targeturl(targetid) + page_references.get('friends_page')
         self.driver.get(friendsurl)
 
-        all_friends = self.driver.find_elements_by_xpath(xpath_selectors.get('friends_selector'))
-        while len(all_friends) > friends_scraped:
+        while True:
+            all_friends = self.driver.find_elements_by_xpath(xpath_selectors.get('friends_selector'))
+            #break if no more friends
+            if len(all_friends) <= friends_scraped:
+                break
+
             for friend in all_friends[friends_scraped:]:
                 name = friend.text
                 friend_url = stripquery(friend.get_attribute('href'))
@@ -118,7 +125,6 @@ class FBScraper(object):
             self._run_js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for the friends to populate
             time.sleep(delay)
-            all_friends = self.driver.find_elements_by_xpath(xpath_selectors.get('friends_selector'))
 
         print('Scraped {} friends into {}'.format(friends_scraped, rec.filename))
 

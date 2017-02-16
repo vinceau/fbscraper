@@ -1,6 +1,5 @@
-
 from datetime import datetime
-from urlparse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse
 
 """Joins a query to a url.
 """

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+import os
 import time
 import logging as log
 log.basicConfig(format='%(levelname)s:%(message)s', level=log.INFO)
@@ -22,8 +23,10 @@ delay = 2
 
 class FBScraper(object):
 
-    def __init__(self):
+    def __init__(self, output_dir=None):
         self.driver = webdriver.Firefox()
+        #store in the current directory by default
+        self.output_dir = output_dir if output_dir else ''
 
 #   def __del__(self):
 #       self.driver.quit()
@@ -39,6 +42,9 @@ class FBScraper(object):
     def _run_js(self, code):
         log.info('Executing Javascript: {}'.format(code))
         return self.driver.execute_script(code)
+
+    def _output_file(self, name):
+        return os.path.join(self.output_dir, timestring() + '-' + name)
 
     def scrape_by_id(self, targetid):
         self._scrape_all(targetid, 'https://www.facebook.com/profile.php?id=' + targetid)
@@ -56,7 +62,7 @@ class FBScraper(object):
 
     def _scrape_posts(self, target, targeturl):
         posts_scraped = 0
-        rec = record.Record(timestring() + '-' + target + '-posts', ['date', 'post', 'permalink'])
+        rec = record.Record(self._output_file(target + '-posts'), ['date', 'post', 'permalink'])
         log.info('Scraping posts into {}'.format(rec.filename))
 
         #load their timeline page
@@ -78,7 +84,7 @@ class FBScraper(object):
                     'permalink': p_link,
                 })
                 posts_scraped += 1
-                log.info('\Scraped post #{}\n\n#### START POST ####\n{}\n####  END POST  ####\n'.format(posts_scraped, p.text))
+                log.info('Scraped post #{}\n\n#### START POST ####\n{}\n####  END POST  ####\n'.format(posts_scraped, p.text))
 
             #scroll to the bottom of the page
             self._run_js("window.scrollTo(0, document.body.scrollHeight);")
@@ -90,7 +96,7 @@ class FBScraper(object):
 
     def _scrape_likes(self, target, targeturl):
         likes_scraped = 0
-        rec = record.Record(timestring() + '-' + target + '-likes', ['name', 'url'])
+        rec = record.Record(self._output_file(target + '-likes'), ['name', 'url'])
         log.info('Scraping likes into {}'.format(rec.filename))
 
         #load the likes page
@@ -119,7 +125,7 @@ class FBScraper(object):
 
     def _scrape_friends(self, target, targeturl):
         friends_scraped = 0
-        rec = record.Record(timestring() + '-' + target + '-friends', ['name', 'profile'])
+        rec = record.Record(self._output_file(target + '-friends'), ['name', 'profile'])
         log.info('Scraping friends into {}'.format(rec.filename))
 
         #load the friends page
@@ -148,7 +154,7 @@ class FBScraper(object):
 
     def _scrape_photos(self, target, targeturl):
         photos_scraped = 0
-        album = record.Album(timestring() + '-' + target + '-photos')
+        album = record.Album(self._output_file(target + '-photos'))
         log.info('Scraping photos into {}'.format(album.name))
 
         #load the photos page
@@ -179,7 +185,10 @@ def main():
     parser = argparse.ArgumentParser(description='Crawl a bunch of Facebook sites and record the posts.')
     parser.add_argument('--input', '-i', dest='inputfile', required=False,
                         help='a file to read a list of Facebook usernames from', metavar='FILE')
+    parser.add_argument('--outputdir', '-o', dest='outputdir', required=False,
+                        help='the directory to store the scraped files')
     args = parser.parse_args()
+    output_dir = args.outputdir if args.outputdir else ''
 
     url = 'index'
     filename = timestring() + '-' + url + '.csv'
@@ -188,7 +197,7 @@ def main():
         lines = f.readlines()
         fb_user = lines[0].strip()
         fb_pass = lines[1].strip()
-        fbs = FBScraper()
+        fbs = FBScraper(output_dir)
         if fbs.login(fb_user, fb_pass):
             #minimal profile
             fbs.scrape_by_id('100004667535058')

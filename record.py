@@ -15,6 +15,8 @@ class Record(object):
 
     def __init__(self, filename, schema):
         self.filename = filename + '.csv'
+        if (os.path.dirname(self.filename)):
+            os.makedirs(os.path.dirname(self.filename), exist_ok=True)
         self.file = open(self.filename, 'w')
         self.writer = csv.DictWriter(self.file, fieldnames=schema)
         self.writer.writeheader()
@@ -30,7 +32,7 @@ class Album(object):
 
     def __init__(self, name):
         try:
-            os.makedirs(name)
+            os.makedirs(name, exist_ok=True)
             self.name = name
         except OSError:
             if not os.path.isdir(name):

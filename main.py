@@ -78,7 +78,7 @@ class FBScraper(object):
                     'permalink': p_link,
                 })
                 posts_scraped += 1
-                log.info('Scraped post #{}:\n{}'.format(posts_scraped, p.text))
+                log.info('\Scraped post #{}\n\n#### START POST ####\n{}\n####  END POST  ####\n'.format(posts_scraped, p.text))
 
             #scroll to the bottom of the page
             self._run_js("window.scrollTo(0, document.body.scrollHeight);")

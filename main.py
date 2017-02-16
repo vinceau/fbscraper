@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import logging as log
+log.basicConfig(format='%(levelname)s:%(message)s', level=log.INFO)
+
 import argparse
 import time
 
@@ -35,7 +38,7 @@ class FBScraper(object):
         return 'login' not in self.driver.current_url
         
     def _run_js(self, code):
-        print('Executing Javascript: <{}>'.format(code))
+        log.info('Executing Javascript: {}'.format(code))
         return self.driver.execute_script(code)
 
     def scrape_by_id(self, targetid):
@@ -45,14 +48,17 @@ class FBScraper(object):
         self._scrape_all(target, 'https://www.facebook.com/' + target)
 
     def _scrape_all(self, target, targeturl):
+        log.info('Scraping user {} at URL: {}'.format(target, targeturl))
         self._scrape_photos(target, targeturl)
-        #self._scrape_posts(target, targeturl)
-        #self._scrape_likes(target, targeturl)
-        #self._scrape_friends(target, targeturl)
+        self._scrape_posts(target, targeturl)
+        self._scrape_likes(target, targeturl)
+        self._scrape_friends(target, targeturl)
+        log.info('Finished scraping user {}'.format(target))
 
     def _scrape_posts(self, target, targeturl):
         posts_scraped = 0
         rec = record.Record(timestring() + '-' + target + '-posts', ['date', 'post', 'permalink'])
+        log.info('Scraping posts into {}'.format(rec.filename))
 
         #load their timeline page
         self.driver.get(targeturl)
@@ -73,18 +79,20 @@ class FBScraper(object):
                     'permalink': p_link,
                 })
                 posts_scraped += 1
+                log.info('Scraped post #{}:\n{}'.format(posts_scraped, p.text))
 
             #scroll to the bottom of the page
             self._run_js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for the posts to populate
             time.sleep(delay)
 
-        print('Scraped {} posts into {}'.format(posts_scraped, rec.filename))
+        log.info('Scraped {} posts into {}'.format(posts_scraped, rec.filename))
 
 
     def _scrape_likes(self, target, targeturl):
         likes_scraped = 0
         rec = record.Record(timestring() + '-' + target + '-likes', ['name', 'url'])
+        log.info('Scraping likes into {}'.format(rec.filename))
 
         #load the likes page
         likesurl = join_url(targeturl, page_references.get('likes_page'))
@@ -101,17 +109,19 @@ class FBScraper(object):
                 page_url = like.get_attribute('href')
                 rec.add_record({'name': name, 'url': page_url})
                 likes_scraped += 1
+                log.info('Scraped like #{}: {}'.format(likes_scraped, name))
 
             #scroll to the bottom of the page
             self._run_js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for the friends to populate
             time.sleep(delay)
 
-        print('Scraped {} likes into {}'.format(likes_scraped, rec.filename))
+        log.info('Scraped {} likes into {}'.format(likes_scraped, rec.filename))
 
     def _scrape_friends(self, target, targeturl):
         friends_scraped = 0
         rec = record.Record(timestring() + '-' + target + '-friends', ['name', 'profile'])
+        log.info('Scraping friends into {}'.format(rec.filename))
 
         #load the friends page
         friendsurl = join_url(targeturl, page_references.get('friends_page'))
@@ -127,6 +137,7 @@ class FBScraper(object):
                 name = friend.text
                 friend_url = strip_query(friend.get_attribute('href'))
                 rec.add_record({'name': name, 'profile': friend_url})
+                log.info('Scraped friend #{}: {}'.format(friends_scraped, name))
                 friends_scraped += 1
 
             #scroll to the bottom of the page
@@ -134,11 +145,12 @@ class FBScraper(object):
             #wait for the friends to populate
             time.sleep(delay)
 
-        print('Scraped {} friends into {}'.format(friends_scraped, rec.filename))
+        log.info('Scraped {} friends into {}'.format(friends_scraped, rec.filename))
 
     def _scrape_photos(self, target, targeturl):
         photos_scraped = 0
         album = record.Album(timestring() + '-' + target + '-photos')
+        log.info('Scraping photos into {}'.format(album.name))
 
         #load the photos page
         self.driver.get(join_url(targeturl, page_references.get('photos_page')))
@@ -153,13 +165,14 @@ class FBScraper(object):
                 img_url = p.get_attribute('data-starred-src')
                 album.add_image(img_url)
                 photos_scraped += 1
+                log.info('Scraped photo #{}: {}'.format(photos_scraped, img_url))
 
             #scroll to the bottom of the page
             self._run_js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for the friends to populate
             time.sleep(delay)
 
-        print('Scraped {} photos into {}'.format(photos_scraped, album.name))
+        log.info('Scraped {} photos into {}'.format(photos_scraped, album.name))
 
 
 
@@ -178,12 +191,13 @@ def main():
         fb_pass = lines[1].strip()
         fbs = FBScraper()
         if fbs.login(fb_user, fb_pass):
-            #fbs.scrape_by_id('100004667535058')
+            #minimal profile
+            fbs.scrape_by_id('100004667535058')
             #fbs.scrape_by_username('sammy.solaxa.9')
             #fbs.scrape_by_username('tariqsediqi')
             #fbs.scrape_by_id('100012735706236')
             #guy with lots of photos (2 pages)
-            fbs.scrape_by_username('nicknando.ducaat')
+            #fbs.scrape_by_username('nicknando.ducaat')
 
 
 if __name__ == "__main__":

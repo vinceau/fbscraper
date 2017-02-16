@@ -7,6 +7,7 @@ import logging as log
 log.basicConfig(format='%(levelname)s:%(message)s', level=log.INFO)
 
 from selenium import webdriver
+from sys import exit
 
 #local imports
 import record
@@ -196,20 +197,30 @@ def main():
                         help='the directory to store the scraped files')
     args = parser.parse_args()
     output_dir = args.outputdir if args.outputdir else ''
+    fbs = FBScraper(output_dir)
 
+    #attempt to login
     with open(login_file, 'r') as f:
         lines = f.readlines()
         fb_user = lines[0].strip()
         fb_pass = lines[1].strip()
-        fbs = FBScraper(output_dir)
-        if fbs.login(fb_user, fb_pass):
-            #minimal profile
-            fbs.scrape('100004667535058')
-            fbs.scrape('sammy.solaxa.9')
-            #fbs.scrape_by_username('tariqsediqi')
-            #fbs.scrape_by_id('100012735706236')
-            #guy with lots of photos (2 pages)
-            #fbs.scrape_by_username('nicknando.ducaat')
+        if not fbs.login(fb_user, fb_pass):
+            exit('Failed to log into Facebook. Check {} and try again.'.format(login_file))
+
+    #login successful
+    if args.inputfile:
+        with open(args.inputfile, 'r') as input_f:
+            for line in input_f:
+                fbs.scrape(line.strip())
+    else:
+        log.info('No input file specified. Reading input from stdin.')
+        print('Enter the Facebook ID or Username to scrape followed by the <Enter> key.')
+        for line in sys.stdin:
+            if not line.strip():
+                break
+            fbs.scrape(line.strip())
+            print('Scrape complete. Enter another Facebook ID or Username followed by the <Enter> key.')
+        print('Exiting...')
 
 
 if __name__ == "__main__":

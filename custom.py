@@ -12,6 +12,7 @@ xpath_selectors = {
     'likes_selector': "//div[contains(@id, 'pagelet_timeline_medley_likes')]//li//a[@data-hovercard and not(*)]",
     'user_posts': "//div[contains(@class, 'fbUserContent')]/div[1]",
     'post_date': ".//abbr/span[contains(@class, 'timestampContent')]/..",
+    'error_header': "//div[@id = 'content']//h2",
 }
 
 page_references = {
@@ -20,4 +21,6 @@ page_references = {
     'photos_page': 'sk=photos',
 }
 
-
+text_content = {
+    'error_header_text': 'isn\'t available',
+}

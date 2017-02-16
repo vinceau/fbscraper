@@ -7,12 +7,13 @@ import logging as log
 log.basicConfig(format='%(levelname)s:%(message)s', level=log.INFO)
 
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from sys import exit
 
 #local imports
 import record
 
-from custom import css_selectors, xpath_selectors, page_references
+from custom import css_selectors, xpath_selectors, page_references, text_content
 from helpers import join_url, strip_query, timestring
 
 login_file = 'login.txt'
@@ -50,6 +51,9 @@ class FBScraper(object):
     Not guaranteed to be accurate since usernames could also be fully numbers.
     """
     def scrape(self, target):
+        if not target:
+            log.error('Invalid Facebook ID or Username!')
+            return
         if target.isdigit():
             self.scrape_by_id(target)
         else:
@@ -61,7 +65,21 @@ class FBScraper(object):
     def scrape_by_username(self, target):
         self._scrape_all(target, 'https://www.facebook.com/' + target)
 
+    """Check if the given targeturl is a valid user profile.
+    Does this by checking if a certain error message text is contained inside the page body.
+    """
+    def _valid_user(self, targeturl):
+        try:
+            self.driver.get(targeturl)
+            header_text = self.driver.find_element_by_xpath(xpath_selectors.get('error_header')).text
+            return text_content.get('error_header_text').lower() not in header_text.lower()
+        except NoSuchElementException:
+            return True
+
     def _scrape_all(self, target, targeturl):
+        if not self._valid_user(targeturl):
+            log.error('{} is a missing page!'.format(targeturl))
+            return
         log.info('Scraping user {} at URL: {}'.format(target, targeturl))
         self._scrape_posts(target, targeturl)
         self._scrape_friends(target, targeturl)

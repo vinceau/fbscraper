@@ -43,8 +43,9 @@ class FBScraper(object):
         log.info('Executing Javascript: {}'.format(code))
         return self.driver.execute_script(code)
 
-    def _output_file(self, name):
-        return os.path.join(self.output_dir, timestring() + '-' + name)
+    def _output_file(self, target, name):
+        return os.path.join(self.output_dir, target, timestring() + '-' + target + '-' + name)
+
     """Infer whether the target is an id or a username and scrape accordingly.
     Not guaranteed to be accurate since usernames could also be fully numbers.
     """
@@ -70,7 +71,7 @@ class FBScraper(object):
 
     def _scrape_posts(self, target, targeturl):
         posts_scraped = 0
-        rec = record.Record(self._output_file(target + '-posts'), ['date', 'post', 'permalink'])
+        rec = record.Record(self._output_file(target, 'posts'), ['date', 'post', 'permalink'])
         log.info('Scraping posts into {}'.format(rec.filename))
 
         #load their timeline page
@@ -104,7 +105,7 @@ class FBScraper(object):
 
     def _scrape_likes(self, target, targeturl):
         likes_scraped = 0
-        rec = record.Record(self._output_file(target + '-likes'), ['name', 'url'])
+        rec = record.Record(self._output_file(target, 'likes'), ['name', 'url'])
         log.info('Scraping likes into {}'.format(rec.filename))
 
         #load the likes page
@@ -133,7 +134,7 @@ class FBScraper(object):
 
     def _scrape_friends(self, target, targeturl):
         friends_scraped = 0
-        rec = record.Record(self._output_file(target + '-friends'), ['name', 'profile'])
+        rec = record.Record(self._output_file(target, 'friends'), ['name', 'profile'])
         log.info('Scraping friends into {}'.format(rec.filename))
 
         #load the friends page
@@ -162,7 +163,7 @@ class FBScraper(object):
 
     def _scrape_photos(self, target, targeturl):
         photos_scraped = 0
-        album = record.Album(self._output_file(target + '-photos'))
+        album = record.Album(self._output_file(target, 'photos'))
         log.info('Scraping photos into {}'.format(album.name))
 
         #load the photos page

@@ -48,10 +48,10 @@ class FBScraper(object):
 
     def _scrape_all(self, target, targeturl):
         log.info('Scraping user {} at URL: {}'.format(target, targeturl))
-        self._scrape_photos(target, targeturl)
         self._scrape_posts(target, targeturl)
-        self._scrape_likes(target, targeturl)
         self._scrape_friends(target, targeturl)
+        self._scrape_photos(target, targeturl)
+        self._scrape_likes(target, targeturl)
         log.info('Finished scraping user {}'.format(target))
 
     def _scrape_posts(self, target, targeturl):

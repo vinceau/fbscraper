@@ -33,7 +33,7 @@ class FBScraper(object):
         self.driver.quit()
 
     def login(self, user, password):
-        self.driver.get('https://www.facebook.com/login.php')
+        self._load('https://www.facebook.com/login.php')
         self._run_js("document.querySelector('{}').value = '{}';".format(css_selectors.get('email_field'), user))
         self._run_js("document.querySelector('{}').value = '{}';".format(css_selectors.get('password_field'), password))
         self._run_js("document.querySelector('{}').submit();".format(css_selectors.get('login_form')))
@@ -65,12 +65,19 @@ class FBScraper(object):
     def scrape_by_username(self, target):
         self._scrape_all(target, 'https://www.facebook.com/' + target)
 
+    """Load url in the browser if it's not already loaded. Use force=True to force a reload.
+    """
+    def _load(self, url, force=False):
+        if url == self.driver.current_url and not force:
+            return
+        self.driver.get(url)
+
     """Check if the given targeturl is a valid user profile.
     Does this by checking if a certain error message text is contained inside the page body.
     """
     def _valid_user(self, targeturl):
         try:
-            self.driver.get(targeturl)
+            self._load(targeturl)
             header_text = self.driver.find_element_by_xpath(xpath_selectors.get('error_header')).text
             return text_content.get('error_header_text').lower() not in header_text.lower()
         except NoSuchElementException:
@@ -93,7 +100,7 @@ class FBScraper(object):
         log.info('Scraping posts into {}'.format(rec.filename))
 
         #load their timeline page
-        self.driver.get(targeturl)
+        self._load(targeturl)
         while True:
             all_posts = self.driver.find_elements_by_xpath(xpath_selectors.get('user_posts'))
             #break if there are no more posts left
@@ -128,7 +135,7 @@ class FBScraper(object):
 
         #load the likes page
         likesurl = join_url(targeturl, page_references.get('likes_page'))
-        self.driver.get(likesurl)
+        self._load(likesurl)
 
         while True:
             all_likes = self.driver.find_elements_by_xpath(xpath_selectors.get('likes_selector'))
@@ -157,7 +164,7 @@ class FBScraper(object):
 
         #load the friends page
         friendsurl = join_url(targeturl, page_references.get('friends_page'))
-        self.driver.get(friendsurl)
+        self._load(friendsurl)
 
         while True:
             all_friends = self.driver.find_elements_by_xpath(xpath_selectors.get('friends_selector'))
@@ -185,7 +192,7 @@ class FBScraper(object):
         log.info('Scraping photos into {}'.format(album.name))
 
         #load the photos page
-        self.driver.get(join_url(targeturl, page_references.get('photos_page')))
+        self._load(join_url(targeturl, page_references.get('photos_page')))
 
         while True:
             all_photos = self.driver.find_elements_by_css_selector(css_selectors.get('photo_selector'))

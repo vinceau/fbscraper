@@ -14,6 +14,9 @@ from custom import css_selectors, xpath_selectors, page_references
 post_selector = 'div.fbUserContent._5pcr'
 login_file = 'login.txt'
 
+#seconds to wait for infinite scroll items to populate
+delay = 2
+
 class FBScraper(object):
 
     def __init__(self):
@@ -27,7 +30,7 @@ class FBScraper(object):
         self._run_js("document.querySelector('{}').value = '{}';".format(css_selectors.get('email_field'), user))
         self._run_js("document.querySelector('{}').value = '{}';".format(css_selectors.get('password_field'), password))
         self._run_js("document.querySelector('{}').submit();".format(css_selectors.get('login_form')))
-        time.sleep(3)
+        time.sleep(delay)
         return 'login' not in self.driver.current_url
         
     def _run_js(self, code):
@@ -66,7 +69,7 @@ class FBScraper(object):
             #scroll to the bottom of the page
             self._run_js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for the posts to populate
-            time.sleep(3)
+            time.sleep(delay)
 
         print('Scraped {} posts into {}'.format(posts_scraped, rec.filename))
 
@@ -90,7 +93,7 @@ class FBScraper(object):
             #scroll to the bottom of the page
             self._run_js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for the friends to populate
-            time.sleep(3)
+            time.sleep(delay)
             all_likes = self.driver.find_elements_by_xpath(xpath_selectors.get('likes_selector'))
 
         print('Scraped {} likes into {}'.format(likes_scraped, rec.filename))
@@ -114,7 +117,7 @@ class FBScraper(object):
             #scroll to the bottom of the page
             self._run_js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for the friends to populate
-            time.sleep(3)
+            time.sleep(delay)
             all_friends = self.driver.find_elements_by_xpath(xpath_selectors.get('friends_selector'))
 
         print('Scraped {} friends into {}'.format(friends_scraped, rec.filename))

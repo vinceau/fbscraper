@@ -14,7 +14,6 @@ import record
 from custom import css_selectors, xpath_selectors, page_references
 from helpers import join_url, strip_query, timestring
 
-post_selector = 'div.fbUserContent._5pcr'
 login_file = 'login.txt'
 
 #seconds to wait for infinite scroll items to populate
@@ -28,8 +27,8 @@ class FBScraper(object):
         #store in the current directory by default
         self.output_dir = output_dir if output_dir else ''
 
-#   def __del__(self):
-#       self.driver.quit()
+    def __del__(self):
+        self.driver.quit()
 
     def login(self, user, password):
         self.driver.get('https://www.facebook.com/login.php')
@@ -127,7 +126,7 @@ class FBScraper(object):
 
             #scroll to the bottom of the page
             self._run_js("window.scrollTo(0, document.body.scrollHeight);")
-            #wait for the friends to populate
+            #wait for likes to populate
             time.sleep(delay)
 
         log.info('Scraped {} likes into {}'.format(likes_scraped, rec.filename))
@@ -183,11 +182,10 @@ class FBScraper(object):
 
             #scroll to the bottom of the page
             self._run_js("window.scrollTo(0, document.body.scrollHeight);")
-            #wait for the friends to populate
+            #wait for photos to populate
             time.sleep(delay)
 
         log.info('Scraped {} photos into {}'.format(photos_scraped, album.name))
-
 
 
 def main():
@@ -198,9 +196,6 @@ def main():
                         help='the directory to store the scraped files')
     args = parser.parse_args()
     output_dir = args.outputdir if args.outputdir else ''
-
-    url = 'index'
-    filename = timestring() + '-' + url + '.csv'
 
     with open(login_file, 'r') as f:
         lines = f.readlines()

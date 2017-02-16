@@ -44,11 +44,11 @@ class FBScraper(object):
         self._scrape_all(target, 'https://www.facebook.com/' + target)
 
     def _scrape_all(self, target, targeturl):
-        #self._scrape_all_posts(target, targeturl)
-        self._scrape_all_likes(target, targeturl)
-        self._scrape_all_friends(target, targeturl)
+        #self._scrape_posts(target, targeturl)
+        self._scrape_likes(target, targeturl)
+        self._scrape_friends(target, targeturl)
 
-    def _scrape_all_posts(self, target, targeturl):
+    def _scrape_posts(self, target, targeturl):
         posts_scraped = 0
         rec = Record(timestring() + '-' + target + '-posts', ['date', 'post', 'permalink'])
 
@@ -80,7 +80,7 @@ class FBScraper(object):
         print('Scraped {} posts into {}'.format(posts_scraped, rec.filename))
 
 
-    def _scrape_all_likes(self, target, targeturl):
+    def _scrape_likes(self, target, targeturl):
         likes_scraped = 0
         rec = Record(timestring() + '-' + target + '-likes', ['name', 'url'])
 
@@ -107,7 +107,7 @@ class FBScraper(object):
 
         print('Scraped {} likes into {}'.format(likes_scraped, rec.filename))
 
-    def _scrape_all_friends(self, target, targeturl):
+    def _scrape_friends(self, target, targeturl):
         friends_scraped = 0
         rec = Record(timestring() + '-' + target + '-friends', ['name', 'profile'])
 

@@ -40,7 +40,7 @@ class FBScraper(object):
 
     def _scrape_all_likes(self, targetid):
         likes_scraped = 0
-        rec = Record(timestring() + 'likes', ['name', 'url'])
+        rec = Record(timestring() + '-likes', ['name', 'url'])
 
         #load the likes page
         likesurl = self._targeturl(targetid) + page_references.get('likes_page')
@@ -64,7 +64,7 @@ class FBScraper(object):
 
     def _scrape_all_friends(self, targetid):
         friends_scraped = 0
-        rec = Record(timestring() + 'friends', ['name', 'profile'])
+        rec = Record(timestring() + '-friends', ['name', 'profile'])
 
         #load the friends page
         friendsurl = self._targeturl(targetid) + page_references.get('friends_page')
@@ -89,9 +89,14 @@ class FBScraper(object):
     def _targeturl(self, targetid):
         return 'https://www.facebook.com/profile.php?id=' + targetid
 
-
-def timestring():
-    return datetime.now().strftime("%Y%m%d-%H%M-")
+"""Converts a unix time stamp into a human readable timestamp.
+If no time stamp is provided it gives the current time.
+"""
+def timestring(unix=None):
+    timeformat = "%Y%m%d-%H%M"
+    if unix:
+        return datetime.fromtimestamp(int(unix)).strftime(timeformat)
+    return datetime.now().strftime(timeformat)
 
 def stripquery(url):
     return urljoin(url, urlparse(url).path)
@@ -104,7 +109,7 @@ def main():
     args = parser.parse_args()
 
     url = 'index'
-    filename = timestring() + url + '.csv'
+    filename = timestring() + '-' + url + '.csv'
 
     with open(login_file, 'r') as f:
         lines = f.readlines()

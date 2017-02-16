@@ -136,8 +136,8 @@ class FBScraper(object):
                 name = friend.text
                 friend_url = strip_query(friend.get_attribute('href'))
                 rec.add_record({'name': name, 'profile': friend_url})
-                log.info('Scraped friend #{}: {}'.format(friends_scraped, name))
                 friends_scraped += 1
+                log.info('Scraped friend #{}: {}'.format(friends_scraped, name))
 
             #scroll to the bottom of the page
             self._run_js("window.scrollTo(0, document.body.scrollHeight);")

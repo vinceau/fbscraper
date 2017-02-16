@@ -4,7 +4,6 @@ import argparse
 import os
 import time
 import logging as log
-log.basicConfig(format='%(levelname)s:%(message)s', level=log.INFO)
 
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
@@ -52,7 +51,7 @@ class FBScraper(object):
     """
     def scrape(self, target):
         if not target:
-            log.error('Invalid Facebook ID or Username!')
+            log.info('Invalid Facebook ID or Username!')
             return
         if target.isdigit():
             self.scrape_by_id(target)
@@ -85,7 +84,7 @@ class FBScraper(object):
 
     def _scrape_all(self, target, targeturl):
         if not self._valid_user(targeturl):
-            log.error('{} is a missing page!'.format(targeturl))
+            log.info('{} is a missing page!'.format(targeturl))
             return
         log.info('Scraping user {} at URL: {}'.format(target, targeturl))
         self._scrape_posts(target, targeturl)
@@ -215,6 +214,9 @@ class FBScraper(object):
 
 
 def main():
+    #configure logging level
+    log.basicConfig(format='%(levelname)s:%(message)s', level=log.INFO)
+
     parser = argparse.ArgumentParser(description='Crawl a bunch of Facebook sites and record the posts.')
     parser.add_argument('--input', '-i', dest='inputfile', required=False,
                         help='a file to read a list of Facebook usernames from', metavar='FILE')

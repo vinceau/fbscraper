@@ -45,6 +45,14 @@ class FBScraper(object):
 
     def _output_file(self, name):
         return os.path.join(self.output_dir, timestring() + '-' + name)
+    """Infer whether the target is an id or a username and scrape accordingly.
+    Not guaranteed to be accurate since usernames could also be fully numbers.
+    """
+    def scrape(self, target):
+        if target.isdigit():
+            self.scrape_by_id(target)
+        else:
+            self.scrape_by_username(target)
 
     def scrape_by_id(self, targetid):
         self._scrape_all(targetid, 'https://www.facebook.com/profile.php?id=' + targetid)
@@ -200,8 +208,8 @@ def main():
         fbs = FBScraper(output_dir)
         if fbs.login(fb_user, fb_pass):
             #minimal profile
-            fbs.scrape_by_id('100004667535058')
-            #fbs.scrape_by_username('sammy.solaxa.9')
+            fbs.scrape('100004667535058')
+            fbs.scrape('sammy.solaxa.9')
             #fbs.scrape_by_username('tariqsediqi')
             #fbs.scrape_by_id('100012735706236')
             #guy with lots of photos (2 pages)

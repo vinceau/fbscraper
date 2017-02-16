@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import sys;
-reload(sys);
-sys.setdefaultencoding("utf8")
-
-import logging as log
-log.basicConfig(format='%(levelname)s:%(message)s', level=log.INFO)
-
 import argparse
 import time
+import logging as log
+log.basicConfig(format='%(levelname)s:%(message)s', level=log.INFO)
 
 from selenium import webdriver
 

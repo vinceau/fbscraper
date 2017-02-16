@@ -3,13 +3,12 @@
 import argparse
 import time
 
-from datetime import datetime
 from selenium import webdriver
-from urlparse import urljoin, urlparse
 
 #local imports
 from record import Record
 from custom import css_selectors, xpath_selectors, page_references
+from helpers import join_url, strip_query, timestring
 
 post_selector = 'div.fbUserContent._5pcr'
 login_file = 'login.txt'
@@ -135,27 +134,8 @@ class FBScraper(object):
 
         print('Scraped {} friends into {}'.format(friends_scraped, rec.filename))
 
-"""Joins a query to a url.
-"""
-def join_url(base, query):
-    sep = '&' if '?'in base else '?'
-    return base + sep + query
 
-"""Strips the query portion of a url if it doesn't contain 'profile.php'
-"""
-def strip_query(url):
-    if 'profile.php' not in url:
-        return urljoin(url, urlparse(url).path)
-    return url
 
-"""Converts a unix time stamp into a human readable timestamp.
-If no time stamp is provided it gives the current time.
-"""
-def timestring(unix=None):
-    timeformat = "%Y%m%d-%H%M%S"
-    if unix:
-        return datetime.fromtimestamp(int(unix)).strftime(timeformat)
-    return datetime.now().strftime(timeformat)
 
 
 def main():

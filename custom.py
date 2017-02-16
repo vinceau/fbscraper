@@ -3,7 +3,7 @@ css_selectors = {
     'email_field': '#email',
     'password_field': '#pass',
     'login_form': '#login_form',
-
+    'photo_selector': '#pagelet_timeline_medley_photos div.fbPhotoStarGridElement',
 }
 
 
@@ -17,4 +17,7 @@ xpath_selectors = {
 page_references = {
     'friends_page': 'sk=friends',
     'likes_page': 'sk=likes',
+    'photos_page': 'sk=photos',
 }
+
+

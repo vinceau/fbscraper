@@ -6,7 +6,8 @@ import time
 from selenium import webdriver
 
 #local imports
-from record import Record
+import record
+
 from custom import css_selectors, xpath_selectors, page_references
 from helpers import join_url, strip_query, timestring
 
@@ -44,13 +45,14 @@ class FBScraper(object):
         self._scrape_all(target, 'https://www.facebook.com/' + target)
 
     def _scrape_all(self, target, targeturl):
+        self._scrape_photos(target, targeturl)
         #self._scrape_posts(target, targeturl)
-        self._scrape_likes(target, targeturl)
-        self._scrape_friends(target, targeturl)
+        #self._scrape_likes(target, targeturl)
+        #self._scrape_friends(target, targeturl)
 
     def _scrape_posts(self, target, targeturl):
         posts_scraped = 0
-        rec = Record(timestring() + '-' + target + '-posts', ['date', 'post', 'permalink'])
+        rec = record.Record(timestring() + '-' + target + '-posts', ['date', 'post', 'permalink'])
 
         #load their timeline page
         self.driver.get(targeturl)
@@ -82,7 +84,7 @@ class FBScraper(object):
 
     def _scrape_likes(self, target, targeturl):
         likes_scraped = 0
-        rec = Record(timestring() + '-' + target + '-likes', ['name', 'url'])
+        rec = record.Record(timestring() + '-' + target + '-likes', ['name', 'url'])
 
         #load the likes page
         likesurl = join_url(targeturl, page_references.get('likes_page'))
@@ -109,7 +111,7 @@ class FBScraper(object):
 
     def _scrape_friends(self, target, targeturl):
         friends_scraped = 0
-        rec = Record(timestring() + '-' + target + '-friends', ['name', 'profile'])
+        rec = record.Record(timestring() + '-' + target + '-friends', ['name', 'profile'])
 
         #load the friends page
         friendsurl = join_url(targeturl, page_references.get('friends_page'))
@@ -134,7 +136,30 @@ class FBScraper(object):
 
         print('Scraped {} friends into {}'.format(friends_scraped, rec.filename))
 
+    def _scrape_photos(self, target, targeturl):
+        photos_scraped = 0
+        album = record.Album(timestring() + '-' + target + '-photos')
 
+        #load the photos page
+        self.driver.get(join_url(targeturl, page_references.get('photos_page')))
+
+        while True:
+            all_photos = self.driver.find_elements_by_css_selector(css_selectors.get('photo_selector'))
+            #break if no more photos
+            if len(all_photos) <= photos_scraped:
+                break
+
+            for p in all_photos[photos_scraped:]:
+                img_url = p.get_attribute('data-starred-src')
+                album.add_image(img_url)
+                photos_scraped += 1
+
+            #scroll to the bottom of the page
+            self._run_js("window.scrollTo(0, document.body.scrollHeight);")
+            #wait for the friends to populate
+            time.sleep(delay)
+
+        print('Scraped {} photos into {}'.format(photos_scraped, album.name))
 
 
 
@@ -153,7 +178,12 @@ def main():
         fb_pass = lines[1].strip()
         fbs = FBScraper()
         if fbs.login(fb_user, fb_pass):
-            fbs.scrape_userid('100004667535058')
+            #fbs.scrape_by_id('100004667535058')
+            #fbs.scrape_by_username('sammy.solaxa.9')
+            #fbs.scrape_by_username('tariqsediqi')
+            #fbs.scrape_by_id('100012735706236')
+            #guy with lots of photos (2 pages)
+            fbs.scrape_by_username('nicknando.ducaat')
 
 
 if __name__ == "__main__":

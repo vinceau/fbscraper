@@ -1,4 +1,14 @@
 import unicodecsv as csv
+import os
+
+from urllib import urlopen
+from urlparse import urlparse
+
+class FolderCreationError(Exception):
+    pass
+
+class BrokenImageError(Exception):
+    pass
 
 
 class Record(object):
@@ -14,3 +24,25 @@ class Record(object):
 
     def add_record(self, data):
         self.writer.writerow(data)
+
+
+class Album(object):
+
+    def __init__(self, name):
+        try:
+            os.makedirs(name)
+            self.name = name
+        except OSError:
+            if not os.path.isdir(name):
+                #error making directory
+                raise FolderCreationError('Failed to create folder <{}>'.format(name))
+
+    def add_image(self, url):
+        img_bin = urlopen(url).read()
+        if not img_bin:
+            raise BrokenImageError
+        filename = urlparse(url).path.split('/')[-1]
+        fullpath = os.path.join(self.name, filename)
+        with open(fullpath, 'wb') as f:
+            f.write(img_bin)
+

@@ -51,7 +51,7 @@ class FBScraper(object):
 
     def _scrape_all_posts(self, target, targeturl):
         posts_scraped = 0
-        rec = Record(timestring() + '-posts', ['date', 'post', 'permalink'])
+        rec = Record(timestring() + '-' + target + '-posts', ['date', 'post', 'permalink'])
 
         #load their timeline page
         self.driver.get(targeturl)
@@ -83,7 +83,7 @@ class FBScraper(object):
 
     def _scrape_all_likes(self, target, targeturl):
         likes_scraped = 0
-        rec = Record(timestring() + '-likes', ['name', 'url'])
+        rec = Record(timestring() + '-' + target + '-likes', ['name', 'url'])
 
         #load the likes page
         likesurl = join_url(targeturl, page_references.get('likes_page'))
@@ -110,7 +110,7 @@ class FBScraper(object):
 
     def _scrape_all_friends(self, target, targeturl):
         friends_scraped = 0
-        rec = Record(timestring() + '-friends', ['name', 'profile'])
+        rec = Record(timestring() + '-' + target + '-friends', ['name', 'profile'])
 
         #load the friends page
         friendsurl = join_url(targeturl, page_references.get('friends_page'))

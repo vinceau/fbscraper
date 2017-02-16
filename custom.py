@@ -10,6 +10,8 @@ css_selectors = {
 xpath_selectors = {
     'friends_selector': "//ul[contains(@data-pnref, 'friends')]//div[contains(@class, 'uiProfileBlockContent')]//a[@data-hovercard]",
     'likes_selector': "//div[contains(@id, 'pagelet_timeline_medley_likes')]//li//a[@data-hovercard and not(*)]",
+    'user_posts': "//div[contains(@class, 'fbUserContent')]/div[1]",
+    'post_date': ".//abbr/span[contains(@class, 'timestampContent')]/..",
 }
 
 page_references = {

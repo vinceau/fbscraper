@@ -7,6 +7,7 @@ from datetime import datetime
 from selenium import webdriver
 from urlparse import urljoin, urlparse
 
+#local imports
 from record import Record
 from custom import css_selectors, xpath_selectors, page_references
 
@@ -18,8 +19,8 @@ class FBScraper(object):
     def __init__(self):
         self.driver = webdriver.Firefox()
 
-    def __del__(self):
-        self.driver.quit()
+#   def __del__(self):
+#       self.driver.quit()
 
     def login(self, user, password):
         self.driver.get('https://www.facebook.com/login.php')
@@ -34,9 +35,41 @@ class FBScraper(object):
         return self.driver.execute_script(code)
 
     def scrape_userid(self, targetid):
-        #self.driver.get(targeturl)
+        self._scrape_all_posts(targetid)
         self._scrape_all_likes(targetid)
         self._scrape_all_friends(targetid)
+
+    def _scrape_all_posts(self, targetid):
+        posts_scraped = 0
+        rec = Record(timestring() + '-posts', ['date', 'post', 'permalink'])
+
+        #load their timeline page
+        self.driver.get(self._targeturl(targetid))
+        while True:
+            all_posts = self.driver.find_elements_by_xpath(xpath_selectors.get('user_posts'))
+            #break if there are no more posts left
+            if len(all_posts) <= posts_scraped:
+                break
+
+            #scrape each post
+            for p in all_posts[posts_scraped:]:
+                date_el = p.find_element_by_xpath(xpath_selectors.get('post_date'))
+                p_time = timestring(date_el.get_attribute('data-utime'))
+                p_link = date_el.find_element_by_xpath('..').get_attribute('href')
+                rec.add_record({
+                    'date': p_time,
+                    'post': p.text,
+                    'permalink': p_link,
+                })
+                posts_scraped += 1
+
+            #scroll to the bottom of the page
+            self._run_js("window.scrollTo(0, document.body.scrollHeight);")
+            #wait for the posts to populate
+            time.sleep(3)
+
+        print('Scraped {} posts into {}'.format(posts_scraped, rec.filename))
+
 
     def _scrape_all_likes(self, targetid):
         likes_scraped = 0

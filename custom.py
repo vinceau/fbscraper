@@ -15,6 +15,6 @@ xpath_selectors = {
 }
 
 page_references = {
-    'friends_page': '&sk=friends',
-    'likes_page': '&sk=likes',
+    'friends_page': 'sk=friends',
+    'likes_page': 'sk=likes',
 }

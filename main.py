@@ -37,17 +37,23 @@ class FBScraper(object):
         print('Executing Javascript: <{}>'.format(code))
         return self.driver.execute_script(code)
 
-    def scrape_userid(self, targetid):
-        self._scrape_all_posts(targetid)
-        self._scrape_all_likes(targetid)
-        self._scrape_all_friends(targetid)
+    def scrape_by_id(self, targetid):
+        self._scrape_all(targetid, 'https://www.facebook.com/profile.php?id=' + targetid)
 
-    def _scrape_all_posts(self, targetid):
+    def scrape_by_username(self, target):
+        self._scrape_all(target, 'https://www.facebook.com/' + target)
+
+    def _scrape_all(self, target, targeturl):
+        #self._scrape_all_posts(target, targeturl)
+        self._scrape_all_likes(target, targeturl)
+        self._scrape_all_friends(target, targeturl)
+
+    def _scrape_all_posts(self, target, targeturl):
         posts_scraped = 0
         rec = Record(timestring() + '-posts', ['date', 'post', 'permalink'])
 
         #load their timeline page
-        self.driver.get(self._targeturl(targetid))
+        self.driver.get(targeturl)
         while True:
             all_posts = self.driver.find_elements_by_xpath(xpath_selectors.get('user_posts'))
             #break if there are no more posts left
@@ -74,12 +80,12 @@ class FBScraper(object):
         print('Scraped {} posts into {}'.format(posts_scraped, rec.filename))
 
 
-    def _scrape_all_likes(self, targetid):
+    def _scrape_all_likes(self, target, targeturl):
         likes_scraped = 0
         rec = Record(timestring() + '-likes', ['name', 'url'])
 
         #load the likes page
-        likesurl = self._targeturl(targetid) + page_references.get('likes_page')
+        likesurl = join_url(targeturl, page_references.get('likes_page'))
         self.driver.get(likesurl)
 
         while True:
@@ -90,7 +96,7 @@ class FBScraper(object):
 
             for like in all_likes[likes_scraped:]:
                 name = like.text
-                page_url = stripquery(like.get_attribute('href'))
+                page_url = like.get_attribute('href')
                 rec.add_record({'name': name, 'url': page_url})
                 likes_scraped += 1
 
@@ -101,12 +107,12 @@ class FBScraper(object):
 
         print('Scraped {} likes into {}'.format(likes_scraped, rec.filename))
 
-    def _scrape_all_friends(self, targetid):
+    def _scrape_all_friends(self, target, targeturl):
         friends_scraped = 0
         rec = Record(timestring() + '-friends', ['name', 'profile'])
 
         #load the friends page
-        friendsurl = self._targeturl(targetid) + page_references.get('friends_page')
+        friendsurl = join_url(targeturl, page_references.get('friends_page'))
         self.driver.get(friendsurl)
 
         while True:
@@ -117,7 +123,7 @@ class FBScraper(object):
 
             for friend in all_friends[friends_scraped:]:
                 name = friend.text
-                friend_url = stripquery(friend.get_attribute('href'))
+                friend_url = strip_query(friend.get_attribute('href'))
                 rec.add_record({'name': name, 'profile': friend_url})
                 friends_scraped += 1
 
@@ -128,8 +134,18 @@ class FBScraper(object):
 
         print('Scraped {} friends into {}'.format(friends_scraped, rec.filename))
 
-    def _targeturl(self, targetid):
-        return 'https://www.facebook.com/profile.php?id=' + targetid
+"""Joins a query to a url.
+"""
+def join_url(base, query):
+    sep = '&' if '?'in base else '?'
+    return base + sep + query
+
+"""Strips the query portion of a url if it doesn't contain 'profile.php'
+"""
+def strip_query(url):
+    if 'profile.php' not in url:
+        return urljoin(url, urlparse(url).path)
+    return url
 
 """Converts a unix time stamp into a human readable timestamp.
 If no time stamp is provided it gives the current time.
@@ -139,9 +155,6 @@ def timestring(unix=None):
     if unix:
         return datetime.fromtimestamp(int(unix)).strftime(timeformat)
     return datetime.now().strftime(timeformat)
-
-def stripquery(url):
-    return urljoin(url, urlparse(url).path)
 
 
 def main():

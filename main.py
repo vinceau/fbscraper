@@ -17,6 +17,7 @@ login_file = 'login.txt'
 #seconds to wait for infinite scroll items to populate
 delay = 2
 
+
 class FBScraper(object):
 
     def __init__(self):
@@ -151,7 +152,7 @@ def strip_query(url):
 If no time stamp is provided it gives the current time.
 """
 def timestring(unix=None):
-    timeformat = "%Y%m%d-%H%M"
+    timeformat = "%Y%m%d-%H%M%S"
     if unix:
         return datetime.fromtimestamp(int(unix)).strftime(timeformat)
     return datetime.now().strftime(timeformat)

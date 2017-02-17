@@ -29,6 +29,8 @@ xpath_selectors = {
     'about_links': "//ul[@data-pnref='about']/li//ul[@data-testid = 'info_section_left_nav']/li",
     #the main about page with all the content of the individual section
     'about_main': "//ul[@data-pnref='about']/li[2]/div/div[2]",
+    #individual groups in the groups page
+    'groups': "//div[@id='timeline-medley']//ul/li//a[@data-hovercard and not (*)]",
 }
 
 
@@ -39,6 +41,7 @@ page_references = {
     'likes_page': 'sk=likes',
     'photos_page': 'sk=photos',
     'about_page': 'sk=about',
+    'groups_page': 'sk=groups',
 }
 
 

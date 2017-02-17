@@ -92,6 +92,7 @@ class FBScraper(object):
         self._scrape_photos(target, targeturl)
         self._scrape_likes(target, targeturl)
         self._scrape_about(target, targeturl)
+        self._scrape_groups(target, targeturl)
         log.info('Finished scraping user {}'.format(target))
 
     def _scrape_posts(self, target, targeturl):
@@ -225,6 +226,31 @@ class FBScraper(object):
             rec.add_record({'section': title, 'text': main_pane.text})
             log.info('Scraped section {} with the following text:\n#### START ####\n{}\n####  END  ####'
                      .format(title, main_pane.text))
+
+    def _scrape_groups(self, target, targeturl):
+        self.load(join_url(targeturl, page_references.get('groups_page')))
+
+        scraped = 0
+        rec = record.Record(self._output_file(target, 'groups'), ['name', 'url'])
+        while True:
+            #get groups, break if no more groups
+            groups = self.driver.find_elements_by_xpath(xpath_selectors.get('groups'))
+            if len(groups) <= scraped:
+                break
+
+            #extract group info
+            for g in groups:
+                name = g.text
+                url = g.get_attribute('href')
+                rec.add_record({'name': name, 'url': url})
+                scraped += 1
+                log.info('Scraped group #{}: {}'.format(scraped, name))
+
+            #scroll to bottom and wait for new items to populate
+            self._run_js("window.scrollTo(0, document.body.scrollHeight);")
+            sleep(delay)
+
+        log.info('Scraped {} groups into {}'.format(scraped, rec.filename))
 
 def main():
     #configure logging level

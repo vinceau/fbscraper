@@ -2,12 +2,12 @@
 
 import argparse
 import os
-import time
 import logging as log
 
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from sys import exit
+from time import sleep
 
 #local imports
 import record
@@ -36,7 +36,7 @@ class FBScraper(object):
         self._run_js("document.querySelector('{}').value = '{}';".format(css_selectors.get('email_field'), user))
         self._run_js("document.querySelector('{}').value = '{}';".format(css_selectors.get('password_field'), password))
         self._run_js("document.querySelector('{}').submit();".format(css_selectors.get('login_form')))
-        time.sleep(delay)
+        sleep(delay)
         return 'login' not in self.driver.current_url
         
     def _run_js(self, code):
@@ -122,7 +122,7 @@ class FBScraper(object):
             #scroll to the bottom of the page
             self._run_js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for the posts to populate
-            time.sleep(delay)
+            sleep(delay)
 
         log.info('Scraped {} posts into {}'.format(posts_scraped, rec.filename))
 
@@ -152,7 +152,7 @@ class FBScraper(object):
             #scroll to the bottom of the page
             self._run_js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for likes to populate
-            time.sleep(delay)
+            sleep(delay)
 
         log.info('Scraped {} likes into {}'.format(likes_scraped, rec.filename))
 
@@ -181,7 +181,7 @@ class FBScraper(object):
             #scroll to the bottom of the page
             self._run_js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for the friends to populate
-            time.sleep(delay)
+            sleep(delay)
 
         log.info('Scraped {} friends into {}'.format(friends_scraped, rec.filename))
 
@@ -208,7 +208,7 @@ class FBScraper(object):
             #scroll to the bottom of the page
             self._run_js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for photos to populate
-            time.sleep(delay)
+            sleep(delay)
 
         log.info('Scraped {} photos into {}'.format(photos_scraped, album.name))
 

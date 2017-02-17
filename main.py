@@ -2,11 +2,11 @@
 
 import argparse
 import os
+import sys
 import logging as log
 
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-from sys import exit
 from time import sleep
 
 #local imports
@@ -271,7 +271,7 @@ def main():
         fb_user = lines[0].strip()
         fb_pass = lines[1].strip()
         if not fbs.login(fb_user, fb_pass):
-            exit('Failed to log into Facebook. Check {} and try again.'.format(login_file))
+            sys.exit('Failed to log into Facebook. Check {} and try again.'.format(login_file))
 
     #login successful
     if args.inputfile:

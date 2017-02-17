@@ -46,24 +46,6 @@ class FBScraper(object):
     def _output_file(self, target, name):
         return os.path.join(self.output_dir, target, timestring() + '-' + target + '-' + name)
 
-    """Infer whether the target is an id or a username and scrape accordingly.
-    Not guaranteed to be accurate since usernames could also be fully numbers.
-    """
-    def scrape(self, target):
-        if not target:
-            log.info('Invalid Facebook ID or Username!')
-            return
-        if target.isdigit():
-            self.scrape_by_id(target)
-        else:
-            self.scrape_by_username(target)
-
-    def scrape_by_id(self, targetid):
-        self._scrape_all(targetid, 'https://www.facebook.com/profile.php?id=' + targetid)
-
-    def scrape_by_username(self, target):
-        self._scrape_all(target, 'https://www.facebook.com/' + target)
-
     """Load url in the browser if it's not already loaded. Use force=True to force a reload.
     """
     def _load(self, url, force=False):
@@ -82,6 +64,24 @@ class FBScraper(object):
         except NoSuchElementException:
             return True
 
+    """Infer whether the target is an id or a username and scrape accordingly.
+    Not guaranteed to be accurate since usernames could also be fully numbers.
+    """
+    def scrape(self, target):
+        if not target:
+            log.info('Invalid Facebook ID or Username!')
+            return
+        if target.isdigit():
+            self.scrape_by_id(target)
+        else:
+            self.scrape_by_username(target)
+
+    def scrape_by_id(self, targetid):
+        self._scrape_all(targetid, 'https://www.facebook.com/profile.php?id=' + targetid)
+
+    def scrape_by_username(self, target):
+        self._scrape_all(target, 'https://www.facebook.com/' + target)
+
     def _scrape_all(self, target, targeturl):
         if not self._valid_user(targeturl):
             log.info('{} is a missing page!'.format(targeturl))
@@ -91,6 +91,7 @@ class FBScraper(object):
         self._scrape_friends(target, targeturl)
         self._scrape_photos(target, targeturl)
         self._scrape_likes(target, targeturl)
+        self._scrape_about(target, targeturl)
         log.info('Finished scraping user {}'.format(target))
 
     def _scrape_posts(self, target, targeturl):
@@ -212,6 +213,18 @@ class FBScraper(object):
 
         log.info('Scraped {} photos into {}'.format(photos_scraped, album.name))
 
+    def _scrape_about(self, target, targeturl):
+        self._load(join_url(targeturl, page_references.get('about_page')))
+        about_links = self.driver.find_elements_by_xpath(xpath_selectors.get('about_links'))
+        rec = record.Record(self._output_file(target, 'about'), ['section', 'text'])
+        for l in about_links:
+            l.click()
+            sleep(delay)
+            title = l.get_attribute('title')
+            main_pane = self.driver.find_element_by_xpath(xpath_selectors.get('about_main'))
+            rec.add_record({'section': title, 'text': main_pane.text})
+            log.info('Scraped section {} with the following text:\n#### START ####\n{}\n####  END  ####'
+                     .format(title, main_pane.text))
 
 def main():
     #configure logging level

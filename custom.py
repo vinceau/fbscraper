@@ -1,5 +1,9 @@
 """This module contains all the Facebook specific selectors and text.
 Whenever Facebook modifies their code, this will need to be updated to accomodate the changes. #webscraperlife
+
+CSS Selectors have better performance than XPath and should be used in all circumstances UNLESS you cannot select it
+properly in CSS. For example: CSS does not contain "parent" selectors (in XPath it's simply "..") nor does it have the
+ability to select text-only elements, i.e. elements containing only text and no children elements.
 """
 
 """These are selectors written in css to select different parts of the page
@@ -12,23 +16,23 @@ css_selectors = {
     'login_form': '#login_form',
     #the individual photos in the photos page
     'photo_selector': '#pagelet_timeline_medley_photos div.fbPhotoStarGridElement',
+    'friends_selector': "ul[data-pnref='friends'] div.uiProfileBlockContent a[data-hovercard]",
+    'user_posts': "div.fbUserContent > div:first-of-type",
+    #the left hand side of the about page with the different sections
+    'about_links': "ul[data-pnref='about'] > li ul[data-testid='info_section_left_nav'] > li",
+    #the main about page with all the content of the individual section
+    'about_main': "ul[data-pnref='about'] > li:nth-child(2) > div > div:nth-child(2)",
+    #used for checking if the profile is a valid page or not
+    'error_header': "#content h2",
 }
 
 
-"""These are selectors written in xpath to select different parts of the page
+"""These are selectors written in xpath to select different parts of the page.
+Only use XPath when you can't express it in CSS.
 """
 xpath_selectors = {
-    'friends_selector': "//ul[contains(@data-pnref, 'friends')]//div[contains(@class, 'uiProfileBlockContent')]//a[@data-hovercard]",
     'likes_selector': "//div[@id='pagelet_timeline_medley_likes']//li//a[@data-hovercard and not(*)]",
-    'user_posts': "//div[contains(@class, 'fbUserContent')]/div[1]",
     'post_date': ".//abbr/span[contains(@class, 'timestampContent')]/..",
-    #the header that says things like 'Sorry, this page isn't available'
-    #used for checking if the profile is a valid page or not
-    'error_header': "//div[@id='content']//h2",
-    #the left hand side of the about page with the different sections
-    'about_links': "//ul[@data-pnref='about']/li//ul[@data-testid = 'info_section_left_nav']/li",
-    #the main about page with all the content of the individual section
-    'about_main': "//ul[@data-pnref='about']/li[2]/div/div[2]",
     #individual groups in the groups page
     'groups': "//div[@id='timeline-medley']//ul/li//a[@data-hovercard and not (*)]",
 }

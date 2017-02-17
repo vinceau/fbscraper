@@ -59,7 +59,7 @@ class FBScraper(object):
     def _valid_user(self, targeturl):
         try:
             self.load(targeturl)
-            header_text = self.driver.find_element_by_xpath(xpath_selectors.get('error_header')).text
+            header_text = self.driver.find_element_by_css_selector(css_selectors.get('error_header')).text
             return text_content.get('error_header_text').lower() not in header_text.lower()
         except NoSuchElementException:
             return True
@@ -103,7 +103,7 @@ class FBScraper(object):
         #load their timeline page
         self.load(targeturl)
         while True:
-            all_posts = self.driver.find_elements_by_xpath(xpath_selectors.get('user_posts'))
+            all_posts = self.driver.find_elements_by_css_selector(css_selectors.get('user_posts'))
             #break if there are no more posts left
             if len(all_posts) <= posts_scraped:
                 break
@@ -168,7 +168,7 @@ class FBScraper(object):
         self.load(friendsurl)
 
         while True:
-            all_friends = self.driver.find_elements_by_xpath(xpath_selectors.get('friends_selector'))
+            all_friends = self.driver.find_elements_by_css_selector(css_selectors.get('friends_selector'))
             #break if no more friends
             if len(all_friends) <= friends_scraped:
                 break
@@ -216,13 +216,13 @@ class FBScraper(object):
 
     def _scrape_about(self, target, targeturl):
         self.load(join_url(targeturl, page_references.get('about_page')))
-        about_links = self.driver.find_elements_by_xpath(xpath_selectors.get('about_links'))
+        about_links = self.driver.find_elements_by_css_selector(css_selectors.get('about_links'))
         rec = record.Record(self._output_file(target, 'about'), ['section', 'text'])
         for l in about_links:
             l.click()
             sleep(delay)
             title = l.get_attribute('title')
-            main_pane = self.driver.find_element_by_xpath(xpath_selectors.get('about_main'))
+            main_pane = self.driver.find_element_by_css_selector(css_selectors.get('about_main'))
             rec.add_record({'section': title, 'text': main_pane.text})
             log.info('Scraped section {} with the following text:\n#### START ####\n{}\n####  END  ####'
                      .format(title, main_pane.text))

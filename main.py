@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import sys;
+reload(sys);
+sys.setdefaultencoding("utf8")
+
 import argparse
 import os
-import sys
 import logging as log
 
 from selenium import webdriver

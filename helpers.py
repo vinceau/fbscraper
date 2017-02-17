@@ -1,5 +1,6 @@
+
 from datetime import datetime
-from urllib.parse import urljoin, urlparse
+from urlparse import urljoin, urlparse
 
 unsafe_chars = [' ', '/', '\\']
 

@@ -24,6 +24,10 @@ css_selectors = {
     'about_main': "ul[data-pnref='about'] > li:nth-child(2) > div > div:nth-child(2)",
     #used for checking if the profile is a valid page or not
     'error_header': "#content h2",
+    #selects the different albums
+    'indiv_albums': "#pagelet_timeline_medley_photos table.fbPhotosGrid a.photoTextTitle",
+    #once inside an album, select the different photos
+    'album_photo': "#fbTimelinePhotosContent div.fbPhotoStarGridElement",
 }
 
 
@@ -46,6 +50,7 @@ page_references = {
     'photos_page': 'sk=photos',
     'about_page': 'sk=about',
     'groups_page': 'sk=groups',
+    'albums': 'sk=photos_albums',
 }
 
 

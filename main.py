@@ -13,7 +13,7 @@ from time import sleep
 import record
 
 from custom import css_selectors, xpath_selectors, page_references, text_content
-from helpers import join_url, strip_query, timestring
+from helpers import join_url, strip_query, timestring, path_safe
 
 login_file = 'login.txt'
 
@@ -188,31 +188,40 @@ class FBScraper(object):
         log.info('Scraped {} friends into {}'.format(friends_scraped, rec.filename))
 
     def _scrape_photos(self, target, targeturl):
-        photos_scraped = 0
-        album = record.Album(self._output_file(target, 'photos'))
+        #scrape main photos
+        photos_url = join_url(targeturl, page_references.get('photos_page'))
+        self._scrape_album(target, 'photos', photos_url, 'photo_selector')
+        
+        #scrape all albums
+        self.load(join_url(targeturl, page_references.get('albums')))
+        albums = self.driver.find_elements_by_css_selector(css_selectors.get('indiv_albums'))
+        for album_name, album_url in [(a.text, a.get_attribute('href')) for a in albums]:
+            self._scrape_album(target, 'album-' + path_safe(album_name), album_url, 'album_photo')
+
+    def _scrape_album(self, target, album_name, albumurl, css):
+        album = record.Album(self._output_file(target, album_name))
         log.info('Scraping photos into {}'.format(album.name))
+        self.load(albumurl)
 
-        #load the photos page
-        self.load(join_url(targeturl, page_references.get('photos_page')))
-
+        scraped = 0
         while True:
-            all_photos = self.driver.find_elements_by_css_selector(css_selectors.get('photo_selector'))
+            all_photos = self.driver.find_elements_by_css_selector(css_selectors.get(css))
             #break if no more photos
-            if len(all_photos) <= photos_scraped:
+            if len(all_photos) <= scraped:
                 break
 
-            for p in all_photos[photos_scraped:]:
+            for p in all_photos[scraped:]:
                 img_url = p.get_attribute('data-starred-src')
                 album.add_image(img_url)
-                photos_scraped += 1
-                log.info('Scraped photo #{}: {}'.format(photos_scraped, img_url))
+                scraped += 1
+                log.info('Scraped photo #{}: {}'.format(scraped, img_url))
 
             #scroll to the bottom of the page
             self._run_js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for photos to populate
             sleep(delay)
 
-        log.info('Scraped {} photos into {}'.format(photos_scraped, album.name))
+        log.info('Scraped {} photos into {}'.format(scraped, album.name))
 
     def _scrape_about(self, target, targeturl):
         self.load(join_url(targeturl, page_references.get('about_page')))

@@ -1,6 +1,8 @@
 from datetime import datetime
 from urllib.parse import urljoin, urlparse
 
+unsafe_chars = [' ', '/', '\\']
+
 """Joins a query to a url.
 """
 def join_url(base, query):
@@ -24,3 +26,10 @@ def timestring(unix=None):
     return datetime.now().strftime(timeformat)
 
 
+"""Makes a path a bit safer by replacing the unsafe characters found in unsafe_char with '-'.
+"""
+def path_safe(path):
+    new_path = path
+    for c in unsafe_chars:
+        new_path = new_path.replace(c, '-')
+    return new_path

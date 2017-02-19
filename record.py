@@ -1,9 +1,13 @@
-import unicodecsv as csv
+import csv
 import os
 import errno
 
-from urllib import urlopen
-from urlparse import urlparse
+try:
+    from urllib import urlopen
+    from urlparse import urlparse
+except ImportError:
+    from urllib.request import urlopen
+    from urllib.parse import urlparse
 
 class FolderCreationError(Exception):
     pass

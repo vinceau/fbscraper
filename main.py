@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import sys;
-reload(sys);
-sys.setdefaultencoding("utf8")
+try:
+    #allow printing of non-standard characters to stdout
+    reload(sys);
+    sys.setdefaultencoding("utf8")
+except NameError:
+    #we're on Python 3 so we already good
+    pass
 
 import argparse
 import os

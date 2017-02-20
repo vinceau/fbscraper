@@ -125,6 +125,11 @@ class FBScraper(object):
 
             #scrape each post
             for p in all_posts[posts_scraped:]:
+                #expand the see more links
+                see_mores = p.find_elements_by_css_selector(css_selectors.get('see_more'))
+                if len(see_mores) > 0:
+                    for sm in see_mores:
+                        sm.click()
                 date_el = p.find_element_by_xpath(xpath_selectors.get('post_date'))
                 p_time = timestring(date_el.get_attribute('data-utime'))
                 p_link = date_el.find_element_by_xpath('..').get_attribute('href')

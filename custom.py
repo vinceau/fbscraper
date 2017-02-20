@@ -28,6 +28,8 @@ css_selectors = {
     'indiv_albums': "#pagelet_timeline_medley_photos table.fbPhotosGrid a.photoTextTitle",
     #once inside an album, select the different photos
     'album_photo': "#fbTimelinePhotosContent div.fbPhotoStarGridElement",
+    #see more links
+    'see_more': "a.see_more_link",
 }
 
 

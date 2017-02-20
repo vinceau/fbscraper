@@ -21,7 +21,7 @@ from time import sleep
 import record
 
 from custom import css_selectors, xpath_selectors, page_references, text_content
-from helpers import join_url, strip_query, timestring, path_safe
+from helpers import join_url, strip_query, timestring, path_safe, extract_user
 
 login_file = 'login.txt'
 
@@ -72,17 +72,21 @@ class FBScraper(object):
         except NoSuchElementException:
             return True
 
-    """Infer whether the target is an id or a username and scrape accordingly.
-    Not guaranteed to be accurate since usernames could also be fully numbers.
+    """Infer whether the target is an id, username, or a URL and scrape accordingly.
+    Not guaranteed to be accurate since usernames could also be fully numbers (I think).
     """
     def scrape(self, target):
         if not target:
-            log.info('Invalid Facebook ID or Username!')
+            log.info('Invalid Facebook ID, Username, or URL!')
             return
-        if target.isdigit():
-            self.scrape_by_id(target)
+        #check if target is a URL
+        check = target
+        if extract_user(target) is not None:
+            check = extract_user(target)
+        if check.isdigit():
+            self.scrape_by_id(check)
         else:
-            self.scrape_by_username(target)
+            self.scrape_by_username(check)
 
     def scrape_by_id(self, targetid):
         self._scrape_all(targetid, 'https://www.facebook.com/profile.php?id=' + targetid)
@@ -297,12 +301,12 @@ def main():
                 fbs.scrape(line.strip())
     else:
         log.info('No input file specified. Reading input from stdin.')
-        print('Enter the Facebook ID or Username to scrape followed by the <Enter> key.')
+        print('Enter the Facebook ID, Username, or URL to scrape followed by the <Enter> key.')
         for line in sys.stdin:
             if not line.strip():
                 break
             fbs.scrape(line.strip())
-            print('Scrape complete. Enter another Facebook ID or Username followed by the <Enter> key.')
+            print('Scrape complete. Enter another Facebook ID, Username, or URL followed by the <Enter> key.')
         print('Exiting...')
 
 

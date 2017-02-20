@@ -41,14 +41,17 @@ class FBScraper(object):
 
     def login(self, user, password):
         self.load('https://www.facebook.com/login.php')
-        self._run_js("document.querySelector('{}').value = '{}';".format(css_selectors.get('email_field'), user))
-        self._run_js("document.querySelector('{}').value = '{}';".format(css_selectors.get('password_field'), password))
-        self._run_js("document.querySelector('{}').submit();".format(css_selectors.get('login_form')))
+        self._js("document.querySelector('{}').value = '{}';".format(css_selectors.get('email_field'), user))
+        self._js("document.querySelector('{}').value = '{}';".format(css_selectors.get('password_field'), password))
+        self._js("document.querySelector('{}').submit();".format(css_selectors.get('login_form')))
         sleep(delay)
         return 'login' not in self.driver.current_url
-        
-    def _run_js(self, code):
-        log.info('Executing Javascript: {}'.format(code))
+
+    """Execute the javascript <code> and log into the terminal if <show> is True.
+    """
+    def _js(self, code, show=False):
+        if show:
+            log.info('Executing Javascript: {}'.format(code))
         return self.driver.execute_script(code)
 
     def _output_file(self, target, name):
@@ -134,7 +137,7 @@ class FBScraper(object):
                 log.info('Scraped post #{}\n\n#### START POST ####\n{}\n####  END POST  ####\n'.format(posts_scraped, p.text))
 
             #scroll to the bottom of the page
-            self._run_js("window.scrollTo(0, document.body.scrollHeight);")
+            self._js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for the posts to populate
             sleep(delay)
 
@@ -164,7 +167,7 @@ class FBScraper(object):
                 log.info('Scraped like #{}: {}'.format(likes_scraped, name))
 
             #scroll to the bottom of the page
-            self._run_js("window.scrollTo(0, document.body.scrollHeight);")
+            self._js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for likes to populate
             sleep(delay)
 
@@ -193,7 +196,7 @@ class FBScraper(object):
                 log.info('Scraped friend #{}: {}'.format(friends_scraped, name))
 
             #scroll to the bottom of the page
-            self._run_js("window.scrollTo(0, document.body.scrollHeight);")
+            self._js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for the friends to populate
             sleep(delay)
 
@@ -229,7 +232,7 @@ class FBScraper(object):
                 log.info('Scraped photo #{}: {}'.format(scraped, img_url))
 
             #scroll to the bottom of the page
-            self._run_js("window.scrollTo(0, document.body.scrollHeight);")
+            self._js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for photos to populate
             sleep(delay)
 
@@ -268,7 +271,7 @@ class FBScraper(object):
                 log.info('Scraped group #{}: {}'.format(scraped, name))
 
             #scroll to bottom and wait for new items to populate
-            self._run_js("window.scrollTo(0, document.body.scrollHeight);")
+            self._js("window.scrollTo(0, document.body.scrollHeight);")
             sleep(delay)
 
         log.info('Scraped {} groups into {}'.format(scraped, rec.filename))

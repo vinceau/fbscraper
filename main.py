@@ -13,6 +13,8 @@ import argparse
 import os
 import logging as log
 
+from builtins import input
+from getpass import getpass
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from time import sleep
@@ -22,8 +24,6 @@ import record
 
 from custom import css_selectors, xpath_selectors, page_references, text_content
 from helpers import join_url, strip_query, timestring, path_safe, extract_user
-
-login_file = 'login.txt'
 
 #seconds to wait for infinite scroll items to populate
 delay = 2
@@ -279,20 +279,29 @@ def main():
 
     parser = argparse.ArgumentParser(description='Crawl a bunch of Facebook sites and record the posts.')
     parser.add_argument('--input', '-i', dest='inputfile', required=False,
-                        help='a file to read a list of Facebook usernames from', metavar='FILE')
+                        help='a file to read a list of Facebook usernames from')
     parser.add_argument('--outputdir', '-o', dest='outputdir', required=False,
                         help='the directory to store the scraped files')
+    parser.add_argument('--loginfile', '-l', dest='loginfile', required=False,
+                        help='the file to read login credentials from (username/email on the first line, and password on the second line)')
     args = parser.parse_args()
     output_dir = args.outputdir if args.outputdir else ''
     fbs = FBScraper(output_dir)
 
+    fb_user = ''
+    fb_pass = ''
+
     #attempt to login
-    with open(login_file, 'r') as f:
-        lines = f.readlines()
-        fb_user = lines[0].strip()
-        fb_pass = lines[1].strip()
-        if not fbs.login(fb_user, fb_pass):
-            sys.exit('Failed to log into Facebook. Check {} and try again.'.format(login_file))
+    if args.loginfile:
+        with open(args.loginfile, 'r') as f:
+            lines = f.readlines()
+            fb_user = lines[0].strip()
+            fb_pass = lines[1].strip()
+    else:
+        fb_user = input('Enter your Facebook login email: ')
+        fb_pass = getpass('Enter your Facebook password:  ')
+    if not fbs.login(fb_user, fb_pass):
+        sys.exit('Failed to log into Facebook. Check your credentials and try again.')
 
     #login successful
     if args.inputfile:

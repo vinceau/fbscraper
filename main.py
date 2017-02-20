@@ -319,10 +319,11 @@ def main():
     else:
         log.info('No input file specified. Reading input from stdin.')
         print('Enter the Facebook ID, Username, or URL to scrape followed by the <Enter> key.')
-        for line in sys.stdin:
-            if not line.strip():
+        while True:
+            line = sys.stdin.readline().strip()
+            if not line:
                 break
-            fbs.scrape(line.strip())
+            fbs.scrape(line)
             print('Scrape complete. Enter another Facebook ID, Username, or URL followed by the <Enter> key.')
         print('Exiting...')
 

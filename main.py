@@ -112,7 +112,7 @@ class FBScraper(object):
 
     def _scrape_posts(self, target, targeturl):
         posts_scraped = 0
-        rec = record.Record(self._output_file(target, 'posts'), ['date', 'post', 'permalink'])
+        rec = record.Record(self._output_file(target, 'posts'), ['date', 'post', 'translation', 'permalink'])
         log.info('Scraping posts into {}'.format(rec.filename))
 
         #load their timeline page
@@ -130,16 +130,35 @@ class FBScraper(object):
                 if len(see_mores) > 0:
                     for sm in see_mores:
                         sm.click()
+
+                #get the text before we get the translation
+                post_text = p.text
+
+                #expand the see translations link if it exists
+                translation = ''
+                try:
+                    st = p.find_element_by_link_text(text_content.get('see_translation_text'))
+                    st_parent = st.find_element_by_xpath('../..')
+                    st.click()
+                    sleep(delay)
+                    translation = st_parent.find_element_by_css_selector(css_selectors.get('translation')).text
+                except NoSuchElementException:
+                    pass
+
                 date_el = p.find_element_by_xpath(xpath_selectors.get('post_date'))
                 p_time = timestring(date_el.get_attribute('data-utime'))
                 p_link = date_el.find_element_by_xpath('..').get_attribute('href')
                 rec.add_record({
                     'date': p_time,
-                    'post': p.text,
+                    'post': post_text,
+                    'translation': translation,
                     'permalink': p_link,
                 })
                 posts_scraped += 1
-                log.info('Scraped post #{}\n\n#### START POST ####\n{}\n####  END POST  ####\n'.format(posts_scraped, p.text))
+                if translation:
+                    translation = '==== TRANSLATION ====\n{}\n'.format(translation)
+                log.info(('Scraped post #{}\n\n#### START POST ####\n{}\n{}'
+                          '####  END POST  ####\n').format(posts_scraped, post_text, translation))
 
             #scroll to the bottom of the page
             self._js("window.scrollTo(0, document.body.scrollHeight);")

@@ -30,6 +30,8 @@ css_selectors = {
     'album_photo': "#fbTimelinePhotosContent div.fbPhotoStarGridElement",
     #see more links
     'see_more': "a.see_more_link",
+    #translations
+    'translation': "div:last-child > span:first-of-type",
 }
 
 
@@ -61,4 +63,6 @@ page_references = {
 text_content = {
     #used for checking if a profile is valid or not
     'error_header_text': 'isn\'t available',
+    #used for getting the See Translation button
+    'see_translation_text': 'See Translation',
 }

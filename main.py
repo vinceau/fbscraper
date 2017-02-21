@@ -126,10 +126,10 @@ class FBScraper(object):
             #scrape each post
             for p in all_posts[posts_scraped:]:
                 #expand the see more links
-                see_mores = p.find_elements_by_css_selector(css_selectors.get('see_more'))
-                if len(see_mores) > 0:
-                    for sm in see_mores:
-                        sm.click()
+                try:
+                    p.find_element_by_css_selector(css_selectors.get('see_more')).click()
+                except NoSuchElementException:
+                    pass
 
                 #get the text before we get the translation
                 post_text = p.text

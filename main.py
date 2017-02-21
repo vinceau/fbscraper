@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import sys;
+import sys
 try:
     #allow printing of non-standard characters to stdout
-    reload(sys);
+    reload(sys)
     sys.setdefaultencoding("utf8")
 except NameError:
     #we're on Python 3 so we already good
@@ -230,7 +230,7 @@ class FBScraper(object):
         #scrape main photos
         photos_url = join_url(targeturl, page_references.get('photos_page'))
         self._scrape_album(target, 'photos', photos_url, 'photo_selector')
-        
+
         #scrape all albums
         self.load(join_url(targeturl, page_references.get('albums')))
         albums = self.driver.find_elements_by_css_selector(css_selectors.get('indiv_albums'))
@@ -299,6 +299,7 @@ class FBScraper(object):
             sleep(delay)
 
         log.info('Scraped {} groups into {}'.format(scraped, rec.filename))
+
 
 def main():
     #configure logging level

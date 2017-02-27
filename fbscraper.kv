@@ -1,0 +1,43 @@
+#hints are width then height
+
+<MainForm>:
+    orientation: 'vertical'
+    padding: [50]*4
+    BoxLayout:
+        size_hint: (1, 0.3)
+
+        GridLayout:
+            size_hint: (0.8, 1)
+            cols: 2
+            size: [200, 600]
+            Label:
+                size_hint: (0.4, 1)
+                text_size: self.size
+                text: 'Facebook Email'
+                halign: 'right'
+                valign: 'middle'
+                padding_x: 10
+            TextInput:
+                hint_text: 'your@email.com'
+                multiline: False
+            Label:
+                size_hint: (0.4, 1)
+                text_size: self.size
+                text: 'Facebook Password'
+                halign: 'right'
+                valign: 'middle'
+                padding_x: 10
+            TextInput:
+                password: True
+                multiline: False
+        Button:
+            size_hint: (0.2, 1)
+            text: 'Login'
+            color: [40, 120, 230, 1]
+            size: [200, 200]
+    Label:
+        text_size: self.size
+        text: 'Facebook Targets (<Enter> separated)'
+        valign: 'bottom'
+    TextInput:
+        hint_text: 'https://www.facebook.com/someuser\nsomeusername\nsomeprofileidnumber'

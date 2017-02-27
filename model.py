@@ -4,7 +4,7 @@ import os
 
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-from time import sleep
+from time import sleep, time
 
 #local imports
 import record
@@ -12,16 +12,18 @@ import record
 from custom import css_selectors, xpath_selectors, page_references, text_content
 from helpers import join_url, strip_query, timestring, path_safe, extract_user
 
-#seconds to wait for infinite scroll items to populate
-delay = 2
-
 
 class FBScraper(object):
 
-    def __init__(self, output_dir=None):
+    """delay is the seconds to wait for infinite scroll items to populate
+    """
+    def __init__(self, output_dir=None, min_delay=2):
         self.driver = webdriver.Firefox()
         #store in the current directory by default
         self.output_dir = output_dir if output_dir else ''
+        self.min_delay = min_delay
+        self.loads = 0
+        self.load_time = 0
 
     def __del__(self):
         self.driver.quit()
@@ -31,7 +33,7 @@ class FBScraper(object):
         self._js("document.querySelector('{}').value = '{}';".format(css_selectors.get('email_field'), user))
         self._js("document.querySelector('{}').value = '{}';".format(css_selectors.get('password_field'), password))
         self._js("document.querySelector('{}').submit();".format(css_selectors.get('login_form')))
-        sleep(delay)
+        self.delay()
         return 'login' not in self.driver.current_url
 
     """Execute the javascript <code> and log into the terminal if <show> is True.
@@ -44,12 +46,26 @@ class FBScraper(object):
     def _output_file(self, target, name):
         return os.path.join(self.output_dir, target, timestring() + '-' + target + '-' + name)
 
+    def _update_delay(self, seconds):
+        self.load_time += seconds
+        self.loads += 1
+
+    """Sleeps the average amount of time it has taken to load a page or at least self.min_delay seconds.
+    """
+    def delay(self):
+        avg = self.load_time / self.loads
+        secs = max(avg, self.min_delay)
+        log.info('Sleeping {} seconds'.format(secs))
+        sleep(secs)
+
     """Load url in the browser if it's not already loaded. Use force=True to force a reload.
     """
     def load(self, url, force=False):
         if url == self.driver.current_url and not force:
             return
+        start = time()
         self.driver.get(url)
+        self._update_delay(time() - start)
 
     """Check if the given targeturl is a valid user profile.
     Does this by checking if a certain error message text is contained inside the page body.
@@ -127,7 +143,7 @@ class FBScraper(object):
                     st = p.find_element_by_link_text(text_content.get('see_translation_text'))
                     st_parent = st.find_element_by_xpath('../..')
                     st.click()
-                    sleep(delay)
+                    self.delay()
                     translation = st_parent.find_element_by_css_selector(css_selectors.get('translation')).text
                 except NoSuchElementException:
                     pass
@@ -150,7 +166,7 @@ class FBScraper(object):
             #scroll to the bottom of the page
             self._js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for the posts to populate
-            sleep(delay)
+            self.delay()
 
         log.info('Scraped {} posts into {}'.format(posts_scraped, rec.filename))
 
@@ -180,7 +196,7 @@ class FBScraper(object):
             #scroll to the bottom of the page
             self._js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for likes to populate
-            sleep(delay)
+            self.delay()
 
         log.info('Scraped {} likes into {}'.format(likes_scraped, rec.filename))
 
@@ -209,7 +225,7 @@ class FBScraper(object):
             #scroll to the bottom of the page
             self._js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for the friends to populate
-            sleep(delay)
+            self.delay()
 
         log.info('Scraped {} friends into {}'.format(friends_scraped, rec.filename))
 
@@ -245,7 +261,7 @@ class FBScraper(object):
             #scroll to the bottom of the page
             self._js("window.scrollTo(0, document.body.scrollHeight);")
             #wait for photos to populate
-            sleep(delay)
+            self.delay()
 
         log.info('Scraped {} photos into {}'.format(scraped, album.name))
 
@@ -255,7 +271,7 @@ class FBScraper(object):
         rec = record.Record(self._output_file(target, 'about'), ['section', 'text'])
         for l in about_links:
             l.click()
-            sleep(delay)
+            self.delay()
             title = l.get_attribute('title')
             main_pane = self.driver.find_element_by_css_selector(css_selectors.get('about_main'))
             rec.add_record({'section': title, 'text': main_pane.text})
@@ -283,6 +299,6 @@ class FBScraper(object):
 
             #scroll to bottom and wait for new items to populate
             self._js("window.scrollTo(0, document.body.scrollHeight);")
-            sleep(delay)
+            self.delay()
 
         log.info('Scraped {} groups into {}'.format(scraped, rec.filename))

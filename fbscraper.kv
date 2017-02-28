@@ -58,8 +58,20 @@
                     text: 'Facebook Targets (<Enter> separated)'
                     valign: 'bottom'
                 TextInput:
+                    id: names
                     size_hint: (1, 0.8)
                     hint_text: 'https://www.facebook.com/someuser\nsomeusername\nsomeprofileidnumber'
             Button:
                 size_hint: (0.2, 0.8)
                 text: 'Start Scrape'
+                on_press: root.do_scrape(names.text)
+
+
+<Logging>:
+    BoxLayout:
+        ScrollView:
+            Label:
+                id: logtext
+                text_size: self.width, None
+                size_hint_y: None
+                height: self.texture_size[1]

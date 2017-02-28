@@ -1,3 +1,7 @@
+
+import logging
+import os
+
 from kivy.app import App
 
 from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
@@ -15,8 +19,7 @@ class Login(Screen):
     def _login_worker(self, fbemail, fbpass):
         if fbemail and fbpass:
             app = App.get_running_app()
-            controller = app.controller
-            if controller.login(fbemail, fbpass):
+            if app.controller.login(fbemail, fbpass):
                 self.ids.fail.opacity = 0
                 self.manager.transition = SlideTransition(direction='left')
                 self.manager.current = 'settings'
@@ -25,7 +28,39 @@ class Login(Screen):
 
 
 class Settings(Screen):
-    pass
+
+    def do_scrape(self, names):
+        Thread(target=self._scrape_worker, args=(names, )).start()
+
+    def _scrape_worker(self, names):
+        self.manager.transition = SlideTransition(direction='left')
+        self.manager.current = 'logging'
+        app = App.get_running_app()
+        for n in names.split(os.linesep):
+            if n.strip():
+                app.controller.scrape(n)
+
+
+class Logging(Screen):
+
+    def add_log(self, text):
+        if not text.strip():
+            return
+        old_text = self.ids.logtext.text
+        new_text = text.decode('utf-8').encode('ascii', errors='ignore')
+        self.ids.logtext.text = new_text + os.linesep + old_text
+
+
+class LogHandler(logging.Handler):
+
+    def __init__(self, logscreen):
+        logging.Handler.__init__(self)
+        self.logscreen = logscreen
+
+    def emit(self, record):
+        log_entry = self.format(record)
+        self.logscreen.add_log(log_entry)
+        #print(log_entry.upper())
 
 
 class FBScraperApp(App):
@@ -38,6 +73,10 @@ class FBScraperApp(App):
         manager = ScreenManager()
         manager.add_widget(Login(name='login'))
         manager.add_widget(Settings(name='settings'))
+        logscreen = Logging(name='logging')
+        log = logging.getLogger()
+        log.addHandler(LogHandler(logscreen))
+        manager.add_widget(logscreen)
 
         return manager
 

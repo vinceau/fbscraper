@@ -2,12 +2,17 @@ from kivy.app import App
 
 from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
 
+from threading import Thread
+
 #local imports
 from model import FBScraper
 
 
 class Login(Screen):
     def do_login(self, fbemail, fbpass):
+        Thread(target=self._login_worker, args=(fbemail, fbpass)).start()
+
+    def _login_worker(self, fbemail, fbpass):
         if fbemail and fbpass:
             app = App.get_running_app()
             controller = app.controller

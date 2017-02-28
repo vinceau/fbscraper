@@ -1,19 +1,40 @@
 from kivy.app import App
 
-from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
+
+#local imports
+from model import FBScraper
 
 
-class LoginBox(BoxLayout):
-    pass
+class Login(Screen):
+    def do_login(self, fbemail, fbpass):
+        if fbemail and fbpass:
+            app = App.get_running_app()
+            controller = app.controller
+            if controller.login(fbemail, fbpass):
+                self.ids.fail.opacity = 0
+                self.manager.transition = SlideTransition(direction='left')
+                self.manager.current = 'settings'
+                return
+        self.ids.fail.opacity = 1
 
 
-class MainForm(BoxLayout):
+class Settings(Screen):
     pass
 
 
 class FBScraperApp(App):
+
+    def __init__(self):
+        App.__init__(self)
+        self.controller = FBScraper()
+
     def build(self):
-        return MainForm()
+        manager = ScreenManager()
+        manager.add_widget(Login(name='login'))
+        manager.add_widget(Settings(name='settings'))
+
+        return manager
 
 
 if __name__ == '__main__':

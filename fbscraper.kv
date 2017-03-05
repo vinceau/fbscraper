@@ -20,7 +20,10 @@
                 TextInput:
                     id: login
                     hint_text: 'your@email.com'
+                    focus: True
                     multiline: False
+                    write_tab: False
+                    on_text_validate: loginbutton.dispatch('on_press')
                 Label:
                     size_hint: (0.4, 1)
                     text_size: self.size
@@ -32,7 +35,11 @@
                     id: password
                     password: True
                     multiline: False
+                    write_tab: False
+                    on_text_validate: loginbutton.dispatch('on_press')
+                    
             Button:
+                id: loginbutton
                 size_hint: (.2, .3)
                 text: 'Login'
                 color: (40, 120, 230, 1)

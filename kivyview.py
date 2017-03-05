@@ -43,12 +43,23 @@ class Settings(Screen):
 
 class Logging(Screen):
 
+    def __init__(self, **kwargs):
+        Screen.__init__(self, **kwargs)
+        self.max = 50  # the number of recent messages to show
+        self.log = [''] * self.max
+        self.current = 0
+
     def add_log(self, text):
         if not text.strip():
             return
-        old_text = self.ids.logtext.text
         new_text = text.decode('utf-8').encode('ascii', errors='ignore')
-        self.ids.logtext.text = new_text + os.linesep + old_text
+        self.log[self.current % self.max] = new_text + os.linesep
+        self.current += 1
+        self._update()
+
+    def _update(self):
+        last = (self.current - 1) % self.max
+        self.ids.logtext.text = ''.join(self.log[last::-1] + self.log[:last:-1])
 
 
 class LogHandler(logging.Handler):

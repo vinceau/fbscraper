@@ -177,9 +177,11 @@ class FBScraper(object):
                     'translation': translation,
                     'permalink': p_link,
                 })
+
                 posts_scraped += 1
+                #keep translation as a unicode string while merging
                 if translation:
-                    translation = '==== TRANSLATION ====\n{}\n'.format(translation)
+                    translation = u'==== TRANSLATION ====\n{}\n'.format(translation)
                 log.info(('Scraped post #%d\n\n#### START POST ####\n%s\n%s'
                           '####  END POST  ####\n'), posts_scraped, post_text, translation)
 

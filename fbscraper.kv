@@ -3,7 +3,14 @@
 #hotizontal vertical
 
 <Login>:
+    on_pre_enter: root.load_creds()
+    on_pre_leave: root.save_creds()
     BoxLayout:
+        canvas:
+            Color:
+                rgb: 1, 1, 1
+            Rectangle:
+                size: self.size
         orientation: 'vertical'
         padding: [50, 0, 50, 300]
         BoxLayout:
@@ -11,6 +18,7 @@
                 size_hint: (.8, .3)
                 cols: 2
                 Label:
+                    color: 0, 0, 0, 1
                     size_hint: (0.4, 1)
                     text_size: self.size
                     text: 'Facebook Email'
@@ -25,6 +33,7 @@
                     write_tab: False
                     on_text_validate: loginbutton.dispatch('on_press')
                 Label:
+                    color: 0, 0, 0, 1
                     size_hint: (0.4, 1)
                     text_size: self.size
                     text: 'Facebook Password'
@@ -37,18 +46,31 @@
                     multiline: False
                     write_tab: False
                     on_text_validate: loginbutton.dispatch('on_press')
-                    
             Button:
                 id: loginbutton
                 size_hint: (.2, .3)
                 text: 'Login'
                 color: (40, 120, 230, 1)
                 on_press: root.do_login(login.text, password.text)
+        BoxLayout:
+            size_hint: (1, .2)
+            CheckBox:
+                size_hint: (.2, 1)
+                id: storecreds
+            Label:
+                size_hint: (.8, 1)
+                halign: 'left'
+                valign: 'middle'
+                text_size: self.size
+                color: 0, 0, 0, 1
+                size_hint_x: 0.8
+                text: 'Remember me. (Credentials are stored as plaintext in login.txt)'
         Label:
+            color: 1, 0, 0, 1
             opacity: 0
             id: fail
             size_hint: (1, .2)
-            text: 'Failed to login. Check your credentials and try again.'
+            text: 'ERROR: Failed to login. Check your credentials and try again.'
 
 <Settings>:
     BoxLayout:

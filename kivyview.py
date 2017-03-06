@@ -13,6 +13,37 @@ from model import FBScraper
 
 
 class Login(Screen):
+
+    def __init__(self, **kwargs):
+        Screen.__init__(self, **kwargs)
+        self.login_file = 'login.txt'
+
+    """Populate the form with the credentials found in login.txt
+    """
+    def load_creds(self):
+        try:
+            with open(self.login_file, 'r') as f:
+                lines = f.readlines()
+                if len(lines) < 2:
+                    return
+                self.ids.login.text = lines[0].strip()
+                self.ids.password.text = lines[1].strip()
+                self.ids.storecreds.active = True
+        except IOError:
+            #no login saved
+            pass
+
+    def save_creds(self):
+        try:
+            with open(self.login_file, 'w+') as f:
+                if not self.ids.storecreds.active:
+                    return
+                fbemail = self.ids.login.text
+                fbpass = self.ids.password.text
+                f.write('{}{}{}'.format(fbemail, os.linesep, fbpass))
+        except IOError:
+            pass
+
     def do_login(self, fbemail, fbpass):
         Thread(target=self._login_worker, args=(fbemail, fbpass)).start()
 
@@ -57,6 +88,9 @@ class Logging(Screen):
         self.current += 1
         self._update()
 
+    """This will print out the messages in the log in reverse order.
+    Taking into account its cyclic nature.
+    """
     def _update(self):
         last = (self.current - 1) % self.max
         self.ids.logtext.text = ''.join(self.log[last::-1] + self.log[:last:-1])

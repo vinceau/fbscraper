@@ -112,7 +112,7 @@ class Logging(Screen):
     def add_log(self, text):
         if not text.strip():
             return
-        new_text = text.decode('utf-8').encode('ascii', errors='ignore')
+        new_text = text.encode('ascii', 'replace')
         self.log[self.current % self.max] = new_text + os.linesep
         self.current += 1
         self._update()

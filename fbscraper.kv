@@ -31,7 +31,7 @@
                     focus: True
                     multiline: False
                     write_tab: False
-                    on_text_validate: loginbutton.dispatch('on_press')
+                    on_text_validate: loginbutton.dispatch('on_release')
                 Label:
                     color: 0, 0, 0, 1
                     size_hint: (0.4, 1)
@@ -45,13 +45,13 @@
                     password: True
                     multiline: False
                     write_tab: False
-                    on_text_validate: loginbutton.dispatch('on_press')
+                    on_text_validate: loginbutton.dispatch('on_release')
             Button:
                 id: loginbutton
                 size_hint: (.2, .3)
                 text: 'Login'
                 color: (40, 120, 230, 1)
-                on_press: root.do_login(login.text, password.text)
+                on_release: root.do_login(login.text, password.text)
         BoxLayout:
             size_hint: (1, .2)
             CheckBox:
@@ -93,7 +93,7 @@
             Button:
                 size_hint: (0.2, 0.8)
                 text: 'Start Scrape'
-                on_press: root.do_scrape(names.text)
+                on_release: root.do_scrape(names.text)
 
 
 <Logging>:

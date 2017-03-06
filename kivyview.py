@@ -105,7 +105,7 @@ class Logging(Screen):
 
     def __init__(self, **kwargs):
         Screen.__init__(self, **kwargs)
-        self.max = 50  # the number of recent messages to show
+        self.max = 30  # the number of recent messages to show
         self.log = [''] * self.max
         self.current = 0
 

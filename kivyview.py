@@ -69,6 +69,33 @@ class LoadDialog(FloatLayout):
         return isdir(join(folder, filename))
 
 
+class AdvancedSettings(FloatLayout):
+    cancel = ObjectProperty(None)
+
+    def __init__(self, **kwargs):
+        FloatLayout.__init__(self, **kwargs)
+        self.load_settings()
+
+    def load_settings(self):
+        s = App.get_running_app().controller.settings
+        self.ids.posts.active = s['posts']
+        self.ids.friends.active = s['friends']
+        self.ids.photos.active = s['photos']
+        self.ids.likes.active = s['likes']
+        self.ids.about.active = s['about']
+        self.ids.groups.active = s['groups']
+
+    def save_settings(self):
+        s = App.get_running_app().controller.settings
+        s['posts'] = self.ids.posts.active
+        s['friends'] = self.ids.friends.active
+        s['photos'] = self.ids.photos.active
+        s['likes'] = self.ids.likes.active
+        s['about'] = self.ids.about.active
+        s['groups'] = self.ids.groups.active
+        #close popup
+        self.cancel()
+
 
 class Settings(Screen):
 
@@ -86,6 +113,11 @@ class Settings(Screen):
     def choosedir(self):
         content = LoadDialog(load=self.dirsel, cancel=self.dismiss_popup)
         self._popup = Popup(title='Output Directory', content=content, size_hint=(.9, .9))
+        self._popup.open()
+
+    def adv_settings(self):
+        content = AdvancedSettings(cancel=self.dismiss_popup)
+        self._popup = Popup(title='Advanced Settings', content=content, size_hint=(.9, .9))
         self._popup.open()
 
     def dismiss_popup(self):

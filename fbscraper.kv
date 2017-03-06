@@ -96,11 +96,68 @@
                 text: 'Select'
                 on_release: root.load(filechooser.path, filechooser.selection)
 
+<ScrapeLabel@Label>:
+    color: 0, 0, 0, 1
+    halign: 'left'
+    valign: 'middle'
+    text_size: self.size
+
+<ScrapeCheckBox@CheckBox>:
+    size_hint_x: None
+    width: 50
+
+<AdvancedSettings>:
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: 'vertical'
+        canvas:
+            Color:
+                rgb: 1, 1, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        GridLayout:
+            cols: 6
+            ScrapeCheckBox
+                id: posts
+            ScrapeLabel:
+                text: 'Posts'
+            ScrapeCheckBox
+                id: friends
+            ScrapeLabel:
+                text: 'Friends'
+            ScrapeCheckBox
+                id: photos
+            ScrapeLabel:
+                text: 'Photos'
+            ScrapeCheckBox
+                id: likes
+            ScrapeLabel:
+                text: 'Likes'
+            ScrapeCheckBox
+                id: about
+            ScrapeLabel:
+                text: 'About'
+            ScrapeCheckBox
+                id: groups
+            ScrapeLabel:
+                text: 'Groups'
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: 'Cancel'
+                on_release: root.cancel()
+            Button:
+                text: 'Save'
+                on_release: root.save_settings()
 
 <Settings>:
     BoxLayout:
         orientation: 'vertical'
-        padding: [50]*4
+        padding: [40]*4
         BoxLayout:
             size_hint_y: 0.2
             orientation: 'vertical'
@@ -122,9 +179,8 @@
                     on_release: root.choosedir()
         BoxLayout:
             orientation: 'horizontal'
-            size_hint_y: 0.8
+            size_hint_y: 0.7
             BoxLayout:
-                size_hint: (0.8, 1)
                 orientation: 'vertical'
                 Label:
                     size_hint: (1, 0.2)
@@ -135,8 +191,15 @@
                     id: names
                     size_hint: (1, 0.8)
                     hint_text: 'https://www.facebook.com/someuser\nsomeusername\nsomeprofileidnumber'
+        BoxLayout:
+            size_hint_y: 0.1
+            padding: [0, 20, 0, 0]
             Button:
-                size_hint: (0.2, 0.8)
+                size_hint_x: 0.5
+                text: 'Advanced Settings'
+                on_release: root.adv_settings()
+            Button:
+                size_hint_x: 0.5
                 text: 'Start Scrape'
                 on_release: root.do_scrape(names.text)
                 disabled: len(names.text) == 0

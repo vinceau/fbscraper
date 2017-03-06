@@ -64,7 +64,7 @@
                 text_size: self.size
                 color: 0, 0, 0, 1
                 size_hint_x: 0.8
-                text: 'Remember me. (Credentials are stored as plaintext in login.txt)'
+                text: 'Remember me (Credentials are stored as plaintext in login.txt)'
         Label:
             color: 1, 0, 0, 1
             opacity: 0
@@ -72,20 +72,65 @@
             size_hint: (1, .2)
             text: 'ERROR: Failed to login. Check your credentials and try again.'
 
+
+<LoadDialog>:
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: 'vertical'
+        Label:
+            size_hint_y: 0.1
+            text: 'Current Directory: ' + filechooser.path
+        FileChooserIconView:
+            id: filechooser
+            size_hint_y: 0.9
+            filters: [root.is_dir]
+            dirselect: True
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: 'Cancel'
+                on_release: root.cancel()
+            Button:
+                text: 'Select'
+                on_release: root.load(filechooser.path, filechooser.selection)
+
+
 <Settings>:
     BoxLayout:
         orientation: 'vertical'
         padding: [50]*4
         BoxLayout:
+            size_hint_y: 0.2
+            orientation: 'vertical'
+            Label:
+                text_size: self.size
+                valign: 'bottom'
+                text: 'Output Directory'
+            BoxLayout:
+                orientation: 'horizontal'
+                TextInput:
+                    id: pathbox
+                    hint_text: 'Press \'Select\' to choose a directory'
+                    size_hint_x: 0.8
+                    disabled: True
+                Button:
+                    id: choosedir
+                    text: 'Select'
+                    size_hint_x: 0.2
+                    on_release: root.choosedir()
+        BoxLayout:
             orientation: 'horizontal'
+            size_hint_y: 0.8
             BoxLayout:
                 size_hint: (0.8, 1)
                 orientation: 'vertical'
                 Label:
                     size_hint: (1, 0.2)
                     text_size: self.size
-                    text: 'Facebook Targets (<Enter> separated)'
                     valign: 'bottom'
+                    text: 'Facebook Targets (<Enter> separated)'
                 TextInput:
                     id: names
                     size_hint: (1, 0.8)

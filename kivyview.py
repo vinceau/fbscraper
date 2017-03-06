@@ -2,11 +2,14 @@
 import logging
 import os
 
-from kivy.app import App
-
-from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
-
+from os.path import join, isdir
 from threading import Thread
+
+from kivy.app import App
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
+from kivy.uix.popup import Popup
+from kivy.properties import ObjectProperty
 
 #local imports
 from model import FBScraper
@@ -58,6 +61,15 @@ class Login(Screen):
         self.ids.fail.opacity = 1
 
 
+class LoadDialog(FloatLayout):
+    load = ObjectProperty(None)
+    cancel = ObjectProperty(None)
+
+    def is_dir(self, folder, filename):
+        return isdir(join(folder, filename))
+
+
+
 class Settings(Screen):
 
     def do_scrape(self, names):
@@ -70,6 +82,23 @@ class Settings(Screen):
         for n in names.split(os.linesep):
             if n.strip():
                 app.controller.scrape(n)
+
+    def choosedir(self):
+        content = LoadDialog(load=self.dirsel, cancel=self.dismiss_popup)
+        self._popup = Popup(title='Output Directory', content=content, size_hint=(.9, .9))
+        self._popup.open()
+
+    def dismiss_popup(self):
+        self._popup.dismiss()
+
+    def dirsel(self, path, filename):
+        if len(filename) == 0:
+            self.ids.pathbox.text = path
+        else:
+            self.ids.pathbox.text = filename[0]
+        app = App.get_running_app()
+        app.controller.set_output_dir(self.ids.pathbox.text)
+        self.dismiss_popup()
 
 
 class Logging(Screen):
@@ -105,7 +134,6 @@ class LogHandler(logging.Handler):
     def emit(self, record):
         log_entry = self.format(record)
         self.logscreen.add_log(log_entry)
-        #print(log_entry.upper())
 
 
 class FBScraperApp(App):

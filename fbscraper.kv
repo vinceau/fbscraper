@@ -139,6 +139,7 @@
                 size_hint: (0.2, 0.8)
                 text: 'Start Scrape'
                 on_release: root.do_scrape(names.text)
+                disabled: len(names.text) == 0
 
 
 <Logging>:

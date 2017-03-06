@@ -28,6 +28,9 @@ class FBScraper(object):
     def __del__(self):
         self.driver.quit()
 
+    def set_output_dir(self, folder):
+        self.output_dir = folder
+
     def login(self, user, password):
         self.load('https://www.facebook.com/login.php')
         self._js("document.querySelector('{}').value = '{}';".format(css_selectors.get('email_field'), user))

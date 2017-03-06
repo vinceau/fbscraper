@@ -24,6 +24,14 @@ class FBScraper(object):
         self.min_delay = min_delay
         self.loads = 0
         self.load_time = 0
+        self.settings = {
+            'posts': True,
+            'friends': True,
+            'photos': True,
+            'likes': True,
+            'about': True,
+            'groups': True,
+        }
 
     def __del__(self):
         self.driver.quit()
@@ -103,17 +111,26 @@ class FBScraper(object):
     def scrape_by_username(self, target):
         self._scrape_all(target, 'https://www.facebook.com/' + target)
 
+    def selective_scrape(self, settings):
+        self.settings = settings
+
     def _scrape_all(self, target, targeturl):
         if not self._valid_user(targeturl):
             log.info('%s is a missing page!', targeturl)
             return
         log.info('Scraping user %s at URL: %s', target, targeturl)
-        self._scrape_posts(target, targeturl)
-        self._scrape_friends(target, targeturl)
-        self._scrape_photos(target, targeturl)
-        self._scrape_likes(target, targeturl)
-        self._scrape_about(target, targeturl)
-        self._scrape_groups(target, targeturl)
+        if self.settings['posts']:
+            self._scrape_posts(target, targeturl)
+        if self.settings['friends']:
+            self._scrape_friends(target, targeturl)
+        if self.settings['photos']:
+            self._scrape_photos(target, targeturl)
+        if self.settings['likes']:
+            self._scrape_likes(target, targeturl)
+        if self.settings['about']:
+            self._scrape_about(target, targeturl)
+        if self.settings['groups']:
+            self._scrape_groups(target, targeturl)
         log.info('Finished scraping user %s', target)
 
     def _scrape_posts(self, target, targeturl):

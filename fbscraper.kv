@@ -207,7 +207,13 @@
 
 <Logging>:
     BoxLayout:
+        orientation: 'vertical'
+        padding: [20]*4
+        Label:
+            id: current_user
+            size_hint_y: 0.1
         ScrollView:
+            size_hint_y: 0.9
             scroll_type: ['bars']
             bar_width: '10dp'
             Label:

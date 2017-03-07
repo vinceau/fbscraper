@@ -105,10 +105,12 @@ class Settings(Screen):
     def _scrape_worker(self, names):
         self.manager.transition = SlideTransition(direction='left')
         self.manager.current = 'logging'
+        current_label = self.manager.get_screen(self.manager.current).ids.current_user
         app = App.get_running_app()
         for n in names.split(os.linesep):
             if n.strip():
-                app.controller.scrape(n)
+                current_label.text = n.strip()
+                app.controller.scrape(n.strip())
 
     def choosedir(self):
         content = LoadDialog(load=self.dirsel, cancel=self.dismiss_popup)

@@ -4,6 +4,7 @@ import os
 
 from os.path import join, isdir
 from threading import Thread
+from time import time
 
 from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
@@ -61,6 +62,11 @@ class Login(Screen):
         self.ids.fail.opacity = 1
 
 
+class CompleteDialog(FloatLayout):
+    dismiss = ObjectProperty(None)
+    notice = ObjectProperty(None)
+
+
 class LoadDialog(FloatLayout):
     load = ObjectProperty(None)
     cancel = ObjectProperty(None)
@@ -105,12 +111,28 @@ class Settings(Screen):
     def _scrape_worker(self, names):
         self.manager.transition = SlideTransition(direction='left')
         self.manager.current = 'logging'
-        current_label = self.manager.get_screen(self.manager.current).ids.current_user
+        current_label = self.manager.get_screen('logging').ids.current_user
         app = App.get_running_app()
+        start = time()
         for n in names.split(os.linesep):
             if n.strip():
                 current_label.text = n.strip()
                 app.controller.scrape(n.strip())
+        self.scrape_complete(time() - start)
+
+    def scrape_complete(self, elapsed):
+        hours, rem = divmod(elapsed, 3600)
+        mins, secs = divmod(rem, 60)
+        notice = 'Time elapsed: {:d} hours, {:d} minutes, and {:.2f} seconds'.format(int(hours), int(mins), secs)
+        content = CompleteDialog(notice=notice, dismiss=self.go_back)
+        self._popup = Popup(title='Scrape Complete', content=content, size_hint=(.4, .4))
+        self._popup.open()
+
+    def go_back(self):
+        self.dismiss_popup()
+        self.manager.transition = SlideTransition(direction='right')
+        self.manager.current = 'settings'
+
 
     def choosedir(self):
         content = LoadDialog(load=self.dirsel, cancel=self.dismiss_popup)
@@ -175,6 +197,9 @@ class FBScraperApp(App):
     def __init__(self):
         App.__init__(self)
         self.controller = FBScraper()
+
+    def on_stop(self):
+        self.controller.driver.quit()
 
     def build(self):
         manager = ScreenManager()

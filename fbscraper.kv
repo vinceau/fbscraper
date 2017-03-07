@@ -73,6 +73,26 @@
             text: 'ERROR: Failed to login. Check your credentials and try again.'
 
 
+<CompleteDialog>:
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: 'vertical'
+        Label:
+            text_size: self.size
+            valign: 'middle'
+            text: root.notice
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: 'Back to Settings'
+                on_release: root.dismiss()
+            Button:
+                text: 'Exit'
+                on_release: app.stop()
+
+
 <LoadDialog>:
     BoxLayout:
         size: root.size
@@ -209,9 +229,18 @@
     BoxLayout:
         orientation: 'vertical'
         padding: [20]*4
-        Label:
-            id: current_user
+        BoxLayout:
             size_hint_y: 0.1
+            Label:
+                text: 'Currently scraping: '
+                text_size: self.size
+                halign: 'right'
+                valign: 'middle'
+            Label:
+                id: current_user
+                text_size: self.size
+                halign: 'left'
+                valign: 'middle'
         ScrollView:
             size_hint_y: 0.9
             scroll_type: ['bars']

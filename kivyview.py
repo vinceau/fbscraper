@@ -89,7 +89,11 @@ class AdvancedSettings(FloatLayout):
         self.load_settings()
 
     def load_settings(self):
-        s = App.get_running_app().controller.settings
+        fbs = App.get_running_app().controller
+        self.ids.foldername.text = fbs.foldernaming
+        self.ids.filename.text = fbs.filenaming
+
+        s = fbs.settings
         self.ids.posts.active = s['posts']
         self.ids.friends.active = s['friends']
         self.ids.photos.active = s['photos']
@@ -97,8 +101,13 @@ class AdvancedSettings(FloatLayout):
         self.ids.about.active = s['about']
         self.ids.groups.active = s['groups']
 
+
     def save_settings(self):
-        s = App.get_running_app().controller.settings
+        fbs = App.get_running_app().controller
+        fbs.foldernaming = self.ids.foldername.text
+        fbs.filenaming = self.ids.filename.text
+
+        s = fbs.settings
         s['posts'] = self.ids.posts.active
         s['friends'] = self.ids.friends.active
         s['photos'] = self.ids.photos.active

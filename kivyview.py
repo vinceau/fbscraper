@@ -136,7 +136,7 @@ class Settings(Screen):
     def scrape_complete(self, elapsed):
         hours, rem = divmod(elapsed, 3600)
         mins, secs = divmod(rem, 60)
-        notice = 'Time elapsed: {:d} hours, {:d} minutes, and {:.2f} seconds'.format(int(hours), int(mins), secs)
+        notice = 'Time elapsed: {:d} hours, {:d} minutes and {:d} seconds'.format(int(hours), int(mins), int(secs))
         content = CompleteDialog(notice=notice, dismiss=self.go_back)
         self._popup = Popup(title='Scrape Complete', content=content, size_hint=(.4, .4))
         self._popup.open()

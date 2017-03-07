@@ -136,33 +136,43 @@
             Rectangle:
                 pos: self.pos
                 size: self.size
-        GridLayout:
-            cols: 6
-            ScrapeCheckBox
-                id: posts
-            ScrapeLabel:
-                text: 'Posts'
-            ScrapeCheckBox
-                id: friends
-            ScrapeLabel:
-                text: 'Friends'
-            ScrapeCheckBox
-                id: photos
-            ScrapeLabel:
-                text: 'Photos'
-            ScrapeCheckBox
-                id: likes
-            ScrapeLabel:
-                text: 'Likes'
-            ScrapeCheckBox
-                id: about
-            ScrapeLabel:
-                text: 'About'
-            ScrapeCheckBox
-                id: groups
-            ScrapeLabel:
-                text: 'Groups'
-
+        VertiBox:
+            BoxLayout:
+                size_hint_y: 0.2
+                ScrapeLabel:
+                    size_hint_x: 0.8
+                    text: 'Content to scrape'
+                Button:
+                    size_hint_x: 0.2
+                    text: 'Toggle All'
+                    on_release: root.toggle()
+            GridLayout:
+                size_hint_y: 0.8
+                cols: 6
+                ScrapeCheckBox
+                    id: posts
+                ScrapeLabel:
+                    text: 'Posts'
+                ScrapeCheckBox
+                    id: friends
+                ScrapeLabel:
+                    text: 'Friends'
+                ScrapeCheckBox
+                    id: photos
+                ScrapeLabel:
+                    text: 'Photos'
+                ScrapeCheckBox
+                    id: likes
+                ScrapeLabel:
+                    text: 'Likes'
+                ScrapeCheckBox
+                    id: about
+                ScrapeLabel:
+                    text: 'About'
+                ScrapeCheckBox
+                    id: groups
+                ScrapeLabel:
+                    text: 'Groups'
         BoxLayout:
             size_hint_y: None
             height: 30

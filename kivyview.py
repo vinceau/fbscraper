@@ -1,3 +1,4 @@
+from __future__ import division
 
 import logging
 import os
@@ -106,6 +107,13 @@ class AdvancedSettings(FloatLayout):
         s['groups'] = self.ids.groups.active
         #close popup
         self.cancel()
+
+    def toggle(self):
+        all_boxes = [self.ids.posts, self.ids.friends, self.ids.photos,
+                     self.ids.likes, self.ids.about, self.ids.groups]
+        tally = [x.active for x in all_boxes]
+        for x in all_boxes:
+            x.active = tally.count(True) / len(tally) < 0.5
 
 
 class Settings(Screen):

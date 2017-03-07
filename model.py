@@ -32,12 +32,22 @@ class FBScraper(object):
             'about': True,
             'groups': True,
         }
+        self.def_foldername = '%TARGET%'
+        self.def_filename = '%TIMESTAMP%-%TYPE%'
+        self.foldernaming = self.def_foldername
+        self.filenaming = self.def_filename
 
     def __del__(self):
         self.driver.quit()
 
     def set_output_dir(self, folder):
         self.output_dir = folder
+
+    def reset_foldername(self):
+        self.foldernaming = self.def_foldername
+
+    def reset_filename(self):
+        self.filenaming = self.def_filename
 
     def login(self, user, password):
         self.load('https://www.facebook.com/login.php')
@@ -54,8 +64,16 @@ class FBScraper(object):
             log.info('Executing Javascript: %s', code)
         return self.driver.execute_script(code)
 
+    def _naming_keywords(self, orig, target, name):
+        result = orig.replace('%TARGET%', target)
+        result = result.replace('%TYPE%', name)
+        result = result.replace('%TIMESTAMP%', timestring())
+        return result
+
     def _output_file(self, target, name):
-        return os.path.join(self.output_dir, target, timestring() + '-' + target + '-' + name)
+        folder = self._naming_keywords(self.foldernaming, target, name)
+        filename = self._naming_keywords(self.filenaming, target, name)
+        return os.path.join(self.output_dir, folder, filename)
 
     def _update_delay(self, seconds):
         self.load_time += seconds

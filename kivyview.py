@@ -2,7 +2,7 @@
 import logging
 import os
 
-from os.path import join, isdir
+from os.path import join, isdir, expanduser
 from threading import Thread
 from time import time
 
@@ -70,6 +70,11 @@ class CompleteDialog(FloatLayout):
 class LoadDialog(FloatLayout):
     load = ObjectProperty(None)
     cancel = ObjectProperty(None)
+
+    def __init__(self, **kwargs):
+        FloatLayout.__init__(self, **kwargs)
+        #set the filechooser to start at the home directory by default
+        self.ids.filechooser.path = expanduser('~')
 
     def is_dir(self, folder, filename):
         return isdir(join(folder, filename))

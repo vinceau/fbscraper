@@ -293,9 +293,12 @@ class FBScraper(object):
 
             for p in all_photos[scraped:]:
                 img_url = p.get_attribute('data-starred-src')
-                album.add_image(img_url)
-                scraped += 1
-                log.info('Scraped photo #%d: %s', scraped, img_url)
+                try:
+                    album.add_image(img_url)
+                    scraped += 1
+                    log.info('Scraped photo #%d: %s', scraped, img_url)
+                except record.BrokenImageError:
+                    log.error('Failed to download image: %s', img_url)
 
             #scroll to the bottom of the page
             self._js("window.scrollTo(0, document.body.scrollHeight);")

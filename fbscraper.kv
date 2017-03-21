@@ -1,6 +1,8 @@
-#hints are width then height
-#left top right bottom
-#hotizontal vertical
+#:import os os
+
+# hints are width then height
+# left top right bottom
+# hotizontal vertical
 
 <VertiBox@BoxLayout>:
     orientation: 'vertical'
@@ -217,12 +219,12 @@
             Label:
                 text_size: self.size
                 valign: 'bottom'
-                text: 'Output Directory (optional)'
+                text: 'Output Directory'
             BoxLayout:
                 orientation: 'horizontal'
                 TextInput:
                     id: pathbox
-                    hint_text: 'Press \'Select\' to choose a directory. Output in current folder if unselected.'
+                    text: os.path.abspath(app.controller.output_dir)
                     size_hint_x: 0.8
                     disabled: True
                 Button:

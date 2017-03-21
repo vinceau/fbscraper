@@ -8,6 +8,7 @@ from threading import Thread
 from time import time
 
 from kivy.app import App
+from kivy.config import Config
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
 from kivy.uix.popup import Popup
@@ -236,4 +237,5 @@ class FBScraperApp(App):
 
 
 if __name__ == '__main__':
+    Config.set('input', 'mouse', 'mouse,disable_multitouch')
     FBScraperApp().run()

@@ -13,7 +13,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
 from kivy.uix.popup import Popup
 from kivy.properties import ObjectProperty
 
-#local imports
+# local imports
 from model import FBScraper
 
 
@@ -23,9 +23,9 @@ class Login(Screen):
         Screen.__init__(self, **kwargs)
         self.login_file = 'login.txt'
 
-    """Populate the form with the credentials found in login.txt
-    """
     def load_creds(self):
+        """Populate the form with the credentials found in login.txt
+        """
         try:
             with open(self.login_file, 'r') as f:
                 lines = f.readlines()
@@ -35,7 +35,7 @@ class Login(Screen):
                 self.ids.password.text = lines[1].strip()
                 self.ids.storecreds.active = True
         except IOError:
-            #no login saved
+            # no login saved
             pass
 
     def save_creds(self):
@@ -74,7 +74,7 @@ class LoadDialog(FloatLayout):
 
     def __init__(self, **kwargs):
         FloatLayout.__init__(self, **kwargs)
-        #set the filechooser to start at the home directory by default
+        # set the filechooser to start at the home directory by default
         self.ids.filechooser.path = expanduser('~')
 
     def is_dir(self, folder, filename):
@@ -114,7 +114,7 @@ class AdvancedSettings(FloatLayout):
         s['likes'] = self.ids.likes.active
         s['about'] = self.ids.about.active
         s['groups'] = self.ids.groups.active
-        #close popup
+        # close popup
         self.cancel()
 
     def toggle(self):
@@ -195,10 +195,10 @@ class Logging(Screen):
         self.current += 1
         self._update()
 
-    """This will print out the messages in the log in reverse order.
-    Taking into account its cyclic nature.
-    """
     def _update(self):
+        """This will print out the messages in the log in reverse order.
+        Taking into account its cyclic nature.
+        """
         last = (self.current - 1) % self.max
         self.ids.logtext.text = ''.join(self.log[last::-1] + self.log[:last:-1])
 

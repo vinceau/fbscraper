@@ -34,7 +34,7 @@ class Record(object):
 
     def __init__(self, filename, schema):
         self.filename = filename + '.csv'
-        #if there's a folder in the filename make sure it exists
+        # if there's a folder in the filename make sure it exists
         if (os.path.dirname(self.filename)):
             make_path(os.path.dirname(self.filename))
         self.file = open(self.filename, 'w')

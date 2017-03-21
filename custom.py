@@ -9,28 +9,28 @@ ability to select text-only elements, i.e. elements containing only text and no 
 """These are selectors written in css to select different parts of the page
 """
 css_selectors = {
-    #email and password field used to login
+    # email and password field used to login
     'email_field': '#email',
     'password_field': '#pass',
-    #the login form to submit
+    # the login form to submit
     'login_form': '#login_form',
-    #the individual photos in the photos page
+    # the individual photos in the photos page
     'photo_selector': '#pagelet_timeline_medley_photos div.fbPhotoStarGridElement',
     'friends_selector': "ul[data-pnref='friends'] div.uiProfileBlockContent a[data-hovercard]",
     'user_posts': "#recent_capsule_container div.userContentWrapper > div:first-of-type",
-    #the left hand side of the about page with the different sections
+    # the left hand side of the about page with the different sections
     'about_links': "ul[data-pnref='about'] > li ul[data-testid='info_section_left_nav'] > li",
-    #the main about page with all the content of the individual section
+    # the main about page with all the content of the individual section
     'about_main': "ul[data-pnref='about'] > li:nth-child(2) > div > div:nth-child(2)",
-    #used for checking if the profile is a valid page or not
+    # used for checking if the profile is a valid page or not
     'error_header': "#content h2",
-    #selects the different albums
+    # selects the different albums
     'indiv_albums': "#pagelet_timeline_medley_photos table.fbPhotosGrid a.photoTextTitle",
-    #once inside an album, select the different photos
+    # once inside an album, select the different photos
     'album_photo': "#fbTimelinePhotosContent div.fbPhotoStarGridElement",
-    #see more links
+    # see more links
     'see_more': "a.see_more_link",
-    #translations
+    # translations
     'translation': "div:last-child > span:first-of-type",
 }
 
@@ -41,7 +41,7 @@ Only use XPath when you can't express it in CSS.
 xpath_selectors = {
     'likes_selector': "//div[@id='pagelet_timeline_medley_likes']//li//a[@data-hovercard and not(*)]",
     'post_date': ".//abbr/span[contains(@class, 'timestampContent')]/..",
-    #individual groups in the groups page
+    # individual groups in the groups page
     'groups': "//div[@id='timeline-medley']//ul/li//a[@data-hovercard and not (*)]",
 }
 
@@ -61,8 +61,8 @@ page_references = {
 """Specific text used for text matching
 """
 text_content = {
-    #used for checking if a profile is valid or not
+    # used for checking if a profile is valid or not
     'error_header_text': 'isn\'t available',
-    #used for getting the See Translation button
+    # used for getting the See Translation button
     'see_translation_text': 'See Translation',
 }

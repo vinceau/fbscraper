@@ -19,18 +19,7 @@ from getpass import getpass
 from model import FBScraper
 
 
-def main():
-    # configure logging level
-    log.basicConfig(format='%(levelname)s:%(message)s', level=log.INFO)
-
-    parser = argparse.ArgumentParser(description='Crawl a bunch of Facebook sites and record the posts.')
-    parser.add_argument('--input', '-i', dest='inputfile', required=False,
-                        help='a file to read a list of Facebook usernames from')
-    parser.add_argument('--outputdir', '-o', dest='outputdir', required=False,
-                        help='the directory to store the scraped files')
-    parser.add_argument('--loginfile', '-l', dest='loginfile', required=False,
-                        help='the file to read login credentials from (username/email on the first line, and password on the second line)')
-    args = parser.parse_args()
+def main(args):
     output_dir = args.outputdir if args.outputdir else ''
     fbs = FBScraper(output_dir)
 
@@ -67,4 +56,24 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # configure logging level
+    log.basicConfig(format='%(levelname)s:%(message)s', level=log.INFO)
+
+    parser = argparse.ArgumentParser(description='Crawl a bunch of Facebook sites and record the posts.')
+    parser.add_argument('--gui', '-g', dest='gui', action='store_true', required=False,
+                        help='run the program with a graphical user interface')
+    parser.add_argument('--input', '-i', dest='inputfile', required=False,
+                        help='a file to read a list of Facebook usernames from')
+    parser.add_argument('--outputdir', '-o', dest='outputdir', required=False,
+                        help='the directory to store the scraped files')
+    parser.add_argument('--loginfile', '-l', dest='loginfile', required=False,
+                        help='the file to read login credentials from (username/email on the first line, and password on the second line)')
+    args = parser.parse_args()
+    if args.gui:
+        output_dir = args.outputdir if args.outputdir else ''
+        # hide the current arguments from kivy
+        sys.argv = [sys.argv[0]]
+        from kivyview import run_app
+        run_app(output_dir)
+    else:
+        main(args)

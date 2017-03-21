@@ -217,9 +217,9 @@ class LogHandler(logging.Handler):
 
 class FBScraperApp(App):
 
-    def __init__(self):
+    def __init__(self, outputdir=''):
         App.__init__(self)
-        self.controller = FBScraper()
+        self.controller = FBScraper(outputdir)
 
     def on_stop(self):
         self.controller.driver.quit()
@@ -236,6 +236,10 @@ class FBScraperApp(App):
         return manager
 
 
-if __name__ == '__main__':
+def run_app(outputdir=''):
     Config.set('input', 'mouse', 'mouse,disable_multitouch')
-    FBScraperApp().run()
+    FBScraperApp(outputdir).run()
+
+
+if __name__ == '__main__':
+    run_app()

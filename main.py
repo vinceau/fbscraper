@@ -2,11 +2,11 @@
 
 import sys
 try:
-    #allow printing of non-standard characters to stdout
+    # allow printing of non-standard characters to stdout
     reload(sys)
     sys.setdefaultencoding("utf8")
 except NameError:
-    #we're on Python 3 so we already good
+    # we're on Python 3 so we already good
     pass
 
 import argparse
@@ -15,12 +15,12 @@ import logging as log
 from builtins import input
 from getpass import getpass
 
-#local imports
+# local imports
 from model import FBScraper
 
 
 def main():
-    #configure logging level
+    # configure logging level
     log.basicConfig(format='%(levelname)s:%(message)s', level=log.INFO)
 
     parser = argparse.ArgumentParser(description='Crawl a bunch of Facebook sites and record the posts.')
@@ -37,7 +37,7 @@ def main():
     fb_user = ''
     fb_pass = ''
 
-    #attempt to login
+    # attempt to login
     if args.loginfile:
         with open(args.loginfile, 'r') as f:
             lines = f.readlines()
@@ -49,7 +49,7 @@ def main():
     if not fbs.login(fb_user, fb_pass):
         sys.exit('Failed to log into Facebook. Check your credentials and try again.')
 
-    #login successful
+    # login successful
     if args.inputfile:
         with open(args.inputfile, 'r') as input_f:
             for line in input_f:

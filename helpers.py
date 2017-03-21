@@ -7,51 +7,54 @@ except ImportError:
 
 unsafe_chars = [' ', '/', '\\']
 
-"""Joins a query to a url.
-"""
+
 def join_url(base, query):
+    """Joins a query to a url.
+    """
     sep = '&' if '?'in base else '?'
     return base + sep + query
 
-"""Strips the query portion of a url if it doesn't contain 'profile.php'
-"""
+
 def strip_query(url):
+    """Strips the query portion of a url if it doesn't contain 'profile.php'
+    """
     if 'profile.php' not in url:
         return urljoin(url, urlparse(url).path)
     return url
 
-"""Converts a unix time stamp into a human readable timestamp.
-If no time stamp is provided it gives the current time.
-"""
+
 def timestring(unix=None):
+    """Converts a unix time stamp into a human readable timestamp.
+    If no time stamp is provided it gives the current time.
+    """
     timeformat = "%Y%m%d-%H%M%S"
     if unix:
         return datetime.fromtimestamp(int(unix)).strftime(timeformat)
     return datetime.now().strftime(timeformat)
 
 
-"""Makes a path a bit safer by replacing the unsafe characters found in unsafe_char with '-'.
-"""
 def path_safe(path):
+    """Makes a path a bit safer by replacing the unsafe characters found in unsafe_char with '-'.
+    """
     new_path = path
     for c in unsafe_chars:
         new_path = new_path.replace(c, '-')
     return new_path
 
 
-"""Takes a Facebook profile URL and extracts the user identifier whether that be an ID or a username.
-Returns None if the URL is invalid.
-"""
 def extract_user(url):
+    """Takes a Facebook profile URL and extracts the user identifier whether that be an ID or a username.
+    Returns None if the URL is invalid.
+    """
     res = urlparse(url)
-    #handle user IDs
+    # handle user IDs
     if res.path == '/profile.php':
         userid = parse_qs(res.query)['id']
         if len(userid) == 1:
             return userid[0]
-    #handle usernames
+    # handle usernames
     elif res.scheme and res.netloc:
         return res.path[1:]
 
-    #invalid url
+    # invalid url
     return None

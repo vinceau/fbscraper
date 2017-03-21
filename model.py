@@ -280,7 +280,7 @@ class FBScraper(object):
             self._scrape_album(target, 'album-' + path_safe(album_name), album_url, 'album_photo')
 
     def _scrape_album(self, target, album_name, albumurl, css):
-        album = record.Album(self._output_file(target, album_name))
+        album = record.Album(self._output_file(target, album_name), True)
         log.info('Scraping photos into %s', album.name)
         self.load(albumurl)
 
@@ -294,7 +294,13 @@ class FBScraper(object):
             for p in all_photos[scraped:]:
                 img_url = p.get_attribute('data-starred-src')
                 try:
+                    # download the image
                     album.add_image(img_url)
+                    # get the metadata and store that too
+                    link = p.find_element_by_css_selector('a')
+                    label = link.get_attribute('aria-label')
+                    href = link.get_attribute('href')
+                    album.add_description(img_url, label, href)
                     scraped += 1
                     log.info('Scraped photo #%d: %s', scraped, img_url)
                 except record.BrokenImageError:

@@ -50,9 +50,12 @@ class Record(object):
 
 class Album(object):
 
-    def __init__(self, name):
+    def __init__(self, name, descriptions=False):
         make_path(name)
         self.name = name
+        self.record = None
+        if descriptions:
+            self.record = Record(name, ['filename', 'description', 'permalink'])
 
     def add_image(self, url):
         img_bin = urlopen(url).read()
@@ -63,3 +66,11 @@ class Album(object):
         with open(fullpath, 'wb') as f:
             f.write(img_bin)
 
+    def add_description(self, imgurl, desc, perma):
+        if self.record:
+            filename = urlparse(imgurl).path.split('/')[-1]
+            self.record.add_record({
+                'filename': filename,
+                'description': desc,
+                'permalink': perma,
+            })

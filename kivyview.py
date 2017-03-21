@@ -203,6 +203,21 @@ class Logging(Screen):
         self.current += 1
         self._update()
 
+    def pause(self):
+        fbs = App.get_running_app().controller
+        if fbs.paused:
+            fbs.unpause()
+            self.ids.pause.text = 'Pause'
+        else:
+            fbs.pause()
+            self.ids.pause.text = 'Unpause'
+
+    def stop(self):
+        self.ids.stop.disabled = True
+        self.ids.pause.disabled = True
+        App.get_running_app().controller.interrupt()
+
+
     def _update(self):
         """This will print out the messages in the log in reverse order.
         Taking into account its cyclic nature.

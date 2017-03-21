@@ -271,11 +271,21 @@
                 halign: 'right'
                 valign: 'middle'
             Label:
-                size_hint_x: 0.8
+                size_hint_x: 0.6
                 id: current_user
                 text_size: self.size
                 halign: 'left'
                 valign: 'middle'
+            BoxLayout:
+                size_hint: (0.2, 0.7)
+                Button:
+                    text: 'Pause'
+                    id: pause
+                    on_release: root.pause()
+                Button:
+                    text: 'Stop'
+                    id: stop
+                    on_release: root.stop()
         ScrollView:
             size_hint_y: 0.9
             scroll_type: ['bars']

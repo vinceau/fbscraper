@@ -71,9 +71,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.gui:
         output_dir = args.outputdir if args.outputdir else ''
+        loginfile = args.loginfile if args.loginfile else 'login.txt'
+        infile = args.inputfile if args.inputfile else ''
         # hide the current arguments from kivy
         sys.argv = [sys.argv[0]]
         from kivyview import run_app
-        run_app(output_dir)
+        run_app(output_dir, loginfile, infile)
     else:
         main(args)

@@ -19,10 +19,7 @@ from model import FBScraper
 
 
 class Login(Screen):
-
-    def __init__(self, **kwargs):
-        Screen.__init__(self, **kwargs)
-        self.login_file = 'login.txt'
+    login_file = ObjectProperty(None)
 
     def load_creds(self):
         """Populate the form with the credentials found in login.txt
@@ -127,6 +124,16 @@ class AdvancedSettings(FloatLayout):
 
 
 class Settings(Screen):
+    infile = ObjectProperty(None)
+
+    def __init__(self, **kwargs):
+        Screen.__init__(self, **kwargs)
+        if self.infile:
+            self._load_file(self.infile)
+
+    def _load_file(self, filename):
+        with open(filename, 'r') as f:
+            self.ids.names.text = ''.join(f.readlines())
 
     def do_scrape(self, names):
         Thread(target=self._scrape_worker, args=(names, )).start()
@@ -217,17 +224,19 @@ class LogHandler(logging.Handler):
 
 class FBScraperApp(App):
 
-    def __init__(self, outputdir=''):
+    def __init__(self, outputdir='', loginfile='login.txt', infile=''):
         App.__init__(self)
         self.controller = FBScraper(outputdir)
+        self.loginfile = loginfile
+        self.infile = infile
 
     def on_stop(self):
         self.controller.driver.quit()
 
     def build(self):
         manager = ScreenManager()
-        manager.add_widget(Login(name='login'))
-        manager.add_widget(Settings(name='settings'))
+        manager.add_widget(Login(name='login', login_file=self.loginfile))
+        manager.add_widget(Settings(name='settings', infile=self.infile))
         logscreen = Logging(name='logging')
         log = logging.getLogger()
         log.addHandler(LogHandler(logscreen))
@@ -236,9 +245,9 @@ class FBScraperApp(App):
         return manager
 
 
-def run_app(outputdir=''):
+def run_app(outputdir='', loginfile='login.txt', infile=''):
     Config.set('input', 'mouse', 'mouse,disable_multitouch')
-    FBScraperApp(outputdir).run()
+    FBScraperApp(outputdir, loginfile, infile).run()
 
 
 if __name__ == '__main__':

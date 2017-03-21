@@ -12,7 +12,6 @@ import record
 from custom import css_selectors, xpath_selectors, page_references, text_content
 from helpers import join_url, strip_query, timestring, path_safe, extract_user
 
-
 class FBScraper(object):
 
     """delay is the seconds to wait for infinite scroll items to populate

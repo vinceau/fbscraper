@@ -10,22 +10,24 @@ except ImportError:
     from urllib.parse import urlparse
     import csv
 
+
 class FolderCreationError(Exception):
     pass
+
 
 class BrokenImageError(Exception):
     pass
 
 
-"""Ensures all the folders in path exists.
-Raises FolderCreationError if failed to create the required folders.
-"""
 def make_path(path):
+    """Ensures all the folders in path exists.
+    Raises FolderCreationError if failed to create the required folders.
+    """
     try:
         os.makedirs(path)
     except OSError as e:
         if e.errno != errno.EEXIST or not os.path.isdir(path):
-            raise FolderCreationError('Failed to create folder <{}>'.format(name))
+            raise FolderCreationError('Failed to create folder <{}>'.format(path))
 
 
 class Record(object):

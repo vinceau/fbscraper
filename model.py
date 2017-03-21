@@ -3,7 +3,7 @@ import logging as log
 import os
 
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException, ElementNotVisibleException
+from selenium.common.exceptions import NoSuchElementException
 from time import sleep, time
 
 # local imports
@@ -34,8 +34,7 @@ class FBScraper(object):
         self.def_filename = '%TIMESTAMP%-%TYPE%'
         self.foldernaming = self.def_foldername
         self.filenaming = self.def_filename
-        self.stop_request = False
-        self.pause_request = False
+        self.quit_request = False
         self.paused = False
 
     def __del__(self):
@@ -81,28 +80,23 @@ class FBScraper(object):
         self.loads += 1
 
     def pause(self):
-        self.pause_request = True
-        log.info('Requesting to pause scrape...')
+        self.paused = True
 
     def unpause(self):
-        self.pause_request = False
-        log.info('Requesting to unpause scrape...')
+        self.paused = False
 
     def interrupt(self):
-        self.stop_request = True
-        log.info('Requesting to stop scrape...')
+        self.quit_request = True
 
     def _delay(self):
         """Sleeps the average amount of time it has taken to load a page or at least self.min_delay seconds.
         """
-        self.paused = True
         avg = self.load_time / self.loads
         secs = max(avg, self.min_delay)
         log.info('Sleeping %f seconds', secs)
         sleep(secs)
-        while (self.pause_request):
+        while (self.paused):
             pass
-        self.paused = False
 
     def load(self, url, force=False):
         """Load url in the browser if it's not already loaded. Use force=True to force a reload.
@@ -157,18 +151,18 @@ class FBScraper(object):
         log.info('Scraping user %s at URL: %s', target, targeturl)
         if self.settings['posts']:
             self._scrape_posts(target, targeturl)
-        if self.settings['friends'] and not self.stop_request:
+        if self.settings['friends'] and not self.quit_request:
             self._scrape_friends(target, targeturl)
-        if self.settings['photos'] and not self.stop_request:
+        if self.settings['photos'] and not self.quit_request:
             self._scrape_photos(target, targeturl)
-        if self.settings['likes'] and not self.stop_request:
+        if self.settings['likes'] and not self.quit_request:
             self._scrape_likes(target, targeturl)
-        if self.settings['about'] and not self.stop_request:
+        if self.settings['about'] and not self.quit_request:
             self._scrape_about(target, targeturl)
-        if self.settings['groups'] and not self.stop_request:
+        if self.settings['groups'] and not self.quit_request:
             self._scrape_groups(target, targeturl)
         log.info('Finished scraping user %s', target)
-        self.stop_request = False
+        self.quit_request = False
 
     def _scrape_posts(self, target, targeturl):
         posts_scraped = 0
@@ -177,7 +171,7 @@ class FBScraper(object):
 
         # load their timeline page
         self.load(targeturl)
-        while not self.stop_request:
+        while not self.quit_request:
             all_posts = self.driver.find_elements_by_css_selector(css_selectors.get('user_posts'))
             # break if there are no more posts left
             if len(all_posts) <= posts_scraped:
@@ -185,13 +179,10 @@ class FBScraper(object):
 
             # scrape each post
             for p in all_posts[posts_scraped:]:
-                if self.stop_request:
-                    break
-
                 # expand the see more links
                 try:
                     p.find_element_by_css_selector(css_selectors.get('see_more')).click()
-                except (NoSuchElementException, ElementNotVisibleException):
+                except NoSuchElementException:
                     pass
 
                 # get the text before we get the translation
@@ -232,7 +223,6 @@ class FBScraper(object):
 
         log.info('Scraped %d posts into %s', posts_scraped, rec.filename)
 
-
     def _scrape_likes(self, target, targeturl):
         likes_scraped = 0
         rec = record.Record(self._output_file(target, 'likes'), ['name', 'url'])
@@ -242,15 +232,13 @@ class FBScraper(object):
         likesurl = join_url(targeturl, page_references.get('likes_page'))
         self.load(likesurl)
 
-        while not self.stop_request:
+        while not self.quit_request:
             all_likes = self.driver.find_elements_by_xpath(xpath_selectors.get('likes_selector'))
             # break if no more likes
             if len(all_likes) <= likes_scraped:
                 break
 
             for like in all_likes[likes_scraped:]:
-                if self.stop_request:
-                    break
                 name = like.text
                 page_url = like.get_attribute('href')
                 rec.add_record({'name': name, 'url': page_url})
@@ -273,15 +261,13 @@ class FBScraper(object):
         friendsurl = join_url(targeturl, page_references.get('friends_page'))
         self.load(friendsurl)
 
-        while not self.stop_request:
+        while not self.quit_request:
             all_friends = self.driver.find_elements_by_css_selector(css_selectors.get('friends_selector'))
             # break if no more friends
             if len(all_friends) <= friends_scraped:
                 break
 
             for friend in all_friends[friends_scraped:]:
-                if self.stop_request:
-                    break
                 name = friend.text
                 friend_url = strip_query(friend.get_attribute('href'))
                 rec.add_record({'name': name, 'profile': friend_url})
@@ -304,8 +290,7 @@ class FBScraper(object):
         self.load(join_url(targeturl, page_references.get('albums')))
         albums = self.driver.find_elements_by_css_selector(css_selectors.get('indiv_albums'))
         for album_name, album_url in [(a.text, a.get_attribute('href')) for a in albums]:
-            if not self.stop_request:
-                self._scrape_album(target, 'album-' + path_safe(album_name), album_url, 'album_photo')
+            self._scrape_album(target, 'album-' + path_safe(album_name), album_url, 'album_photo')
 
     def _scrape_album(self, target, album_name, albumurl, css):
         album = record.Album(self._output_file(target, album_name), True)
@@ -313,15 +298,13 @@ class FBScraper(object):
         self.load(albumurl)
 
         scraped = 0
-        while not self.stop_request:
+        while not self.quit_request:
             all_photos = self.driver.find_elements_by_css_selector(css_selectors.get(css))
             # break if no more photos
-            if len(all_photos) <= scraped:
+            if len(all_photos) <= scraped or self.quit_request:
                 break
 
             for p in all_photos[scraped:]:
-                if self.stop_request:
-                    break
                 img_url = p.get_attribute('data-starred-src')
                 try:
                     # download the image
@@ -348,8 +331,6 @@ class FBScraper(object):
         about_links = self.driver.find_elements_by_css_selector(css_selectors.get('about_links'))
         rec = record.Record(self._output_file(target, 'about'), ['section', 'text'])
         for l in about_links:
-            if self.stop_request:
-                break
             l.click()
             self._delay()
             title = l.get_attribute('title')
@@ -358,7 +339,7 @@ class FBScraper(object):
             log.info('Scraped section %s with the following text:\n#### START ####\n%s\n####  END  ####',
                      title, main_pane.text)
 
-            if self.stop_request:
+            if self.quit_request:
                 break
 
     def _scrape_groups(self, target, targeturl):
@@ -366,7 +347,7 @@ class FBScraper(object):
 
         scraped = 0
         rec = record.Record(self._output_file(target, 'groups'), ['name', 'url'])
-        while not self.stop_request:
+        while not self.quit_request:
             # get groups, break if no more groups
             groups = self.driver.find_elements_by_xpath(xpath_selectors.get('groups'))
             if len(groups) <= scraped:
@@ -374,8 +355,6 @@ class FBScraper(object):
 
             # extract group info
             for g in groups:
-                if self.stop_request:
-                    break
                 name = g.text
                 url = g.get_attribute('href')
                 rec.add_record({'name': name, 'url': url})

@@ -147,10 +147,12 @@ class Settings(Screen):
         start = time()
         all_names = [x.strip() for x in names.split(os.linesep) if x.strip()]
         for index, n in enumerate(all_names):
-            current_label.text = n
-            count_label.text = 'Scraping {} of {}'.format(index + 1, len(all_names))
-            app.controller.scrape(n.strip())
+            if not app.stop_request:
+                current_label.text = n
+                count_label.text = 'Scraping {} of {}'.format(index + 1, len(all_names))
+                app.controller.scrape(n.strip())
         self.scrape_complete(time() - start)
+        app.stop_request = False
 
     def scrape_complete(self, elapsed):
         hours, rem = divmod(elapsed, 3600)
@@ -207,17 +209,32 @@ class Logging(Screen):
 
     def pause(self):
         fbs = App.get_running_app().controller
-        if fbs.paused:
+        if fbs.pause_request:
+            # we are currently paused, request to unpause
             fbs.unpause()
             self.ids.pause.text = 'Pause'
+            self.ids.stop.disabled = False
         else:
-            fbs.pause()
-            self.ids.pause.text = 'Unpause'
+            # we are not currently paused, request to pause
+            Thread(target=self._pause_worker).start()
+            self.ids.stop.disabled = True
+
+    def _pause_worker(self):
+        self.ids.pause.disabled = True
+        fbs = App.get_running_app().controller
+        fbs.pause()  # send in a pause request
+        while not fbs.paused:
+            pass
+        # we are paused now
+        self.ids.pause.text = 'Unpause'
+        self.ids.pause.disabled = False
 
     def stop(self):
         self.ids.stop.disabled = True
         self.ids.pause.disabled = True
-        App.get_running_app().controller.interrupt()
+        app = App.get_running_app()
+        app.stop_request = True
+        app.controller.interrupt()
 
 
     def _update(self):
@@ -243,6 +260,7 @@ class FBScraperApp(App):
 
     def __init__(self, outputdir='', loginfile='login.txt', infile=''):
         App.__init__(self)
+        self.stop_request = False
         self.controller = FBScraper(outputdir)
         self.loginfile = loginfile
         self.infile = infile

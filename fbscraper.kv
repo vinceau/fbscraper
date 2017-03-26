@@ -264,18 +264,12 @@
         padding: [20]*4
         BoxLayout:
             size_hint_y: 0.1
-            Label:
-                size_hint_x: 0.2
-                text: 'Currently scraping: '
-                text_size: self.size
-                halign: 'right'
-                valign: 'middle'
-            Label:
-                size_hint_x: 0.6
-                id: current_user
-                text_size: self.size
-                halign: 'left'
-                valign: 'middle'
+            VertiBox:
+                size_hint_x: 0.8
+                Label:
+                    id: count
+                Label:
+                    id: current_user
             BoxLayout:
                 size_hint: (0.2, 0.7)
                 Button:

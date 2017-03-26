@@ -142,12 +142,14 @@ class Settings(Screen):
         self.manager.transition = SlideTransition(direction='left')
         self.manager.current = 'logging'
         current_label = self.manager.get_screen('logging').ids.current_user
+        count_label = self.manager.get_screen('logging').ids.count
         app = App.get_running_app()
         start = time()
-        for n in names.split(os.linesep):
-            if n.strip():
-                current_label.text = n.strip()
-                app.controller.scrape(n.strip())
+        all_names = [x.strip() for x in names.split(os.linesep) if x.strip()]
+        for index, n in enumerate(all_names):
+            current_label.text = n
+            count_label.text = 'Scraping {} of {}'.format(index + 1, len(all_names))
+            app.controller.scrape(n.strip())
         self.scrape_complete(time() - start)
 
     def scrape_complete(self, elapsed):

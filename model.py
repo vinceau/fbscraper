@@ -185,6 +185,9 @@ class FBScraper(object):
 
             # scrape each post
             for p in all_posts[posts_scraped:]:
+                if self.stop_scraped:
+                    break
+
                 # expand the see more links
                 try:
                     p.find_element_by_css_selector(css_selectors.get('see_more')).click()
@@ -245,6 +248,8 @@ class FBScraper(object):
                 break
 
             for like in all_likes[likes_scraped:]:
+                if self.stop_scraped:
+                    break
                 name = like.text
                 page_url = like.get_attribute('href')
                 rec.add_record({'name': name, 'url': page_url})
@@ -274,6 +279,8 @@ class FBScraper(object):
                 break
 
             for friend in all_friends[friends_scraped:]:
+                if self.stop_scraped:
+                    break
                 name = friend.text
                 friend_url = strip_query(friend.get_attribute('href'))
                 rec.add_record({'name': name, 'profile': friend_url})
@@ -308,10 +315,12 @@ class FBScraper(object):
         while not self.stop_request:
             all_photos = self.driver.find_elements_by_css_selector(css_selectors.get(css))
             # break if no more photos
-            if len(all_photos) <= scraped or self.stop_request:
+            if len(all_photos) <= scraped:
                 break
 
             for p in all_photos[scraped:]:
+                if self.stop_scraped:
+                    break
                 img_url = p.get_attribute('data-starred-src')
                 try:
                     # download the image
@@ -338,6 +347,8 @@ class FBScraper(object):
         about_links = self.driver.find_elements_by_css_selector(css_selectors.get('about_links'))
         rec = record.Record(self._output_file(target, 'about'), ['section', 'text'])
         for l in about_links:
+            if self.stop_scraped:
+                break
             l.click()
             self._delay()
             title = l.get_attribute('title')
@@ -362,6 +373,8 @@ class FBScraper(object):
 
             # extract group info
             for g in groups:
+                if self.stop_scraped:
+                    break
                 name = g.text
                 url = g.get_attribute('href')
                 rec.add_record({'name': name, 'url': url})

@@ -29,6 +29,11 @@
             Rectangle:
                 size: self.size
         padding: [50, 0, 50, 300]
+        BlackLabel:
+            text: 'Version {}. Last updated {}.'.format(app.version, app.last_updated)
+            halign: 'left'
+            size_hint_y: 0.1
+            text_size: self.size
         BoxLayout:
             GridLayout:
                 size_hint: (.8, .3)

@@ -17,6 +17,9 @@ from kivy.properties import ObjectProperty
 # local imports
 from model import FBScraper
 
+version = '1.1'
+last_updated = '27 March 2017'
+
 
 class Login(Screen):
     login_file = ObjectProperty(None)
@@ -259,6 +262,8 @@ class LogHandler(logging.Handler):
 
 
 class FBScraperApp(App):
+    version = version
+    last_updated = last_updated
 
     def __init__(self, outputdir='', loginfile='login.txt', infile=''):
         App.__init__(self)

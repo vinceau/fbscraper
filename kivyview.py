@@ -146,15 +146,15 @@ class Settings(Screen):
     def _scrape_worker(self, names):
         self.manager.transition = SlideTransition(direction='left')
         self.manager.current = 'logging'
-        current_label = self.manager.get_screen('logging').ids.current_user
-        count_label = self.manager.get_screen('logging').ids.count
+        log_screen = self.manager.get_screen('logging')
+        log_screen.reset()
         app = App.get_running_app()
         start = time()
         all_names = [x.strip() for x in names.split(os.linesep) if x.strip()]
         for index, n in enumerate(all_names):
             if not app.stop_request:
-                current_label.text = n
-                count_label.text = 'Scraping {} of {}'.format(index + 1, len(all_names))
+                log_screen.ids.current_user.text = n
+                log_screen.ids.count.text = 'Scraping {} of {}'.format(index + 1, len(all_names))
                 app.controller.scrape(n.strip())
         self.scrape_complete(time() - start)
         app.stop_request = False
@@ -201,8 +201,14 @@ class Logging(Screen):
     def __init__(self, **kwargs):
         Screen.__init__(self, **kwargs)
         self.max = 30  # the number of recent messages to show
+        self.reset()
+
+    def reset(self):
         self.log = [''] * self.max
         self.current = 0
+        self.ids.pause.disabled = False
+        self.ids.stop.disabled = False
+        self.ids.logtext.text = ''
 
     def add_log(self, text):
         if not text.strip():

@@ -30,65 +30,68 @@
                 size: self.size
         padding: [50, 0, 50, 300]
         BlackLabel:
-            text: 'Version {}. Last updated {}.'.format(app.version, app.last_updated)
+            text: 'FBScraper ver. {}\nWritten by Vince Au <vinceau09@gmail.com>\nLast updated {}'.format(app.version, app.last_updated)
             halign: 'left'
-            size_hint_y: 0.1
+            size_hint_y: 0.2
             text_size: self.size
-        BoxLayout:
-            GridLayout:
-                size_hint: (.8, .3)
-                cols: 2
+        VertiBox:
+            size_hint_y: 0.8
+            BoxLayout:
+                size_hint_y: 0.8
+                GridLayout:
+                    size_hint: (.8, .4)
+                    cols: 2
+                    BlackLabel:
+                        size_hint: (0.4, 1)
+                        text_size: self.size
+                        text: 'Facebook Email'
+                        halign: 'right'
+                        valign: 'middle'
+                        padding_x: 10
+                    TextInput:
+                        id: login
+                        hint_text: 'your@email.com'
+                        focus: True
+                        multiline: False
+                        write_tab: False
+                        on_text_validate: loginbutton.dispatch('on_release')
+                    BlackLabel:
+                        size_hint: (0.4, 1)
+                        text_size: self.size
+                        text: 'Facebook Password'
+                        halign: 'right'
+                        valign: 'middle'
+                        padding_x: 10
+                    TextInput:
+                        id: password
+                        password: True
+                        multiline: False
+                        write_tab: False
+                        on_text_validate: loginbutton.dispatch('on_release')
+                Button:
+                    id: loginbutton
+                    size_hint: (.2, .4)
+                    text: 'Login'
+                    color: (40, 120, 230, 1)
+                    on_release: root.do_login(login.text, password.text)
+            BoxLayout:
+                size_hint_y: .1
+                CheckBox:
+                    size_hint_x: .2
+                    id: storecreds
                 BlackLabel:
-                    size_hint: (0.4, 1)
-                    text_size: self.size
-                    text: 'Facebook Email'
-                    halign: 'right'
+                    size_hint_x: .8
+                    halign: 'left'
                     valign: 'middle'
-                    padding_x: 10
-                TextInput:
-                    id: login
-                    hint_text: 'your@email.com'
-                    focus: True
-                    multiline: False
-                    write_tab: False
-                    on_text_validate: loginbutton.dispatch('on_release')
-                BlackLabel:
-                    size_hint: (0.4, 1)
                     text_size: self.size
-                    text: 'Facebook Password'
-                    halign: 'right'
-                    valign: 'middle'
-                    padding_x: 10
-                TextInput:
-                    id: password
-                    password: True
-                    multiline: False
-                    write_tab: False
-                    on_text_validate: loginbutton.dispatch('on_release')
-            Button:
-                id: loginbutton
-                size_hint: (.2, .3)
-                text: 'Login'
-                color: (40, 120, 230, 1)
-                on_release: root.do_login(login.text, password.text)
-        BoxLayout:
-            size_hint: (1, .2)
-            CheckBox:
-                size_hint: (.2, 1)
-                id: storecreds
-            BlackLabel:
-                size_hint: (.8, 1)
-                halign: 'left'
-                valign: 'middle'
-                text_size: self.size
-                size_hint_x: 0.8
-                text: 'Remember me (Credentials are stored as plaintext in {})'.format(root.login_file)
-        Label:
-            color: 1, 0, 0, 1
-            opacity: 0
-            id: fail
-            size_hint: (1, .2)
-            text: 'ERROR: Failed to login. Check your credentials and try again.'
+                    size_hint_x: 0.8
+                    text: 'Remember me (Credentials are stored as plaintext in {})'.format(root.login_file)
+            Label:
+                color: 1, 0, 0, 1
+                opacity: 0
+                id: fail
+                size_hint_y: .1
+                text: 'ERROR: Failed to login. Check your credentials and try again.'
 
 
 <CompleteDialog>:

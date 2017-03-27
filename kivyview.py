@@ -52,13 +52,15 @@ class Login(Screen):
 
     def _login_worker(self, fbemail, fbpass):
         if fbemail and fbpass:
+            self.ids.loginbutton.disabled = True
             app = App.get_running_app()
             if app.controller.login(fbemail, fbpass):
                 self.ids.fail.opacity = 0
                 self.manager.transition = SlideTransition(direction='left')
                 self.manager.current = 'settings'
-                return
-        self.ids.fail.opacity = 1
+            else:
+                self.ids.fail.opacity = 1
+            self.ids.loginbutton.disabled = False
 
 
 class CompleteDialog(FloatLayout):

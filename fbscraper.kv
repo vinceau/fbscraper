@@ -7,8 +7,10 @@
 <VertiBox@BoxLayout>:
     orientation: 'vertical'
 
-<ScrapeLabel@Label>:
+<BlackLabel@Label>:
     color: 0, 0, 0, 1
+
+<ScrapeLabel@BlackLabel>:
     halign: 'left'
     valign: 'middle'
     text_size: self.size
@@ -31,8 +33,7 @@
             GridLayout:
                 size_hint: (.8, .3)
                 cols: 2
-                Label:
-                    color: 0, 0, 0, 1
+                BlackLabel:
                     size_hint: (0.4, 1)
                     text_size: self.size
                     text: 'Facebook Email'
@@ -46,8 +47,7 @@
                     multiline: False
                     write_tab: False
                     on_text_validate: loginbutton.dispatch('on_release')
-                Label:
-                    color: 0, 0, 0, 1
+                BlackLabel:
                     size_hint: (0.4, 1)
                     text_size: self.size
                     text: 'Facebook Password'
@@ -71,12 +71,11 @@
             CheckBox:
                 size_hint: (.2, 1)
                 id: storecreds
-            Label:
+            BlackLabel:
                 size_hint: (.8, 1)
                 halign: 'left'
                 valign: 'middle'
                 text_size: self.size
-                color: 0, 0, 0, 1
                 size_hint_x: 0.8
                 text: 'Remember me (Credentials are stored as plaintext in {})'.format(root.login_file)
         Label:

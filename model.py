@@ -3,7 +3,7 @@ import logging as log
 import os
 
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, ElementNotVisibleException
 from time import sleep, time
 
 # local imports
@@ -188,7 +188,7 @@ class FBScraper(object):
                 # expand the see more links
                 try:
                     p.find_element_by_css_selector(css_selectors.get('see_more')).click()
-                except NoSuchElementException:
+                except (NoSuchElementException, ElementNotVisibleException):
                     pass
 
                 # get the text before we get the translation

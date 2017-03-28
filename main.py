@@ -16,7 +16,7 @@ from builtins import input
 from getpass import getpass
 
 # local imports
-from model import FBScraper
+from fbscrape import FBScraper
 
 
 def main(args):

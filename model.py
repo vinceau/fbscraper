@@ -185,7 +185,7 @@ class FBScraper(object):
 
             # scrape each post
             for p in all_posts[posts_scraped:]:
-                if self.stop_scraped:
+                if self.stop_request:
                     break
 
                 # expand the see more links
@@ -248,7 +248,7 @@ class FBScraper(object):
                 break
 
             for like in all_likes[likes_scraped:]:
-                if self.stop_scraped:
+                if self.stop_request:
                     break
                 name = like.text
                 page_url = like.get_attribute('href')
@@ -279,7 +279,7 @@ class FBScraper(object):
                 break
 
             for friend in all_friends[friends_scraped:]:
-                if self.stop_scraped:
+                if self.stop_request:
                     break
                 name = friend.text
                 friend_url = strip_query(friend.get_attribute('href'))
@@ -319,7 +319,7 @@ class FBScraper(object):
                 break
 
             for p in all_photos[scraped:]:
-                if self.stop_scraped:
+                if self.stop_request:
                     break
                 img_url = p.get_attribute('data-starred-src')
                 try:
@@ -347,7 +347,7 @@ class FBScraper(object):
         about_links = self.driver.find_elements_by_css_selector(css_selectors.get('about_links'))
         rec = record.Record(self._output_file(target, 'about'), ['section', 'text'])
         for l in about_links:
-            if self.stop_scraped:
+            if self.stop_request:
                 break
             l.click()
             self._delay()
@@ -373,7 +373,7 @@ class FBScraper(object):
 
             # extract group info
             for g in groups:
-                if self.stop_scraped:
+                if self.stop_request:
                     break
                 name = g.text
                 url = g.get_attribute('href')

@@ -1,1 +1,1 @@
-from model import FBScraper
+from scraper import FBScraper

@@ -1,54 +1,26 @@
-
 import logging as log
-import os
 
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException, ElementNotVisibleException
 from time import sleep, time
 
 # local imports
-import record
-
-from custom import css_selectors, xpath_selectors, page_references, text_content
-from helpers import join_url, strip_query, timestring, path_safe, extract_user
+from custom import css_selectors, xpath_selectors, page_references
+from helpers import join_url
 
 
-class FBScraper(object):
+class FBCrawler(object):
 
-    def __init__(self, output_dir=None, min_delay=2):
+    def __init__(self, min_delay=2):
         self.driver = webdriver.Firefox()
-        # store in the current directory by default
-        self.output_dir = output_dir if output_dir else ''
         self.min_delay = min_delay  # seconds to wait for infinite scroll items to populate
         self.loads = 0
         self.load_time = 0
-        self.settings = {
-            'posts': True,
-            'friends': True,
-            'photos': True,
-            'likes': True,
-            'about': True,
-            'groups': True,
-        }
-        self.def_foldername = '%TARGET%'
-        self.def_filename = '%TIMESTAMP%-%TYPE%'
-        self.foldernaming = self.def_foldername
-        self.filenaming = self.def_filename
         self.stop_request = False
         self.pause_request = False
         self.paused = False
 
     def __del__(self):
         self.driver.quit()
-
-    def set_output_dir(self, folder):
-        self.output_dir = folder
-
-    def reset_foldername(self):
-        self.foldernaming = self.def_foldername
-
-    def reset_filename(self):
-        self.filenaming = self.def_filename
 
     def login(self, user, password):
         self.load('https://www.facebook.com/login.php')
@@ -58,23 +30,8 @@ class FBScraper(object):
         self._delay()
         return 'login' not in self.driver.current_url
 
-    def _js(self, code, show=False):
-        """Execute the javascript <code> and log into the terminal if <show> is True.
-        """
-        if show:
-            log.info('Executing Javascript: %s', code)
+    def _js(self, code):
         return self.driver.execute_script(code)
-
-    def _naming_keywords(self, orig, target, name):
-        result = orig.replace('%TARGET%', target)
-        result = result.replace('%TYPE%', name)
-        result = result.replace('%TIMESTAMP%', timestring())
-        return result
-
-    def _output_file(self, target, name):
-        folder = self._naming_keywords(self.foldernaming, target, name)
-        filename = self._naming_keywords(self.filenaming, target, name)
-        return os.path.join(self.output_dir, folder, filename)
 
     def _update_delay(self, seconds):
         self.load_time += seconds
@@ -82,15 +39,12 @@ class FBScraper(object):
 
     def pause(self):
         self.pause_request = True
-        log.info('Requesting to pause scrape...')
 
     def unpause(self):
         self.pause_request = False
-        log.info('Requesting to unpause scrape...')
 
     def interrupt(self):
         self.stop_request = True
-        log.info('Requesting to stop scrape...')
 
     def _delay(self):
         """Sleeps the average amount of time it has taken to load a page or at least self.min_delay seconds.
@@ -114,129 +68,32 @@ class FBScraper(object):
         self.driver.get(url)
         self._update_delay(time() - start)
 
-    def _valid_user(self, targeturl):
-        """Check if <targeturl> is a valid user profile.
-        Does this by checking if a certain error message text is contained inside the page body.
-        """
-        try:
-            self.load(targeturl)
-            header_text = self.driver.find_element_by_css_selector(css_selectors.get('error_header')).text
-            return text_content.get('error_header_text').lower() not in header_text.lower()
-        except NoSuchElementException:
-            return True
-
-    def scrape(self, target):
-        """Infer whether the target is an id, username, or a URL and scrape accordingly.
-        Not guaranteed to be accurate since usernames could also be fully numbers (I think).
-        """
-        if not target:
-            log.info('Invalid Facebook ID, Username, or URL!')
-            return
-        # check if target is a URL
-        check = target
-        if extract_user(target) is not None:
-            check = extract_user(target)
-        if check.isdigit():
-            self.scrape_by_id(check)
-        else:
-            self.scrape_by_username(check)
-
-    def scrape_by_id(self, targetid):
-        self._scrape_all(targetid, 'https://www.facebook.com/profile.php?id=' + targetid)
-
-    def scrape_by_username(self, target):
-        self._scrape_all(target, 'https://www.facebook.com/' + target)
-
-    def selective_scrape(self, settings):
-        self.settings = settings
-
-    def _scrape_all(self, target, targeturl):
-        if not self._valid_user(targeturl):
-            log.info('%s is a missing page!', targeturl)
-            return
-        log.info('Scraping user %s at URL: %s', target, targeturl)
-        if self.settings['posts']:
-            self._scrape_posts(target, targeturl)
-        if self.settings['friends'] and not self.stop_request:
-            self._scrape_friends(target, targeturl)
-        if self.settings['photos'] and not self.stop_request:
-            self._scrape_photos(target, targeturl)
-        if self.settings['likes'] and not self.stop_request:
-            self._scrape_likes(target, targeturl)
-        if self.settings['about'] and not self.stop_request:
-            self._scrape_about(target, targeturl)
-        if self.settings['groups'] and not self.stop_request:
-            self._scrape_groups(target, targeturl)
-        log.info('Finished scraping user %s', target)
-        self.stop_request = False
-
-    def _scrape_posts(self, target, targeturl):
-        posts_scraped = 0
-        rec = record.Record(self._output_file(target, 'posts'), ['date', 'post', 'translation', 'permalink'])
-        log.info('Scraping posts into %s', rec.filename)
-
+    def crawl_posts(self, targeturl, callback):
+        count = 0
         # load their timeline page
         self.load(targeturl)
         while not self.stop_request:
             all_posts = self.driver.find_elements_by_css_selector(css_selectors.get('user_posts'))
             # break if there are no more posts left
-            if len(all_posts) <= posts_scraped:
+            if len(all_posts) <= count:
                 break
 
             # scrape each post
-            for p in all_posts[posts_scraped:]:
+            for p in all_posts[count:]:
                 if self.stop_request:
                     break
-
-                # expand the see more links
-                try:
-                    p.find_element_by_css_selector(css_selectors.get('see_more')).click()
-                except (NoSuchElementException, ElementNotVisibleException):
-                    pass
-
-                # get the text before we get the translation
-                post_text = p.text
-
-                # expand the see translations link if it exists
-                translation = ''
-                try:
-                    st = p.find_element_by_link_text(text_content.get('see_translation_text'))
-                    st_parent = st.find_element_by_xpath('../..')
-                    st.click()
-                    self._delay()
-                    translation = st_parent.find_element_by_css_selector(css_selectors.get('translation')).text
-                except NoSuchElementException:
-                    pass
-
-                date_el = p.find_element_by_xpath(xpath_selectors.get('post_date'))
-                p_time = timestring(date_el.get_attribute('data-utime'))
-                p_link = date_el.find_element_by_xpath('..').get_attribute('href')
-                rec.add_record({
-                    'date': p_time,
-                    'post': post_text,
-                    'translation': translation,
-                    'permalink': p_link,
-                })
-
-                posts_scraped += 1
-                # keep translation as a unicode string while merging
-                if translation:
-                    translation = u'==== TRANSLATION ====\n{}\n'.format(translation)
-                log.info(('Scraped post #%d\n\n#### START POST ####\n%s\n%s'
-                          '####  END POST  ####\n'), posts_scraped, post_text, translation)
+                callback(p, count)
+                count += 1
 
             # scroll to the bottom of the page
             self._js("window.scrollTo(0, document.body.scrollHeight);")
             # wait for the posts to populate
             self._delay()
 
-        log.info('Scraped %d posts into %s', posts_scraped, rec.filename)
+        return count
 
-    def _scrape_likes(self, target, targeturl):
-        likes_scraped = 0
-        rec = record.Record(self._output_file(target, 'likes'), ['name', 'url'])
-        log.info('Scraping likes into %s', rec.filename)
-
+    def crawl_likes(self, targeturl, callback):
+        count = 0
         # load the likes page
         likesurl = join_url(targeturl, page_references.get('likes_page'))
         self.load(likesurl)
@@ -244,30 +101,24 @@ class FBScraper(object):
         while not self.stop_request:
             all_likes = self.driver.find_elements_by_xpath(xpath_selectors.get('likes_selector'))
             # break if no more likes
-            if len(all_likes) <= likes_scraped:
+            if len(all_likes) <= count:
                 break
 
-            for like in all_likes[likes_scraped:]:
+            for like in all_likes[count:]:
                 if self.stop_request:
                     break
-                name = like.text
-                page_url = like.get_attribute('href')
-                rec.add_record({'name': name, 'url': page_url})
-                likes_scraped += 1
-                log.info('Scraped like #%d: %s', likes_scraped, name)
+                callback(like, count)
+                count += 1
 
             # scroll to the bottom of the page
             self._js("window.scrollTo(0, document.body.scrollHeight);")
             # wait for likes to populate
             self._delay()
 
-        log.info('Scraped %d likes into %s', likes_scraped, rec.filename)
+        return count
 
-    def _scrape_friends(self, target, targeturl):
-        friends_scraped = 0
-        rec = record.Record(self._output_file(target, 'friends'), ['name', 'profile'])
-        log.info('Scraping friends into %s', rec.filename)
-
+    def crawl_friends(self, targeturl, callback):
+        count = 0
         # load the friends page
         friendsurl = join_url(targeturl, page_references.get('friends_page'))
         self.load(friendsurl)
@@ -275,77 +126,67 @@ class FBScraper(object):
         while not self.stop_request:
             all_friends = self.driver.find_elements_by_css_selector(css_selectors.get('friends_selector'))
             # break if no more friends
-            if len(all_friends) <= friends_scraped:
+            if len(all_friends) <= count:
                 break
 
-            for friend in all_friends[friends_scraped:]:
+            for friend in all_friends[count:]:
                 if self.stop_request:
                     break
-                name = friend.text
-                friend_url = strip_query(friend.get_attribute('href'))
-                rec.add_record({'name': name, 'profile': friend_url})
-                friends_scraped += 1
-                log.info('Scraped friend #%d: %s', friends_scraped, name)
+                callback(friend, count)
+                count += 1
 
             # scroll to the bottom of the page
             self._js("window.scrollTo(0, document.body.scrollHeight);")
             # wait for the friends to populate
             self._delay()
 
-        log.info('Scraped %d friends into %s', friends_scraped, rec.filename)
+        return count
 
-    def _scrape_photos(self, target, targeturl):
-        # scrape main photos
+    def crawl_photos(self, targeturl, callback):
         photos_url = join_url(targeturl, page_references.get('photos_page'))
-        self._scrape_album(target, 'photos', photos_url, 'photo_selector')
+        return self._album_crawler(photos_url, 'photo_selector', callback)
 
+    def crawl_albums(self, targeturl, callback):
         # scrape all albums
         self.load(join_url(targeturl, page_references.get('albums')))
         albums = self.driver.find_elements_by_css_selector(css_selectors.get('indiv_albums'))
+        count = 0
         for album_name, album_url in [(a.text, a.get_attribute('href')) for a in albums]:
-            if not self.stop_request:
-                self._scrape_album(target, 'album-' + path_safe(album_name), album_url, 'album_photo')
+            if self.stop_request:
+                break
+            callback(album_name, album_url, count)
+            count += 1
+        return count
 
-    def _scrape_album(self, target, album_name, albumurl, css):
-        album = record.Album(self._output_file(target, album_name), True)
-        log.info('Scraping photos into %s', album.name)
+    def crawl_one_album(self, album_url, callback):
+        return self._album_crawler(album_url, 'album_photo', callback)
+
+    def _album_crawler(self, albumurl, css, callback):
         self.load(albumurl)
-
-        scraped = 0
+        count = 0
         while not self.stop_request:
             all_photos = self.driver.find_elements_by_css_selector(css_selectors.get(css))
             # break if no more photos
-            if len(all_photos) <= scraped:
+            if len(all_photos) <= count:
                 break
 
-            for p in all_photos[scraped:]:
+            for p in all_photos[count:]:
                 if self.stop_request:
                     break
-                img_url = p.get_attribute('data-starred-src')
-                try:
-                    # download the image
-                    album.add_image(img_url)
-                    # get the metadata and store that too
-                    link = p.find_element_by_css_selector('a')
-                    label = link.get_attribute('aria-label')
-                    href = link.get_attribute('href')
-                    album.add_description(img_url, label, href)
-                    scraped += 1
-                    log.info('Scraped photo #%d: %s', scraped, img_url)
-                except record.BrokenImageError:
-                    log.error('Failed to download image: %s', img_url)
+                callback(p, count)
+                count += 1
 
             # scroll to the bottom of the page
             self._js("window.scrollTo(0, document.body.scrollHeight);")
             # wait for photos to populate
             self._delay()
 
-        log.info('Scraped %d photos into %s', scraped, album.name)
+        return count
 
-    def _scrape_about(self, target, targeturl):
+    def crawl_about(self, targeturl, callback):
         self.load(join_url(targeturl, page_references.get('about_page')))
         about_links = self.driver.find_elements_by_css_selector(css_selectors.get('about_links'))
-        rec = record.Record(self._output_file(target, 'about'), ['section', 'text'])
+        count = 0
         for l in about_links:
             if self.stop_request:
                 break
@@ -353,36 +194,28 @@ class FBScraper(object):
             self._delay()
             title = l.get_attribute('title')
             main_pane = self.driver.find_element_by_css_selector(css_selectors.get('about_main'))
-            rec.add_record({'section': title, 'text': main_pane.text})
-            log.info('Scraped section %s with the following text:\n#### START ####\n%s\n####  END  ####',
-                     title, main_pane.text)
+            callback(title, main_pane.text)
+            count += 1
+        return count
 
-            if self.stop_request:
-                break
-
-    def _scrape_groups(self, target, targeturl):
+    def crawl_groups(self, targeturl, callback):
         self.load(join_url(targeturl, page_references.get('groups_page')))
-
-        scraped = 0
-        rec = record.Record(self._output_file(target, 'groups'), ['name', 'url'])
+        count = 0
         while not self.stop_request:
             # get groups, break if no more groups
             groups = self.driver.find_elements_by_xpath(xpath_selectors.get('groups'))
-            if len(groups) <= scraped:
+            if len(groups) <= count:
                 break
 
             # extract group info
             for g in groups:
                 if self.stop_request:
                     break
-                name = g.text
-                url = g.get_attribute('href')
-                rec.add_record({'name': name, 'url': url})
-                scraped += 1
-                log.info('Scraped group #%d: %s', scraped, name)
+                callback(g, count)
+                count += 1
 
             # scroll to bottom and wait for new items to populate
             self._js("window.scrollTo(0, document.body.scrollHeight);")
             self._delay()
 
-        log.info('Scraped %d groups into %s', scraped, rec.filename)
+        return count

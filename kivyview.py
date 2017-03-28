@@ -15,7 +15,7 @@ from kivy.uix.popup import Popup
 from kivy.properties import ObjectProperty
 
 # local imports
-from model import FBScraper
+from fbscrape import FBScraper
 
 version = '1.1'
 last_updated = '27 March 2017'

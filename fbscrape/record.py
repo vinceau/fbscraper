@@ -1,6 +1,8 @@
 import os
 import errno
 
+from threading import Thread
+
 try:
     from urllib import urlopen
     from urlparse import urlparse
@@ -58,6 +60,9 @@ class Album(object):
             self.record = Record(name, ['filename', 'description', 'permalink'])
 
     def add_image(self, url):
+        Thread(target=self._image_dl(url), args=(url)).start()
+
+    def _image_dl(self, url):
         img_bin = urlopen(url).read()
         if not img_bin:
             raise BrokenImageError

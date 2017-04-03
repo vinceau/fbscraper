@@ -17,8 +17,33 @@ https://www.facebook.com/search/str/maria/users-named/str/antonio/users-named/fr
 
 """
 
+from copy import deepcopy
+
 
 BASE = 'https://www.facebook.com/search'
+
+
+class FilterManager(object):
+
+    def __init__(self):
+        self.filters = []
+
+    def add(self, obj):
+        self.filters.append(obj)
+
+    def remove(self, obj):
+        self.filters.remove(obj)
+
+    def execute(self):
+        if len(self.filters) == 0:
+            return None
+        base = deepcopy(self.filters[0])
+        for o in self.filters[1:]:
+            base.join(o)
+        return base.query()
+
+    def clear(self):
+        self.filters = []
 
 
 class SearchObject(object):

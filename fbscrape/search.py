@@ -17,6 +17,7 @@ https://www.facebook.com/search/str/maria/users-named/str/antonio/users-named/fr
 
 """
 
+
 BASE = 'https://www.facebook.com/search'
 
 
@@ -39,48 +40,119 @@ class SearchObject(object):
         self.intersection = True
         return self
 
+    def append(self, text):
+        self.urlcomp += text
+        return self
+
 
 class PeopleObject(SearchObject):
 
+    def friends(self):
+        return self.append('/friends')
+
     def friends_with(self, name):
-        return PeopleObject(self.urlcomp + friends_with(name).urlcomp).intersect()
+        return self.join(friends_with(name))
 
     def people_named(self, name):
-        return PeopleObject(self.urlcomp + people_named(name).urlcomp).intersect()
+        return self.join(people_named(name))
 
-    def visited(self, place_id):
-        return PeopleObject(self.urlcomp + visited(place_id).urlcomp).intersect()
+    def visited(self, place):
+        return self.join(visited(place))
 
     def likes_page(self, page_id):
-        return PeopleObject(self.urlcomp + likes_page(page_id).urlcomp).intersect()
+        return self.join(likes_page(page_id))
 
     def lives_in(self, place_id):
-        return PeopleObject(self.urlcomp + lives_in(place_id).urlcomp).intersect()
+        return self.join(lives_in(place_id))
+
+    def male(self):
+        return self.join(male())
+
+    def female(self):
+        return self.join(female())
 
 
-def lives_in(place_id):
-    return PeopleObject('/{}/residents'.format(place_id))
+class PageObject(SearchObject):
+
+    def __init__(self, page):
+        if page.isdigit():
+            base = '/' + page
+        else:
+            base = '/str/{}/pages-named'.format(page)
+        SearchObject.__init__(self, base)
+
+    def likers(self):
+        return PeopleObject(self.urlcomp).append('/likers')
 
 
-def visited(place_id):
-    return PeopleObject('/{}/visitors'.format(place_id))
+class PlaceObject(PageObject):
+
+    def __init__(self, place):
+        PageObject.__init__(self, place)
+
+    def lives_in(self):
+        return PeopleObject(self.urlcomp).append('/residents/present')
+
+    def lived_in(self):
+        return PeopleObject(self.urlcomp).append('/residents/past')
+
+    def visited(self):
+        return PeopleObject(self.urlcomp).append('/visitors')
+
+
+class NamedPerson(PeopleObject):
+
+    def __init__(self, name):
+        base = '/str/{}/users-named'.format(name)
+        PeopleObject.__init__(self, base)
+
+
+
+
+
+def male():
+    return PeopleObject('/males').intersect()
+
+
+def female():
+    return PeopleObject('/females').intersect()
+
+
+def lived_in(place):
+    return PlaceObject(place).lived_in()
+
+
+def lives_in(place):
+    return PlaceObject(place).lives_in()
+
+
+def visited(place):
+    return PlaceObject(place).visited()
 
 
 def friends_with(name):
-    return PeopleObject('/str/{}/users-named/friends'.format(name))
+    return NamedPerson(name).friends()
+
+
+def pages_named(name):
+    return PageObject(name)
 
 
 def people_named(name):
-    return PeopleObject('/str/{}/users-named'.format(name))
+    return NamedPerson(name)
 
 
 def likes_page(page_id):
-    return PeopleObject('/{}/likers'.format(page_id))
+    return PageObject(page_id).likers()
 
 
 
 if __name__ == '__main__':
     # people named daniel, who are friends with a henry, who has been to sydney
     print(people_named('Daniel').friends_with('Henry').visited('110884905606108').query())
+    # people named daniel, who are friends with a henry, who has been to melbourne
+    print(people_named('Daniel').friends_with('Henry').visited('melbourne').query())
+    # people named daniel, who are friends with a henry and also friends with a tom
+    print(people_named('Daniel').friends_with('Henry').friends_with('Tom').query())
     # people who like ISIS
     print(likes_page('1586149978322999').friends_with('John').query())

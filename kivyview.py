@@ -16,6 +16,7 @@ from kivy.properties import ObjectProperty
 
 # local imports
 from fbscrape import FBScraper
+from searchview import SearchScreen
 
 version = '1.1'
 last_updated = '27 March 2017'
@@ -139,6 +140,10 @@ class Settings(Screen):
     def _load_file(self, filename):
         with open(filename, 'r') as f:
             self.ids.names.text = ''.join(f.readlines())
+
+    def search_view(self):
+        self.manager.transition = SlideTransition(direction='up')
+        self.manager.current = 'search'
 
     def do_scrape(self, names):
         Thread(target=self._scrape_worker, args=(names, )).start()
@@ -285,6 +290,7 @@ class FBScraperApp(App):
         manager = ScreenManager()
         manager.add_widget(Login(name='login', login_file=self.loginfile))
         manager.add_widget(Settings(name='settings', infile=self.infile))
+        manager.add_widget(SearchScreen(name='search'))
         logscreen = Logging(name='logging')
         log = logging.getLogger()
         log.addHandler(LogHandler(logscreen))

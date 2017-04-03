@@ -243,11 +243,17 @@
             orientation: 'horizontal'
             size_hint_y: 0.7
             VertiBox:
-                Label:
-                    size_hint: (1, 0.2)
-                    text_size: self.size
-                    valign: 'bottom'
-                    text: 'Facebook Targets (<Enter> separated)'
+                BoxLayout:
+                    size_hint_y: 0.2
+                    Label:
+                        size_hint_x: 0.8
+                        text_size: self.size
+                        valign: 'bottom'
+                        text: 'Facebook Targets (<Enter> separated)'
+                    Button:
+                        size_hint: (0.2, 0.6)
+                        text: 'Find Targets'
+                        on_release: root.search_view()
                 TextInput:
                     id: names
                     size_hint: (1, 0.8)

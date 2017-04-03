@@ -228,7 +228,6 @@
                 valign: 'bottom'
                 text: 'Output Directory'
             BoxLayout:
-                orientation: 'horizontal'
                 TextInput:
                     id: pathbox
                     text: os.path.abspath(app.controller.output_dir)
@@ -240,7 +239,6 @@
                     size_hint_x: 0.2
                     on_release: root.choosedir()
         BoxLayout:
-            orientation: 'horizontal'
             size_hint_y: 0.7
             VertiBox:
                 BoxLayout:

@@ -7,7 +7,7 @@ from selenium.common.exceptions import NoSuchElementException, ElementNotVisible
 # local imports
 import record
 
-from model import FBCrawler
+from crawler import FBCrawler
 from custom import css_selectors, xpath_selectors, text_content
 from helpers import strip_query, timestring, path_safe, extract_user
 

@@ -128,7 +128,10 @@ class PlaceObject(PageObject):
 class NamedPerson(PeopleObject):
 
     def __init__(self, name):
-        base = '/str/{}/users-named'.format(name)
+        if name.isdigit():
+            base = '/{}'.format(name)
+        else:
+            base = '/str/{}/users-named'.format(name)
         PeopleObject.__init__(self, base)
 
 

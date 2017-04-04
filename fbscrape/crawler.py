@@ -72,7 +72,7 @@ class FBCrawler(object):
         count = 0
         # load their timeline page
         self.load(targeturl)
-        while not self.stop_request:
+        while True:
             all_posts = self.driver.find_elements_by_css_selector(css_selectors.get('user_posts'))
             # break if there are no more posts left
             if len(all_posts) <= count:
@@ -81,7 +81,7 @@ class FBCrawler(object):
             # scrape each post
             for p in all_posts[count:]:
                 if self.stop_request:
-                    break
+                    return count
                 callback(p, count)
                 count += 1
 
@@ -98,7 +98,7 @@ class FBCrawler(object):
         likesurl = join_url(targeturl, page_references.get('likes_page'))
         self.load(likesurl)
 
-        while not self.stop_request:
+        while True:
             all_likes = self.driver.find_elements_by_xpath(xpath_selectors.get('likes_selector'))
             # break if no more likes
             if len(all_likes) <= count:
@@ -106,7 +106,7 @@ class FBCrawler(object):
 
             for like in all_likes[count:]:
                 if self.stop_request:
-                    break
+                    return count
                 callback(like, count)
                 count += 1
 
@@ -123,7 +123,7 @@ class FBCrawler(object):
         friendsurl = join_url(targeturl, page_references.get('friends_page'))
         self.load(friendsurl)
 
-        while not self.stop_request:
+        while True:
             all_friends = self.driver.find_elements_by_css_selector(css_selectors.get('friends_selector'))
             # break if no more friends
             if len(all_friends) <= count:
@@ -131,7 +131,7 @@ class FBCrawler(object):
 
             for friend in all_friends[count:]:
                 if self.stop_request:
-                    break
+                    return count
                 callback(friend, count)
                 count += 1
 
@@ -164,7 +164,7 @@ class FBCrawler(object):
     def _album_crawler(self, albumurl, css, callback):
         self.load(albumurl)
         count = 0
-        while not self.stop_request:
+        while True:
             all_photos = self.driver.find_elements_by_css_selector(css_selectors.get(css))
             # break if no more photos
             if len(all_photos) <= count:
@@ -172,7 +172,7 @@ class FBCrawler(object):
 
             for p in all_photos[count:]:
                 if self.stop_request:
-                    break
+                    return count
                 callback(p, count)
                 count += 1
 
@@ -201,7 +201,7 @@ class FBCrawler(object):
     def crawl_groups(self, targeturl, callback):
         self.load(join_url(targeturl, page_references.get('groups_page')))
         count = 0
-        while not self.stop_request:
+        while True:
             # get groups, break if no more groups
             groups = self.driver.find_elements_by_xpath(xpath_selectors.get('groups'))
             if len(groups) <= count:
@@ -210,7 +210,7 @@ class FBCrawler(object):
             # extract group info
             for g in groups:
                 if self.stop_request:
-                    break
+                    return count
                 callback(g, count)
                 count += 1
 

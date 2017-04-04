@@ -1,8 +1,91 @@
+#:import b kivy.uix.behaviors.togglebutton
+
+<Filter>:
+    height: 40
+    size_hint: 1, None
+    Label:
+        id: labeltext
+        text: root.label
+        size_hint_x: 0.8
+    Button:
+        text: 'Remove'
+        on_release: root.remove()
+        size_hint_x: 0.2
+
 
 <SearchScreen>:
+    id: searchscreen
     VertiBox:
-        Label:
-            text: 'hi'
-        Button:
-            text: 'Back'
-            on_release: root.go_back()
+        padding: [20]*4
+        VertiBox:
+            size_hint_y: 0.9
+            Label:
+                size_hint_y: 0.05
+                text: 'I\'m looking for someone..'
+                halign: 'left'
+                text_size: self.size
+            BoxLayout:
+                size_hint_y: 0.1
+                ToggleButton:
+                    text: 'named..'
+                    group: 'options'
+                    ident: 'named'
+                    on_press: root.set_option()
+                ToggleButton:
+                    text: 'friends with..'
+                    group: 'options'
+                    ident: 'friends'
+                    on_press: root.set_option()
+                ToggleButton:
+                    text: 'who lives in..'
+                    group: 'options'
+                    ident: 'lives'
+                    on_press: root.set_option()
+                ToggleButton:
+                    text: 'who likes..'
+                    group: 'options'
+                    ident: 'likes'
+                    on_press: root.set_option()
+                Button:
+                    id: male
+                    text: 'male'
+                    ident: 'male'
+                    on_release: root.add_filter(self)
+                Button:
+                    id: female
+                    text: 'female'
+                    ident: 'female'
+                    on_release: root.add_filter(self)
+            BoxLayout:
+                size_hint_y: 0.1
+                TextInput:
+                    id: textinput
+                    multiline: False
+                    disabled: True
+                    on_text_validate: filter_btn.dispatch('on_release')
+                Button:
+                    id: filter_btn
+                    size_hint_x: 0.15
+                    text: 'Add filter'
+                    disabled: len(textinput.text) == 0
+                    on_release: root.add_option()
+            ScrollView:
+                #size_hint_y: 0.75
+                scroll_type: ['bars']
+                bar_width: '10dp'
+                GridLayout:
+                    id: scrollview
+                    cols: 1
+                    spacing: 5
+                    size_hint_y: None
+                    #minimum_height: root.height
+        BoxLayout:
+            size_hint_y: 0.1
+            Button:
+                text: 'Back'
+                on_release: root.go_back()
+            Button:
+                id: search_btn
+                text: 'Search'
+                disabled: True
+                on_release: root.search()

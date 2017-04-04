@@ -1,9 +1,12 @@
 from kivy.app import App
-from kivy.uix.screenmanager import Screen, SlideTransition
-from kivy.uix.boxlayout import BoxLayout
-from kivy.properties import ObjectProperty
 from kivy.lang import Builder
+from kivy.properties import ObjectProperty
+from kivy.clock import Clock
 from kivy.uix.behaviors.togglebutton import ToggleButtonBehavior
+from kivy.uix.popup import Popup
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.screenmanager import Screen, SlideTransition
 
 from threading import Thread
 
@@ -18,9 +21,32 @@ class Filter(BoxLayout):
     callback = ObjectProperty(None)
 
     def remove(self):
-        self.parent.height -= self.height
         self.parent.remove_widget(self)
         self.callback()
+
+
+class ResultItem(BoxLayout):
+    source = ObjectProperty('')
+    text = ObjectProperty('')
+
+
+class SearchResults(FloatLayout):
+    url = ObjectProperty('')
+    cancel = ObjectProperty(None)
+
+    def __init__(self, **kwargs):
+        FloatLayout.__init__(self, **kwargs)
+        Thread(target=self._search_worker).start()
+
+    def _search_worker(self):
+
+        def cb(name, url, imageurl, count):
+            def clock(dt):
+                i = ResultItem(source=imageurl, text=name)
+                self.ids.grid.add_widget(i)
+            Clock.schedule_once(clock)
+
+        App.get_running_app().controller.crawl_search_results(self.url, cb, 20)
 
 
 class SearchScreen(Screen):
@@ -76,19 +102,15 @@ class SearchScreen(Screen):
 
         f = Filter(label=label, search_filter=s, callback=cb)
         self.ids.scrollview.add_widget(f)
-        self.ids.scrollview.height += f.height
         self.fm.add(f.search_filter)
         self.ids.search_btn.disabled = False
 
 
-    def _search_worker(self):
-        self.ids.search_btn.disabled = True
-        url = self.fm.execute()
-        if url:
-            #print(url)
-            App.get_running_app().controller.load(url)
-        self.ids.search_btn.disabled = False
-
-
     def search(self):
-        Thread(target=self._search_worker).start()
+        url = self.fm.execute()
+        content = SearchResults(cancel=self.dismiss_popup, url=url)
+        self._popup = Popup(title='Search Results', content=content, size_hint=(.9, .9))
+        self._popup.open()
+
+    def dismiss_popup(self):
+        self._popup.dismiss()

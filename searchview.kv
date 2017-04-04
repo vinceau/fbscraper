@@ -12,6 +12,48 @@
         on_release: root.remove()
         size_hint_x: 0.2
 
+<ResultItem>:
+    height: 100
+    size_hint: 1, None
+    canvas:
+        Color:
+            rgb: 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    CheckBox:
+        size_hint_x: None
+        width: 40
+    AsyncImage:
+        source: root.source
+        size_hint_x: 0.2
+    BlackLabel:
+        size_hint_x: 0.7
+        text: root.text
+        max_lines: 3
+        shorten: True
+
+
+<SearchResults>:
+    VertiBox:
+        size: root.size
+        pos: root.pos
+        ScrollView:
+            scroll_type: ['bars']
+            bar_width: '10dp'
+            GridLayout:
+                id: grid
+                cols: 2
+                spacing: 2
+                size_hint_y: None
+                height: self.minimum_height
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: 'Close'
+                on_release: root.cancel()
+
 
 <SearchScreen>:
     id: searchscreen
@@ -78,7 +120,7 @@
                     cols: 1
                     spacing: 5
                     size_hint_y: None
-                    #minimum_height: root.height
+                    height: self.minimum_height
         BoxLayout:
             size_hint_y: 0.1
             Button:

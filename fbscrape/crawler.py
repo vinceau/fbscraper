@@ -219,3 +219,29 @@ class FBCrawler(object):
             self._delay()
 
         return count
+
+    def crawl_search_results(self, url, callback, limit=0):
+        """Accepts a callback method which has search result's name, url, imageurl,
+        as well as the current search result count.
+        """
+        self.load(url)
+        count = 0
+        while True:
+            results = self.driver.find_elements_by_css_selector(css_selectors.get('search_results'))
+            if len(results) <= count:
+                break
+
+            for r in results:
+                if self.stop_request or limit > 0 and count >= limit:
+                    return count
+                imageurl = r.find_element_by_css_selector(css_selectors.get('search_pics')).get_attribute('src')
+                url = r.find_element_by_css_selector(css_selectors.get('search_link'))
+                name = url.text
+                count += 1
+                callback(name, url.get_attribute('href'), imageurl, count)
+
+            # scroll to bottom and wait for new items to populate
+            self._js("window.scrollTo(0, document.body.scrollHeight);")
+            self._delay()
+
+        return count

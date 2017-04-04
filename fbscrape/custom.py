@@ -32,6 +32,11 @@ css_selectors = {
     'see_more': "a.see_more_link",
     # translations
     'translation': "div:last-child > span:first-of-type",
+    # people search results
+    'search_results': '#initial_browse_result div[data-bt] > div[data-gt]',
+    # the following two selectors are used after 'search_results' is used
+    'search_pics': 'div.clearfix > a > img',
+    'search_link': 'div.clearfix div.clearfix > div > div > a[data-testid]',
 }
 
 

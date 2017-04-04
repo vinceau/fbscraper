@@ -82,8 +82,8 @@ class FBCrawler(object):
             for p in all_posts[count:]:
                 if self.stop_request:
                     return count
-                callback(p, count)
                 count += 1
+                callback(p, count)
 
             # scroll to the bottom of the page
             self._js("window.scrollTo(0, document.body.scrollHeight);")
@@ -107,8 +107,8 @@ class FBCrawler(object):
             for like in all_likes[count:]:
                 if self.stop_request:
                     return count
-                callback(like, count)
                 count += 1
+                callback(like, count)
 
             # scroll to the bottom of the page
             self._js("window.scrollTo(0, document.body.scrollHeight);")
@@ -132,8 +132,8 @@ class FBCrawler(object):
             for friend in all_friends[count:]:
                 if self.stop_request:
                     return count
-                callback(friend, count)
                 count += 1
+                callback(friend, count)
 
             # scroll to the bottom of the page
             self._js("window.scrollTo(0, document.body.scrollHeight);")
@@ -154,8 +154,8 @@ class FBCrawler(object):
         for album_name, album_url in [(a.text, a.get_attribute('href')) for a in albums]:
             if self.stop_request:
                 break
-            callback(album_name, album_url, count)
             count += 1
+            callback(album_name, album_url, count)
         return count
 
     def crawl_one_album(self, album_url, callback):
@@ -173,8 +173,8 @@ class FBCrawler(object):
             for p in all_photos[count:]:
                 if self.stop_request:
                     return count
-                callback(p, count)
                 count += 1
+                callback(p, count)
 
             # scroll to the bottom of the page
             self._js("window.scrollTo(0, document.body.scrollHeight);")
@@ -211,8 +211,8 @@ class FBCrawler(object):
             for g in groups:
                 if self.stop_request:
                     return count
-                callback(g, count)
                 count += 1
+                callback(g, count)
 
             # scroll to bottom and wait for new items to populate
             self._js("window.scrollTo(0, document.body.scrollHeight);")

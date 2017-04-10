@@ -58,6 +58,11 @@ class SearchResults(FloatLayout):
             self.ids.no_results.height = '0dp'
             self.ids.no_results.size_hint_y = None
 
+    def toggle_all(self):
+        tally = [x.ids.check.active for x in self.ids.grid.children]
+        for x in self.ids.grid.children:
+            x.ids.check.active = tally.count(True) / len(tally) < 0.5
+
     def add_to_queue(self):
         screen = self.manager.get_screen('settings')
         for x in self.ids.grid.children:

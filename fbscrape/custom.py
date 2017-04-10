@@ -16,7 +16,8 @@ css_selectors = {
     'login_form': '#login_form',
     # the individual photos in the photos page
     'photo_selector': '#pagelet_timeline_medley_photos div.fbPhotoStarGridElement',
-    'friends_selector': "ul[data-pnref='friends'] div.uiProfileBlockContent a[data-hovercard]",
+    'friends_selector': "ul[data-pnref='friends'] div[data-testid='friend_list_item']",
+    'friend_image': "a[data-hovercard] > img",
     'user_posts': "#recent_capsule_container div.fbUserContent > div:first-of-type",
     # the left hand side of the about page with the different sections
     'about_links': "ul[data-pnref='about'] > li ul[data-testid='info_section_left_nav'] > li",
@@ -44,6 +45,7 @@ css_selectors = {
 Only use XPath when you can't express it in CSS.
 """
 xpath_selectors = {
+    'friend_info': ".//div//a[@data-hovercard and not(*)]",
     'likes_selector': "//div[@id='pagelet_timeline_medley_likes']//li//a[@data-hovercard and not(*)]",
     'post_date': ".//abbr/span[contains(@class, 'timestampContent')]/..",
     # individual groups in the groups page

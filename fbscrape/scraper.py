@@ -168,9 +168,8 @@ class FBScraper(FBCrawler):
         rec = record.Record(self._output_file(target, 'friends'), ['name', 'profile'])
         log.info('Scraping friends into %s', rec.filename)
 
-        def callback(friend, i):
-            name = friend.text
-            friend_url = strip_query(friend.get_attribute('href'))
+        def callback(name, url, imgurl, i):
+            friend_url = strip_query(url)
             rec.add_record({'name': name, 'profile': friend_url})
             log.info('Scraped friend %d: %s', i, name)
 

@@ -133,7 +133,11 @@ class FBCrawler(object):
                 if self.stop_request:
                     return count
                 count += 1
-                callback(friend, count)
+                friend_info = friend.find_element_by_xpath(xpath_selectors.get('friend_info'))
+                name = friend_info.text
+                url = friend_info.get_attribute('href')
+                imgurl = friend.find_element_by_css_selector(css_selectors.get('friend_image')).get_attribute('src')
+                callback(name, url, imgurl, count)
 
             # scroll to the bottom of the page
             self._js("window.scrollTo(0, document.body.scrollHeight);")

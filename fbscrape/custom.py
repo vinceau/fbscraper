@@ -17,7 +17,7 @@ css_selectors = {
     # the individual photos in the photos page
     'photo_selector': '#pagelet_timeline_medley_photos div.fbPhotoStarGridElement',
     'friends_selector': "ul[data-pnref='friends'] div.uiProfileBlockContent a[data-hovercard]",
-    'user_posts': "#recent_capsule_container div.userContentWrapper > div:first-of-type",
+    'user_posts': "#recent_capsule_container div.fbUserContent > div:first-of-type",
     # the left hand side of the about page with the different sections
     'about_links': "ul[data-pnref='about'] > li ul[data-testid='info_section_left_nav'] > li",
     # the main about page with all the content of the individual section

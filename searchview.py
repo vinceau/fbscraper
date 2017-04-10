@@ -46,7 +46,15 @@ class SearchResults(FloatLayout):
                 self.ids.grid.add_widget(i)
             Clock.schedule_once(clock)
 
-        App.get_running_app().controller.crawl_search_results(self.url, cb, 20)
+        res = App.get_running_app().controller.crawl_search_results(self.url, cb, 20)
+        if res == 0:
+            self.ids.no_results.opacity = 1
+            self.ids.no_results.height = 100
+            self.ids.no_results.size_hint_y = 1
+        else:
+            self.ids.no_results.opacity = 0
+            self.ids.no_results.height = '0dp'
+            self.ids.no_results.size_hint_y = None
 
 
 class SearchScreen(Screen):

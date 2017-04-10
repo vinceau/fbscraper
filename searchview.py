@@ -28,11 +28,13 @@ class Filter(BoxLayout):
 class ResultItem(BoxLayout):
     source = ObjectProperty('')
     text = ObjectProperty('')
+    url = ObjectProperty('')
 
 
 class SearchResults(FloatLayout):
     url = ObjectProperty('')
     cancel = ObjectProperty(None)
+    manager = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         FloatLayout.__init__(self, **kwargs)
@@ -42,7 +44,7 @@ class SearchResults(FloatLayout):
 
         def cb(name, url, imageurl, count):
             def clock(dt):
-                i = ResultItem(source=imageurl, text=name)
+                i = ResultItem(source=imageurl, text=name, url=url)
                 self.ids.grid.add_widget(i)
             Clock.schedule_once(clock)
 
@@ -55,6 +57,12 @@ class SearchResults(FloatLayout):
             self.ids.no_results.opacity = 0
             self.ids.no_results.height = '0dp'
             self.ids.no_results.size_hint_y = None
+
+    def add_to_queue(self):
+        screen = self.manager.get_screen('settings')
+        for x in self.ids.grid.children:
+            if x.ids.check.active:
+                screen.add_target(x.url)
 
 
 class SearchScreen(Screen):
@@ -116,7 +124,7 @@ class SearchScreen(Screen):
 
     def search(self):
         url = self.fm.execute()
-        content = SearchResults(cancel=self.dismiss_popup, url=url)
+        content = SearchResults(cancel=self.dismiss_popup, url=url, manager=self.manager)
         self._popup = Popup(title='Search Results', content=content, size_hint=(.9, .9))
         self._popup.open()
 

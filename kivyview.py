@@ -141,6 +141,9 @@ class Settings(Screen):
         with open(filename, 'r') as f:
             self.ids.names.text = ''.join(f.readlines())
 
+    def add_target(self, url):
+        self.ids.names.text += url + os.linesep
+
     def search_view(self):
         self.manager.transition = SlideTransition(direction='up')
         self.manager.current = 'search'

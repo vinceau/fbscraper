@@ -22,6 +22,7 @@
             pos: self.pos
             size: self.size
     CheckBox:
+        id: check
         size_hint_x: None
         width: 40
     AsyncImage:
@@ -59,6 +60,9 @@
             Button:
                 text: 'Close'
                 on_release: root.cancel()
+            Button:
+                text: 'Add to Scrape Queue'
+                on_release: root.add_to_queue()
 
 
 <SearchScreen>:

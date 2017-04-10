@@ -33,6 +33,19 @@ class ResultItem(BoxLayout):
     text = ObjectProperty('')
     url = ObjectProperty('')
 
+    def __init__(self, **kwargs):
+        BoxLayout.__init__(self, **kwargs)
+        self.working = False
+
+    def show_profile(self):
+        if not self.working:
+            Thread(target=self._worker).start()
+
+    def _worker(self):
+        self.working = True
+        App.get_running_app().controller.load(self.url)
+        self.working = False
+
 
 class SearchResults(FloatLayout):
     url = ObjectProperty('')

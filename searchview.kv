@@ -30,11 +30,20 @@
     AsyncImage:
         source: root.source
         size_hint_x: 0.2
-    BlackLabel:
-        size_hint_x: 0.7
-        text: root.text
-        max_lines: 3
-        shorten: True
+    VertiBox:
+        padding: 15
+        BlackLabel:
+            text: root.text
+            max_lines: 3
+            text_size: self.size
+            valign: 'middle'
+            split_str: ''
+            shorten_from: 'right'
+            shorten: True
+        BoxLayout:
+            Button:
+                text: 'Show Profile'
+                on_release: root.show_profile()
 
 
 <SearchResults>:

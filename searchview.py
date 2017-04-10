@@ -32,6 +32,7 @@ class ResultItem(BoxLayout):
     source = ObjectProperty('')
     text = ObjectProperty('')
     url = ObjectProperty('')
+    get_friends = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         BoxLayout.__init__(self, **kwargs)
@@ -46,6 +47,13 @@ class ResultItem(BoxLayout):
         App.get_running_app().controller.load(self.url)
         self.working = False
 
+    def load_friends(self, url):
+        Thread(target=self._friends_worker, args=(url,)).start()
+
+    def _friends_worker(self, url):
+        self.parent.clear_widgets()
+        self.get_friends(url)
+
 
 class SearchResults(FloatLayout):
     url = ObjectProperty('')
@@ -57,17 +65,25 @@ class SearchResults(FloatLayout):
         FloatLayout.__init__(self, **kwargs)
         Thread(target=self._search_worker).start()
 
+    def get_friends(self, url):
+        res = App.get_running_app().controller.crawl_friends(url, self.cb)
+        self.has_results(res)
+
+    def cb(self, name, url, imageurl, count):
+        """The callback for adding profiles to the search result pane
+        """
+        def clock(dt):
+            i = ResultItem(source=imageurl, text=name, url=url, get_friends=self.get_friends)
+            self.ids.grid.add_widget(i)
+        Clock.schedule_once(clock)
+
     def _search_worker(self):
-
-        def cb(name, url, imageurl, count):
-            def clock(dt):
-                i = ResultItem(source=imageurl, text=name, url=url)
-                self.ids.grid.add_widget(i)
-            Clock.schedule_once(clock)
-
         limit = min(max_limit, self.limit)
-        res = App.get_running_app().controller.crawl_search_results(self.url, cb, limit)
-        if res == 0:
+        res = App.get_running_app().controller.crawl_search_results(self.url, self.cb, limit)
+        self.has_results(res)
+
+    def has_results(self, count):
+        if count == 0:
             self.ids.no_results.opacity = 1
             self.ids.no_results.height = 100
             self.ids.no_results.size_hint_y = 1

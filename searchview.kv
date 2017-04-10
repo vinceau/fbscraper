@@ -1,4 +1,6 @@
 #:import b kivy.uix.behaviors.togglebutton
+#default number of results to load
+#:set def_results '20'
 
 <Filter>:
     height: 40
@@ -135,6 +137,23 @@
                     size_hint_y: None
                     height: self.minimum_height
         BoxLayout:
+            size_hint_y: 0.05
+            Widget:
+                size_hint_x: 0.7
+            Label:
+                size_hint_x: 0.25
+                text: 'Limit results (default: {})'.format(def_results)
+                text_size: self.size
+                halign: 'right'
+                valign: 'middle'
+            TextInput:
+                id: res_lim
+                input_filter: 'int'
+                size_hint_x: 0.05
+                multiline: False
+                text: def_results
+                hint_text: def_results
+        BoxLayout:
             size_hint_y: 0.1
             Button:
                 text: 'Back'
@@ -143,4 +162,4 @@
                 id: search_btn
                 text: 'Search'
                 disabled: True
-                on_release: root.search()
+                on_release: root.search(res_lim.text)

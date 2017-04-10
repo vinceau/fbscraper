@@ -14,6 +14,9 @@ from fbscrape import search
 
 Builder.load_file('searchview.kv')
 
+max_limit = 150
+def_limit = 20
+
 
 class Filter(BoxLayout):
     label = ObjectProperty('')
@@ -35,6 +38,7 @@ class SearchResults(FloatLayout):
     url = ObjectProperty('')
     cancel = ObjectProperty(None)
     manager = ObjectProperty(None)
+    limit = ObjectProperty(def_limit)
 
     def __init__(self, **kwargs):
         FloatLayout.__init__(self, **kwargs)
@@ -48,7 +52,8 @@ class SearchResults(FloatLayout):
                 self.ids.grid.add_widget(i)
             Clock.schedule_once(clock)
 
-        res = App.get_running_app().controller.crawl_search_results(self.url, cb, 20)
+        limit = min(max_limit, self.limit)
+        res = App.get_running_app().controller.crawl_search_results(self.url, cb, limit)
         if res == 0:
             self.ids.no_results.opacity = 1
             self.ids.no_results.height = 100
@@ -75,6 +80,20 @@ class SearchScreen(Screen):
     def __init__(self, **kwargs):
         Screen.__init__(self, **kwargs)
         self.fm = search.FilterManager()
+
+    def _check(self):
+        """Function to check the results limiting is correct
+        """
+        try:
+            num = int(self.ids.res_lim.text)
+            if num <= 0:
+                self.ids.res_lim.text = str(def_limit)
+            elif num > max_limit:
+                self.ids.res_lim.text = str(max_limit)
+        except ValueError:
+            self.ids.res_lim.text = str(def_limit)
+
+        return int(self.ids.res_lim.text)
 
     def go_back(self):
         self.manager.transition = SlideTransition(direction='down')
@@ -126,10 +145,9 @@ class SearchScreen(Screen):
         self.fm.add(f.search_filter)
         self.ids.search_btn.disabled = False
 
-
-    def search(self):
+    def search(self, limit):
         url = self.fm.execute()
-        content = SearchResults(cancel=self.dismiss_popup, url=url, manager=self.manager)
+        content = SearchResults(cancel=self.dismiss_popup, url=url, manager=self.manager, limit=self._check())
         self._popup = Popup(title='Search Results', content=content, size_hint=(.9, .9))
         self._popup.open()
 

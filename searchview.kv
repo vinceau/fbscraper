@@ -63,6 +63,7 @@
             scroll_type: ['bars']
             bar_width: '10dp'
             GridLayout:
+                count: 0
                 id: grid
                 cols: 2
                 spacing: 2
@@ -77,9 +78,11 @@
             Button:
                 text: 'Toggle All'
                 on_release: root.toggle_all()
+                disabled: len(grid.children) == 0
             Button:
                 text: 'Add to Scrape Queue'
                 on_release: root.add_to_queue()
+                disabled: grid.count == 0
 
 
 <SearchScreen>:

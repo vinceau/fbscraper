@@ -37,6 +37,7 @@ class ResultItem(BoxLayout):
     def __init__(self, **kwargs):
         BoxLayout.__init__(self, **kwargs)
         self.working = False
+        self.ids.check.bind(active=self.on_checkbox_active)
 
     def show_profile(self):
         if not self.working:
@@ -51,8 +52,17 @@ class ResultItem(BoxLayout):
         Thread(target=self._friends_worker, args=(url,)).start()
 
     def _friends_worker(self, url):
+        self.parent.count = 0
         self.parent.clear_widgets()
         self.get_friends(url)
+
+    def on_checkbox_active(self, checkbox, value):
+        """Keep track of how many check boxes have been checked
+        """
+        if value:
+            self.parent.count += 1
+        else:
+            self.parent.count -= 1
 
 
 class SearchResults(FloatLayout):

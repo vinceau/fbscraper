@@ -17,11 +17,23 @@ class FBCrawler(object):
         self.load_time = 0
         self.stop_request = False
         self.pause_request = False
-        self.paused = False
+        self.status = 'ready'
 
     def __del__(self):
         self.driver.quit()
 
+    def running(func):
+        """This is a decorator in order to set the status as running when running
+        and the status as ready when action is complete
+        """
+        def do_stuff(self, *args, **kwargs):
+            self.status = 'running'
+            ret = func(self, *args, **kwargs)
+            self.status = 'ready'
+            return ret
+        return do_stuff
+
+    @running
     def login(self, user, password):
         self.load('https://www.facebook.com/login.php')
         self._js("document.querySelector('{}').value = '{}';".format(css_selectors.get('email_field'), user))
@@ -49,15 +61,16 @@ class FBCrawler(object):
     def _delay(self):
         """Sleeps the average amount of time it has taken to load a page or at least self.min_delay seconds.
         """
-        self.paused = True
+        self.status = 'paused'
         avg = self.load_time / self.loads
         secs = max(avg, self.min_delay)
         log.info('Sleeping %f seconds', secs)
         sleep(secs)
         while (self.pause_request):
             pass
-        self.paused = False
+        self.status = 'running'
 
+    @running
     def load(self, url, force=False):
         """Load url in the browser if it's not already loaded. Use force=True to force a reload.
         Also keeps track of how long it has taken to load.
@@ -68,6 +81,7 @@ class FBCrawler(object):
         self.driver.get(url)
         self._update_delay(time() - start)
 
+    @running
     def crawl_posts(self, targeturl, callback):
         count = 0
         # load their timeline page
@@ -92,6 +106,7 @@ class FBCrawler(object):
 
         return count
 
+    @running
     def crawl_likes(self, targeturl, callback):
         count = 0
         # load the likes page
@@ -117,6 +132,7 @@ class FBCrawler(object):
 
         return count
 
+    @running
     def crawl_friends(self, targeturl, callback):
         count = 0
         # load the friends page
@@ -150,6 +166,7 @@ class FBCrawler(object):
         photos_url = join_url(targeturl, page_references.get('photos_page'))
         return self._album_crawler(photos_url, 'photo_selector', callback)
 
+    @running
     def crawl_albums(self, targeturl, callback):
         # scrape all albums
         self.load(join_url(targeturl, page_references.get('albums')))
@@ -165,6 +182,7 @@ class FBCrawler(object):
     def crawl_one_album(self, album_url, callback):
         return self._album_crawler(album_url, 'album_photo', callback)
 
+    @running
     def _album_crawler(self, albumurl, css, callback):
         self.load(albumurl)
         count = 0
@@ -187,6 +205,7 @@ class FBCrawler(object):
 
         return count
 
+    @running
     def crawl_about(self, targeturl, callback):
         self.load(join_url(targeturl, page_references.get('about_page')))
         about_links = self.driver.find_elements_by_css_selector(css_selectors.get('about_links'))
@@ -202,6 +221,7 @@ class FBCrawler(object):
             count += 1
         return count
 
+    @running
     def crawl_groups(self, targeturl, callback):
         self.load(join_url(targeturl, page_references.get('groups_page')))
         count = 0
@@ -224,6 +244,7 @@ class FBCrawler(object):
 
         return count
 
+    @running
     def crawl_search_results(self, url, callback, limit=0):
         """Accepts a callback method which has search result's name, url, imageurl,
         as well as the current search result count.

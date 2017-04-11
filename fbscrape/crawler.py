@@ -17,10 +17,14 @@ class FBCrawler(object):
         self.load_time = 0
         self.stop_request = False
         self.pause_request = False
-        self.status = 'ready'
+        self.status = 'init'
+        self._set_status('ready')
 
     def __del__(self):
         self.driver.quit()
+
+    def _set_status(self, s):
+        self.status = s
 
     def running(func):
         """This is a decorator in order to set the status as running when running
@@ -32,12 +36,12 @@ class FBCrawler(object):
                 return None
 
             # we're ready to runble
-            self.status = 'running'
+            self._set_status('running')
             ret = func(self, *args, **kwargs)
             if self.stop_request:
-                self.status = 'stopped'
+                self._set_status('stopped')
             else:
-                self.status = 'ready'
+                self._set_status('ready')
             return ret
         return do_stuff
 
@@ -69,21 +73,20 @@ class FBCrawler(object):
         while self.status != 'stopped':
             pass
         self.stop_request = False
-        self.status = 'ready'
+        self._set_status('ready')
 
     def _delay(self):
         """Sleeps the average amount of time it has taken to load a page or at least self.min_delay seconds.
         """
-        self.status = 'paused'
+        self._set_status('paused')
         avg = self.load_time / self.loads
         secs = max(avg, self.min_delay)
         log.info('Sleeping %f seconds', secs)
         sleep(secs)
         while (self.pause_request):
             pass
-        self.status = 'running'
+        self._set_status('running')
 
-    @running
     def load(self, url, force=False):
         """Load url in the browser if it's not already loaded. Use force=True to force a reload.
         Also keeps track of how long it has taken to load.

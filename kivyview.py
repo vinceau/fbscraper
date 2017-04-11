@@ -252,6 +252,9 @@ class Logging(Screen):
     def stop(self):
         self.ids.stop.disabled = True
         self.ids.pause.disabled = True
+        Thread(target=self._stop_worker).start()
+
+    def _stop_worker(self):
         app = App.get_running_app()
         app.stop_request = True
         app.controller.interrupt()

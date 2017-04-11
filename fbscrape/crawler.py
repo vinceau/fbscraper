@@ -27,9 +27,17 @@ class FBCrawler(object):
         and the status as ready when action is complete
         """
         def do_stuff(self, *args, **kwargs):
+            # don't do anything if we're not ready
+            if self.status != 'ready':
+                return None
+
+            # we're ready to runble
             self.status = 'running'
             ret = func(self, *args, **kwargs)
-            self.status = 'ready'
+            if self.stop_request:
+                self.status = 'stopped'
+            else:
+                self.status = 'ready'
             return ret
         return do_stuff
 
@@ -57,6 +65,11 @@ class FBCrawler(object):
 
     def interrupt(self):
         self.stop_request = True
+        # loop until we are ready to do things
+        while self.status != 'stopped':
+            pass
+        self.stop_request = False
+        self.status = 'ready'
 
     def _delay(self):
         """Sleeps the average amount of time it has taken to load a page or at least self.min_delay seconds.

@@ -91,7 +91,6 @@ class FBScraper(FBCrawler):
         if self.settings['groups']:
             self.scrape_groups(targeturl)
         log.info('Finished scraping user %s', target)
-        self.stop_request = False
 
     @autotarget
     def scrape_posts(self, targeturl):

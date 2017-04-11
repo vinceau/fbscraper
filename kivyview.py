@@ -243,7 +243,7 @@ class Logging(Screen):
         self.ids.pause.disabled = True
         fbs = App.get_running_app().controller
         fbs.pause()  # send in a pause request
-        while not fbs.paused:
+        while not fbs.status == 'paused':
             pass
         # we are paused now
         self.ids.pause.text = 'Unpause'

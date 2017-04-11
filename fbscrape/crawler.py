@@ -174,7 +174,7 @@ class FBCrawler(object):
         count = 0
         for album_name, album_url in [(a.text, a.get_attribute('href')) for a in albums]:
             if self.stop_request:
-                break
+                return count
             count += 1
             callback(album_name, album_url, count)
         return count
@@ -212,7 +212,7 @@ class FBCrawler(object):
         count = 0
         for l in about_links:
             if self.stop_request:
-                break
+                return count
             l.click()
             self._delay()
             title = l.get_attribute('title')

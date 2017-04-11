@@ -63,12 +63,21 @@ class FBScraper(FBCrawler):
             return True
 
     def autotarget(func):
+        """This decorator converst the target into a target url and ensures it's a legit page.
+        """
         def do_stuff(self, target):
+            # are we ready?
+            if self.status != 'ready':
+                return None
+
+            # make sure we're a proper url
             targeturl = get_targeturl(target)
             if not self._valid_user(targeturl):
                 log.info('%s is a missing page!', targeturl)
                 return None
+
             return func(self, targeturl)
+
         return do_stuff
 
     def selective_scrape(self, settings):

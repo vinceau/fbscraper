@@ -48,7 +48,6 @@
                 text: 'Load friends'
                 on_release: root.load_friends(root.url)
 
-
 <SearchResults>:
     VertiBox:
         size: root.size
@@ -76,11 +75,19 @@
                 text: 'Close'
                 on_release: root.cancel()
             Button:
+                id: pause
+                text: 'Pause'
+                on_release: root.pause()
+            Button:
+                id: stop
+                text: 'Stop'
+                on_release: root.stop()
+            Button:
                 text: 'Toggle All'
                 on_release: root.toggle_all()
                 disabled: len(grid.children) == 0
             Button:
-                text: 'Add to Scrape Queue'
+                text: 'Add to Targets'
                 on_release: root.add_to_queue()
                 disabled: grid.count == 0
 

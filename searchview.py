@@ -52,8 +52,17 @@ class ResultItem(BoxLayout):
         Thread(target=self._friends_worker, args=(url,)).start()
 
     def _friends_worker(self, url):
+        # reset grid variables
         self.parent.count = 0
         self.parent.clear_widgets()
+
+        # stop and restart controller
+        fbs = App.get_running_app().controller
+        if fbs.status == 'running':
+            fbs.interrupt()
+        fbs.restart()
+
+        # repopulate search results with friends
         self.get_friends(url)
 
     def on_checkbox_active(self, checkbox, value):
@@ -76,8 +85,40 @@ class SearchResults(FloatLayout):
         Thread(target=self._search_worker).start()
 
     def get_friends(self, url):
+        self.ids.pause.disabled = False
+        self.ids.stop.disabled = False
         res = App.get_running_app().controller.crawl_friends(url, self.cb)
         self.has_results(res)
+
+    def pause(self):
+        fbs = App.get_running_app().controller
+        if fbs.pause_request:
+            # we are currently paused, request to unpause
+            fbs.unpause()
+            self.ids.pause.text = 'Pause'
+            self.ids.stop.disabled = False
+        else:
+            # we are not currently paused, request to pause
+            Thread(target=self._pause_worker).start()
+            self.ids.stop.disabled = True
+
+    def _pause_worker(self):
+        self.ids.pause.disabled = True
+        fbs = App.get_running_app().controller
+        fbs.pause()  # send in a pause request
+        while fbs.status != 'paused':
+            pass
+        # we are paused now
+        self.ids.pause.text = 'Unpause'
+        self.ids.pause.disabled = False
+
+    def stop(self):
+        self.ids.stop.disabled = True
+        self.ids.pause.disabled = True
+        Thread(target=self._stop_worker).start()
+
+    def _stop_worker(self):
+        App.get_running_app().controller.interrupt()
 
     def cb(self, name, url, imageurl, count):
         """The callback for adding profiles to the search result pane
@@ -88,11 +129,15 @@ class SearchResults(FloatLayout):
         Clock.schedule_once(clock)
 
     def _search_worker(self):
+        fbs = App.get_running_app().controller
+        fbs.restart()
         limit = min(max_limit, self.limit)
-        res = App.get_running_app().controller.crawl_search_results(self.url, self.cb, limit)
+        res = fbs.crawl_search_results(self.url, self.cb, limit)
         self.has_results(res)
 
     def has_results(self, count):
+        """Executed once the results have finished loading.
+        """
         if count == 0:
             self.ids.no_results.opacity = 1
             self.ids.no_results.height = 100
@@ -101,6 +146,10 @@ class SearchResults(FloatLayout):
             self.ids.no_results.opacity = 0
             self.ids.no_results.height = '0dp'
             self.ids.no_results.size_hint_y = None
+
+        # disable interrupt buttons
+        self.ids.pause.disabled = True
+        self.ids.stop.disabled = True
 
     def toggle_all(self):
         tally = [x.ids.check.active for x in self.ids.grid.children]

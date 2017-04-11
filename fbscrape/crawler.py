@@ -72,6 +72,8 @@ class FBCrawler(object):
         # loop until we are ready to do things
         while self.status != 'stopped':
             pass
+
+    def restart(self):
         self.stop_request = False
         self._set_status('ready')
 

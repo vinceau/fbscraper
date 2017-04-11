@@ -179,6 +179,7 @@ class Settings(Screen):
         self.dismiss_popup()
         self.manager.transition = SlideTransition(direction='right')
         self.manager.current = 'settings'
+        App.get_running_app().controller.restart()  # restart incase we had stopped it before
 
 
     def choosedir(self):

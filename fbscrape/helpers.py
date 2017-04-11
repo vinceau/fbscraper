@@ -42,11 +42,26 @@ def path_safe(path):
     return new_path
 
 
-def extract_user(url):
+def get_targeturl(target):
+    """Given a target, returns the target URL. If target is a URL just return target.
+    Not guaranteed to be accurate since usernames could also be fully numbers (I think).
+    """
+    # target is a URL
+    if get_target(target) is not None:
+        return target
+
+    # target is not a URl
+    if target.isdigit():
+        return 'https://www.facebook.com/profile.php?id=' + target
+    else:
+        return 'https://www.facebook.com/' + target
+
+
+def get_target(targeturl):
     """Takes a Facebook profile URL and extracts the user identifier whether that be an ID or a username.
     Returns None if the URL is invalid.
     """
-    res = urlparse(url)
+    res = urlparse(targeturl)
     # handle user IDs
     if res.path == '/profile.php':
         userid = parse_qs(res.query)['id']

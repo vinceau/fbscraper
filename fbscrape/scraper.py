@@ -9,7 +9,7 @@ import record
 
 from crawler import FBCrawler
 from custom import css_selectors, xpath_selectors, text_content
-from helpers import strip_query, timestring, path_safe, extract_user
+from helpers import strip_query, timestring, path_safe, get_target, get_targeturl
 
 
 class FBScraper(FBCrawler):
@@ -62,52 +62,40 @@ class FBScraper(FBCrawler):
         except NoSuchElementException:
             return True
 
-    def scrape(self, target):
-        """Infer whether the target is an id, username, or a URL and scrape accordingly.
-        Not guaranteed to be accurate since usernames could also be fully numbers (I think).
-        """
-        if not target:
-            log.info('Invalid Facebook ID, Username, or URL!')
-            return
-        # check if target is a URL
-        check = target
-        if extract_user(target) is not None:
-            check = extract_user(target)
-        if check.isdigit():
-            self.scrape_by_id(check)
-        else:
-            self.scrape_by_username(check)
-
-    def scrape_by_id(self, targetid):
-        self._scrape_all(targetid, 'https://www.facebook.com/profile.php?id=' + targetid)
-
-    def scrape_by_username(self, target):
-        self._scrape_all(target, 'https://www.facebook.com/' + target)
+    def autotarget(func):
+        def do_stuff(self, target):
+            targeturl = get_targeturl(target)
+            if not self._valid_user(targeturl):
+                log.info('%s is a missing page!', targeturl)
+                return None
+            return func(self, targeturl)
+        return do_stuff
 
     def selective_scrape(self, settings):
         self.settings = settings
 
-    def _scrape_all(self, target, targeturl):
-        if not self._valid_user(targeturl):
-            log.info('%s is a missing page!', targeturl)
-            return
+    @autotarget
+    def scrape(self, targeturl):
+        target = get_target(targeturl)
         log.info('Scraping user %s at URL: %s', target, targeturl)
         if self.settings['posts']:
-            self._scrape_posts(target, targeturl)
-        if self.settings['friends'] and not self.stop_request:
-            self._scrape_friends(target, targeturl)
-        if self.settings['photos'] and not self.stop_request:
-            self._scrape_photos(target, targeturl)
-        if self.settings['likes'] and not self.stop_request:
-            self._scrape_likes(target, targeturl)
-        if self.settings['about'] and not self.stop_request:
-            self._scrape_about(target, targeturl)
-        if self.settings['groups'] and not self.stop_request:
-            self._scrape_groups(target, targeturl)
+            self.scrape_posts(targeturl)
+        if self.settings['friends']:
+            self.scrape_friends(targeturl)
+        if self.settings['photos']:
+            self.scrape_photos(targeturl)
+        if self.settings['likes']:
+            self.scrape_likes(targeturl)
+        if self.settings['about']:
+            self.scrape_about(targeturl)
+        if self.settings['groups']:
+            self.scrape_groups(targeturl)
         log.info('Finished scraping user %s', target)
         self.stop_request = False
 
-    def _scrape_posts(self, target, targeturl):
+    @autotarget
+    def scrape_posts(self, targeturl):
+        target = get_target(targeturl)
         rec = record.Record(self._output_file(target, 'posts'), ['date', 'post', 'translation', 'permalink'])
         log.info('Scraping posts into %s', rec.filename)
 
@@ -151,7 +139,9 @@ class FBScraper(FBCrawler):
         posts_scraped = self.crawl_posts(targeturl, callback)
         log.info('Scraped %d posts into %s', posts_scraped, rec.filename)
 
-    def _scrape_likes(self, target, targeturl):
+    @autotarget
+    def scrape_likes(self, targeturl):
+        target = get_target(targeturl)
         rec = record.Record(self._output_file(target, 'likes'), ['name', 'url'])
         log.info('Scraping likes into %s', rec.filename)
 
@@ -164,7 +154,9 @@ class FBScraper(FBCrawler):
         likes_scraped = self.crawl_likes(targeturl, callback)
         log.info('Scraped %d likes into %s', likes_scraped, rec.filename)
 
-    def _scrape_friends(self, target, targeturl):
+    @autotarget
+    def scrape_friends(self, targeturl):
+        target = get_target(targeturl)
         rec = record.Record(self._output_file(target, 'friends'), ['name', 'profile'])
         log.info('Scraping friends into %s', rec.filename)
 
@@ -176,7 +168,9 @@ class FBScraper(FBCrawler):
         friends_scraped = self.crawl_friends(targeturl, callback)
         log.info('Scraped %d friends into %s', friends_scraped, rec.filename)
 
-    def _scrape_photos(self, target, targeturl):
+    @autotarget
+    def scrape_photos(self, targeturl):
+        target = get_target(targeturl)
         # scrape main photos
         photo_album = record.Album(self._output_file(target, 'photos'), True)
 
@@ -217,7 +211,9 @@ class FBScraper(FBCrawler):
             log.error('Failed to download image: %s', img_url)
 
 
-    def _scrape_about(self, target, targeturl):
+    @autotarget
+    def scrape_about(self, targeturl):
+        target = get_target(targeturl)
         rec = record.Record(self._output_file(target, 'about'), ['section', 'text'])
 
         def callback(section, content):
@@ -228,7 +224,9 @@ class FBScraper(FBCrawler):
         self.crawl_about(targeturl, callback)
 
 
-    def _scrape_groups(self, target, targeturl):
+    @autotarget
+    def scrape_groups(self, targeturl):
+        target = get_target(targeturl)
         rec = record.Record(self._output_file(target, 'groups'), ['name', 'url'])
 
         def callback(g, i):

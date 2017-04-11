@@ -18,6 +18,16 @@ max_limit = 150
 def_limit = 20
 
 
+def background(func):
+    """This is a decorator in order to set the status as running when running
+    and the status as ready when action is complete
+    """
+    def do_stuff(*args, **kwargs):
+        Thread(target=func, args=(args), kwargs=(kwargs)).start()
+        return
+    return do_stuff
+
+
 class Filter(BoxLayout):
     label = ObjectProperty('')
     search_filter = ObjectProperty(None)
@@ -237,6 +247,14 @@ class SearchScreen(Screen):
         url = self.fm.execute()
         content = SearchResults(cancel=self.dismiss_popup, url=url, manager=self.manager, limit=self._check())
         self._popup = Popup(title='Search Results', content=content, size_hint=(.9, .9))
+
+        @background
+        def stop_search(instance):
+            fbs = App.get_running_app().controller
+            if fbs.status != 'ready' or fbs.status != 'stopped':
+                fbs.interrupt()
+
+        self._popup.bind(on_dismiss=stop_search)
         self._popup.open()
 
     def dismiss_popup(self):

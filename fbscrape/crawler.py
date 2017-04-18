@@ -69,6 +69,8 @@ class FBCrawler(object):
 
     def interrupt(self):
         self.stop_request = True
+        if self.status == 'ready':
+            self._set_status('stopped')
         # loop until we are ready to do things
         while self.status != 'stopped':
             pass

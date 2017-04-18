@@ -27,7 +27,11 @@ class FBCrawler(object):
         self.driver.quit()
 
     def _set_status(self, s):
+        """Sets s as the new status. Returns the previous status as result.
+        """
+        temp = self.status
         self.status = s
+        return temp
 
     def running(func):
         """This is a decorator in order to set the status as running when running

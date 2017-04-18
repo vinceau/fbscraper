@@ -42,24 +42,19 @@ class ResultItem(BoxLayout):
     source = ObjectProperty('')
     text = ObjectProperty('')
     url = ObjectProperty('')
-    get_friends = ObjectProperty(None)
+    load_friends = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         BoxLayout.__init__(self, **kwargs)
         self.working = False
         self.ids.check.bind(active=self.on_checkbox_active)
 
+    @background
     def show_profile(self):
-        Thread(target=self._worker).start()
-
-    def _worker(self):
         fbs = App.get_running_app().controller
         if fbs.status == 'running' or fbs.status == 'paused':
             fbs.interrupt()
         fbs.load(self.url)
-
-    def load_friends(self, url):
-        Thread(target=self.get_friends, args=(url, )).start()
 
     def on_checkbox_active(self, checkbox, value):
         """Keep track of how many check boxes have been checked
@@ -78,9 +73,10 @@ class SearchResults(FloatLayout):
 
     def __init__(self, **kwargs):
         FloatLayout.__init__(self, **kwargs)
-        Thread(target=self._search_worker).start()
+        self._search_worker()
 
-    def get_friends(self, url):
+    @background
+    def load_friends(self, url):
         """Stop whatever we're doing and load the friends of the target at url
         """
         fbs = App.get_running_app().controller
@@ -109,8 +105,9 @@ class SearchResults(FloatLayout):
             self.ids.pause.text = 'Pause'
         else:
             # we are not currently paused, request to pause
-            Thread(target=self._pause_worker).start()
+            self._pause_worker()
 
+    @background
     def _pause_worker(self):
         self.ids.pause.disabled = True
         fbs = App.get_running_app().controller
@@ -121,22 +118,21 @@ class SearchResults(FloatLayout):
         self.ids.pause.text = 'Unpause'
         self.ids.pause.disabled = False
 
+    @background
     def stop(self):
         self.ids.stop.disabled = True
         self.ids.pause.disabled = True
-        Thread(target=self._stop_worker).start()
-
-    def _stop_worker(self):
         App.get_running_app().controller.interrupt()
 
     def cb(self, name, url, imageurl, count):
         """The callback for adding profiles to the search result pane
         """
         def clock(dt):
-            i = ResultItem(source=imageurl, text=name, url=url, get_friends=self.get_friends)
+            i = ResultItem(source=imageurl, text=name, url=url, load_friends=self.load_friends)
             self.ids.grid.add_widget(i)
         self.event = Clock.schedule_once(clock)
 
+    @background
     def _search_worker(self):
         fbs = App.get_running_app().controller
         fbs.restart()

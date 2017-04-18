@@ -4,7 +4,6 @@ import logging
 import os
 
 from os.path import join, isdir, expanduser
-from threading import Thread
 from time import time
 
 from kivy.app import App
@@ -16,7 +15,7 @@ from kivy.properties import ObjectProperty
 
 # local imports
 from fbscrape import FBScraper
-from searchview import SearchScreen
+from searchview import SearchScreen, background
 
 version = '1.1'
 last_updated = '27 March 2017'
@@ -51,10 +50,8 @@ class Login(Screen):
         except IOError:
             pass
 
+    @background
     def do_login(self, fbemail, fbpass):
-        Thread(target=self._login_worker, args=(fbemail, fbpass)).start()
-
-    def _login_worker(self, fbemail, fbpass):
         if fbemail and fbpass:
             self.ids.loginbutton.disabled = True
             app = App.get_running_app()
@@ -148,10 +145,8 @@ class Settings(Screen):
         self.manager.transition = SlideTransition(direction='up')
         self.manager.current = 'search'
 
+    @background
     def do_scrape(self, names):
-        Thread(target=self._scrape_worker, args=(names, )).start()
-
-    def _scrape_worker(self, names):
         self.manager.transition = SlideTransition(direction='left')
         self.manager.current = 'logging'
         log_screen = self.manager.get_screen('logging')
@@ -235,8 +230,9 @@ class Logging(Screen):
             self.ids.pause.text = 'Pause'
         else:
             # we are not currently paused, request to pause
-            Thread(target=self._pause_worker).start()
+            self._pause_worker()
 
+    @background
     def _pause_worker(self):
         self.ids.pause.disabled = True
         fbs = App.get_running_app().controller
@@ -247,12 +243,10 @@ class Logging(Screen):
         self.ids.pause.text = 'Unpause'
         self.ids.pause.disabled = False
 
+    @background
     def stop(self):
         self.ids.stop.disabled = True
         self.ids.pause.disabled = True
-        Thread(target=self._stop_worker).start()
-
-    def _stop_worker(self):
         app = App.get_running_app()
         app.stop_request = True
         app.controller.interrupt()

@@ -74,6 +74,7 @@ class FBCrawler(object):
             pass
 
     def restart(self):
+        self.pause_request = False
         self.stop_request = False
         self._set_status('ready')
 

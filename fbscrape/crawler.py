@@ -85,7 +85,7 @@ class FBCrawler(object):
         secs = max(avg, self.min_delay)
         log.info('Sleeping %f seconds', secs)
         sleep(secs)
-        while (self.pause_request):
+        while (self.pause_request) and not self.stop_request:
             pass
         self._set_status('running')
 

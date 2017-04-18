@@ -272,6 +272,7 @@ class FBCrawler(object):
     def crawl_search_results(self, url, callback, limit=0):
         """Accepts a callback method which has search result's name, url, imageurl,
         as well as the current search result count.
+        Limit is the maximum number of results to return. A limit of zero is unlimited.
         """
         self.load(url)
         count = 0

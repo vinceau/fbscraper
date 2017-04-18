@@ -90,6 +90,8 @@ class SearchResults(FloatLayout):
 
         # reset the search results screen
         #self.has_results(1)  # hide the "no results" if currently shown
+        if self.event:
+            self.event.cancel()
         self.ids.grid.count = 0
         self.ids.grid.clear_widgets()
         self.ids.pause.disabled = False
@@ -133,7 +135,7 @@ class SearchResults(FloatLayout):
         def clock(dt):
             i = ResultItem(source=imageurl, text=name, url=url, get_friends=self.get_friends)
             self.ids.grid.add_widget(i)
-        Clock.schedule_once(clock)
+        self.event = Clock.schedule_once(clock)
 
     def _search_worker(self):
         fbs = App.get_running_app().controller

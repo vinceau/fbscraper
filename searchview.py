@@ -14,9 +14,6 @@ from fbscrape import search
 
 Builder.load_file('searchview.kv')
 
-max_limit = 150
-def_limit = 100
-
 
 def background(func):
     """This decorator makes the function execute in a background thread.
@@ -68,7 +65,7 @@ class SearchResults(FloatLayout):
     url = ObjectProperty('')
     cancel = ObjectProperty(None)
     manager = ObjectProperty(None)
-    limit = ObjectProperty(def_limit)
+    limit = ObjectProperty(0)
 
     def __init__(self, **kwargs):
         FloatLayout.__init__(self, **kwargs)
@@ -135,8 +132,7 @@ class SearchResults(FloatLayout):
     def _search_worker(self):
         fbs = App.get_running_app().controller
         fbs.restart()
-        limit = min(max_limit, self.limit)
-        res = fbs.crawl_search_results(self.url, self.cb, limit)
+        res = fbs.crawl_search_results(self.url, self.cb, self.limit)
         self.has_results(res)
 
     def has_results(self, count):
@@ -168,6 +164,7 @@ class SearchResults(FloatLayout):
 
 
 class SearchScreen(Screen):
+    limit = ObjectProperty(100)  # the default limit of search results
 
     def __init__(self, **kwargs):
         Screen.__init__(self, **kwargs)
@@ -178,12 +175,11 @@ class SearchScreen(Screen):
         """
         try:
             num = int(self.ids.res_lim.text)
+            # reset negative numbers to zero
             if num <= 0:
-                self.ids.res_lim.text = str(def_limit)
-            elif num > max_limit:
-                self.ids.res_lim.text = str(max_limit)
+                self.ids.res_lim.text = str(0)
         except ValueError:
-            self.ids.res_lim.text = str(def_limit)
+            self.ids.res_lim.text = str(self.limit)
 
         return int(self.ids.res_lim.text)
 

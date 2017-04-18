@@ -233,11 +233,9 @@ class Logging(Screen):
             # we are currently paused, request to unpause
             fbs.unpause()
             self.ids.pause.text = 'Pause'
-            self.ids.stop.disabled = False
         else:
             # we are not currently paused, request to pause
             Thread(target=self._pause_worker).start()
-            self.ids.stop.disabled = True
 
     def _pause_worker(self):
         self.ids.pause.disabled = True

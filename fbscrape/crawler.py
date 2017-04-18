@@ -99,6 +99,15 @@ class FBCrawler(object):
         start = time()
         self.driver.get(url)
         self._update_delay(time() - start)
+        self._scroll_to_bottom()
+
+    def _scroll_to_bottom(self, wait=False):
+        """Scrolls to the bottom of the page. Useful for triggering infinite scroll.
+        If wait is true (false by default), it will wait for potential items to populate before returning.
+        """
+        self._js("window.scrollTo(0, document.body.scrollHeight);")
+        if wait:
+            self._delay()
 
     @running
     def crawl_posts(self, targeturl, callback):
@@ -118,10 +127,7 @@ class FBCrawler(object):
                 count += 1
                 callback(p, count)
 
-            # scroll to the bottom of the page
-            self._js("window.scrollTo(0, document.body.scrollHeight);")
-            # wait for the posts to populate
-            self._delay()
+            self._scroll_to_bottom(wait=True)
 
         return count
 
@@ -144,10 +150,7 @@ class FBCrawler(object):
                 count += 1
                 callback(like, count)
 
-            # scroll to the bottom of the page
-            self._js("window.scrollTo(0, document.body.scrollHeight);")
-            # wait for likes to populate
-            self._delay()
+            self._scroll_to_bottom(wait=True)
 
         return count
 
@@ -174,10 +177,7 @@ class FBCrawler(object):
                 imgurl = friend.find_element_by_css_selector(css_selectors.get('friend_image')).get_attribute('src')
                 callback(name, url, imgurl, count)
 
-            # scroll to the bottom of the page
-            self._js("window.scrollTo(0, document.body.scrollHeight);")
-            # wait for the friends to populate
-            self._delay()
+            self._scroll_to_bottom(wait=True)
 
         return count
 
@@ -217,10 +217,7 @@ class FBCrawler(object):
                 count += 1
                 callback(p, count)
 
-            # scroll to the bottom of the page
-            self._js("window.scrollTo(0, document.body.scrollHeight);")
-            # wait for photos to populate
-            self._delay()
+            self._scroll_to_bottom(wait=True)
 
         return count
 
@@ -257,9 +254,7 @@ class FBCrawler(object):
                 count += 1
                 callback(g, count)
 
-            # scroll to bottom and wait for new items to populate
-            self._js("window.scrollTo(0, document.body.scrollHeight);")
-            self._delay()
+            self._scroll_to_bottom(wait=True)
 
         return count
 
@@ -284,8 +279,6 @@ class FBCrawler(object):
                 count += 1
                 callback(name, url.get_attribute('href'), imageurl, count)
 
-            # scroll to bottom and wait for new items to populate
-            self._js("window.scrollTo(0, document.body.scrollHeight);")
-            self._delay()
+            self._scroll_to_bottom(wait=True)
 
         return count

@@ -270,7 +270,7 @@ class FBCrawler(object):
             if len(results) <= count:
                 break
 
-            for r in results:
+            for r in results[count:]:
                 if self.stop_request or limit > 0 and count >= limit:
                     return count
                 imageurl = r.find_element_by_css_selector(css_selectors.get('search_pics')).get_attribute('src')

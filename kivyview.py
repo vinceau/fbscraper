@@ -156,10 +156,11 @@ class Settings(Screen):
         start = time()
         all_names = [x.strip() for x in names.split(os.linesep) if x.strip()]
         for index, n in enumerate(all_names):
-            if not app.stop_request:
-                log_screen.ids.current_user.text = n
-                log_screen.ids.count.text = 'Scraping {} of {}'.format(index + 1, len(all_names))
-                app.controller.scrape(n.strip())
+            if app.stop_request:
+                break
+            log_screen.ids.current_user.text = n
+            log_screen.ids.count.text = 'Scraping {} of {}'.format(index + 1, len(all_names))
+            app.controller.scrape(n.strip())
         self.scrape_complete(time() - start)
         app.stop_request = False
 

@@ -59,21 +59,7 @@ class ResultItem(BoxLayout):
         self.working = False
 
     def load_friends(self, url):
-        Thread(target=self._friends_worker, args=(url,)).start()
-
-    def _friends_worker(self, url):
-        # reset grid variables
-        self.parent.count = 0
-        self.parent.clear_widgets()
-
-        # stop and restart controller
-        fbs = App.get_running_app().controller
-        if fbs.status == 'running':
-            fbs.interrupt()
-        fbs.restart()
-
-        # repopulate search results with friends
-        self.get_friends(url)
+        Thread(target=self.get_friends, args=(url, )).start()
 
     def on_checkbox_active(self, checkbox, value):
         """Keep track of how many check boxes have been checked
@@ -95,9 +81,22 @@ class SearchResults(FloatLayout):
         Thread(target=self._search_worker).start()
 
     def get_friends(self, url):
+        """Stop whatever we're doing and load the friends of the target at url
+        """
+        fbs = App.get_running_app().controller
+        # stop and restart the controller
+        fbs.interrupt()
+        fbs.restart()
+
+        # reset the search results screen
+        #self.has_results(1)  # hide the "no results" if currently shown
+        self.ids.grid.count = 0
+        self.ids.grid.clear_widgets()
         self.ids.pause.disabled = False
         self.ids.stop.disabled = False
-        res = App.get_running_app().controller.crawl_friends(url, self.cb)
+
+        # get the new list of friends
+        res = fbs.crawl_friends(url, self.cb)
         self.has_results(res)
 
     def pause(self):

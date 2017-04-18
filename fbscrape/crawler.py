@@ -1,7 +1,5 @@
 import logging as log
 
-from threading import Lock
-
 from selenium import webdriver
 from time import sleep, time
 
@@ -21,7 +19,6 @@ class FBCrawler(object):
         self.pause_request = False
         self.status = 'init'
         self._set_status('ready')
-        self.lock = Lock()
 
     def __del__(self):
         self.driver.quit()
@@ -38,19 +35,18 @@ class FBCrawler(object):
         and the status as ready when action is complete
         """
         def do_stuff(self, *args, **kwargs):
-            with self.lock:
-                # don't do anything if we're not ready
-                if self.status != 'ready':
-                    return None
+            # don't do anything if we've got a stop request
+            if self.stop_request:
+                return None
 
-                # we're ready to runble
-                old = self._set_status('running')
-                ret = func(self, *args, **kwargs)
-                if self.stop_request:
-                    self._set_status('stopped')
-                else:
-                    self._set_status(old)
-                return ret
+            # we're ready to runble
+            old = self._set_status('running')
+            ret = func(self, *args, **kwargs)
+            if self.stop_request:
+                self._set_status('stopped')
+            else:
+                self._set_status(old)
+            return ret
         return do_stuff
 
     @running

@@ -152,6 +152,7 @@ class Settings(Screen):
         log_screen = self.manager.get_screen('logging')
         log_screen.reset()
         app = App.get_running_app()
+        app.controller.restart()  # restart the scraper
         start = time()
         all_names = [x.strip() for x in names.split(os.linesep) if x.strip()]
         for index, n in enumerate(all_names):
@@ -174,7 +175,6 @@ class Settings(Screen):
         self.dismiss_popup()
         self.manager.transition = SlideTransition(direction='right')
         self.manager.current = 'settings'
-        App.get_running_app().controller.restart()  # restart incase we had stopped it before
 
 
     def choosedir(self):

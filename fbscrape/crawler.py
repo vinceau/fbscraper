@@ -75,13 +75,15 @@ class FBCrawler(object):
     def unpause(self):
         self.pause_request = False
 
-    def interrupt(self):
+    def interrupt(self, callback=None):
         self.stop_request = True
         if self.status == 'ready':
             self._set_status('stopped')
         # loop until we are ready to do things
         while self.status != 'stopped':
             pass
+        if callback:
+            callback()
 
     def restart(self):
         self.pause_request = False

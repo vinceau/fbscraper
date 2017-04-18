@@ -50,13 +50,13 @@ class ResultItem(BoxLayout):
         self.ids.check.bind(active=self.on_checkbox_active)
 
     def show_profile(self):
-        if not self.working:
-            Thread(target=self._worker).start()
+        Thread(target=self._worker).start()
 
     def _worker(self):
-        self.working = True
-        App.get_running_app().controller.load(self.url)
-        self.working = False
+        fbs = App.get_running_app().controller
+        if fbs.status == 'running' or fbs.status == 'paused':
+            fbs.interrupt()
+        fbs.load(self.url)
 
     def load_friends(self, url):
         Thread(target=self.get_friends, args=(url, )).start()

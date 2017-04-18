@@ -15,12 +15,11 @@ from fbscrape import search
 Builder.load_file('searchview.kv')
 
 max_limit = 150
-def_limit = 20
+def_limit = 100
 
 
 def background(func):
-    """This is a decorator in order to set the status as running when running
-    and the status as ready when action is complete
+    """This decorator makes the function execute in a background thread.
     """
     def do_stuff(*args, **kwargs):
         Thread(target=func, args=(args), kwargs=(kwargs)).start()

@@ -102,16 +102,18 @@ class FBCrawler(object):
             pass
         self._set_status('running')
 
-    def load(self, url, force=False):
+    def load(self, url, force=False, scroll=True):
         """Load url in the browser if it's not already loaded. Use force=True to force a reload.
         Also keeps track of how long it has taken to load.
+        If scroll is True (default) it will scroll to the bottom once load is complete (to trigger infinite scroll).
         """
         if url == self.driver.current_url and not force:
             return
         start = time()
         self.driver.get(url)
         self._update_delay(time() - start)
-        self._scroll_to_bottom()
+        if scroll:
+            self._scroll_to_bottom()
 
     def _scroll_to_bottom(self, wait=False):
         """Scrolls to the bottom of the page. Useful for triggering infinite scroll.

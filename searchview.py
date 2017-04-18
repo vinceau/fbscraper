@@ -54,7 +54,7 @@ class ResultItem(BoxLayout):
         fbs = App.get_running_app().controller
         if fbs.status == 'running' or fbs.status == 'paused':
             fbs.interrupt()
-        fbs.load(self.url)
+        fbs.load(self.url, scroll=False)
 
     def on_checkbox_active(self, checkbox, value):
         """Keep track of how many check boxes have been checked

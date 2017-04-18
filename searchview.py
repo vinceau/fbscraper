@@ -188,9 +188,16 @@ class SearchScreen(Screen):
 
         return int(self.ids.res_lim.text)
 
+    @background
     def go_back(self):
-        self.manager.transition = SlideTransition(direction='down')
-        self.manager.current = 'settings'
+        self.ids.back_btn.disabled = True
+
+        def callback():
+            self.ids.back_btn.disabled = False
+            self.manager.transition = SlideTransition(direction='down')
+            self.manager.current = 'settings'
+
+        App.get_running_app().controller.interrupt(callback)
 
     def set_option(self):
         selected = 'down' in [x.state for x in ToggleButtonBehavior.get_widgets('options')]

@@ -241,7 +241,7 @@ class SearchScreen(Screen):
     def search(self, limit):
         url = self.fm.execute()
         content = SearchResults(cancel=self.dismiss_popup, url=url, manager=self.manager, limit=self._check())
-        self._popup = Popup(title='Search Results', content=content, size_hint=(.9, .9))
+        self._popup = Popup(title='Search Results', content=content, size_hint=(.9, .9), auto_dismiss=False)
 
         @background
         def stop_search(instance):

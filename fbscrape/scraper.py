@@ -92,7 +92,7 @@ class FBScraper(FBCrawler):
         if self.settings['friends']:
             self.scrape_friends(targeturl)
         if self.settings['photos']:
-            self.scrape_photos(targeturl)
+            self.scrape_all_photos(targeturl)
         if self.settings['likes']:
             self.scrape_likes(targeturl)
         if self.settings['about']:
@@ -177,7 +177,15 @@ class FBScraper(FBCrawler):
         log.info('Scraped %d friends into %s', friends_scraped, rec.filename)
 
     @autotarget
+    def scrape_all_photos(self, targeturl):
+        self.scrape_photos(targeturl)
+        self.scrape_all_albums(targeturl)
+
+    @autotarget
     def scrape_photos(self, targeturl):
+        """Scrapes the targets photos and only the photos on the target's photo page.
+        Photos in albums are not scraped.
+        """
         target = get_target(targeturl)
         # scrape main photos
         photo_album = record.Album(self._output_file(target, 'photos'), True)
@@ -188,7 +196,10 @@ class FBScraper(FBCrawler):
         photos_scraped = self.crawl_photos(targeturl, photo_cb)
         log.info('Scraped %d photos into %s', photos_scraped, photo_album.name)
 
-        # scrape all albums
+    @autotarget
+    def scrape_all_albums(self, targeturl):
+        target = get_target(targeturl)
+
         def album_cb(name, url, _):
             """What to do for each album.
             """

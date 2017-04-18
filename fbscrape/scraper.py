@@ -66,8 +66,7 @@ class FBScraper(FBCrawler):
         """This decorator converst the target into a target url and ensures it's a legit page.
         """
         def do_stuff(self, target):
-            # are we ready?
-            if self.status != 'ready':
+            if self.stop_request:
                 return None
 
             # make sure we're a proper url

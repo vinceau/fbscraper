@@ -44,12 +44,12 @@ class FBCrawler(object):
                     return None
 
                 # we're ready to runble
-                self._set_status('running')
+                old = self._set_status('running')
                 ret = func(self, *args, **kwargs)
                 if self.stop_request:
                     self._set_status('stopped')
                 else:
-                    self._set_status('ready')
+                    self._set_status(old)
                 return ret
         return do_stuff
 

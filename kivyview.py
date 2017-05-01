@@ -17,8 +17,8 @@ from kivy.properties import ObjectProperty
 from fbscrape import FBScraper
 from searchview import SearchScreen, background
 
-version = '1.1'
-last_updated = '27 March 2017'
+version = '1.2'
+last_updated = '1 May 2017'
 
 
 class Login(Screen):

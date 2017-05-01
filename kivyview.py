@@ -144,6 +144,15 @@ class Settings(Screen):
     def add_target(self, url):
         self.ids.names.text += url + os.linesep
 
+    def load_file(self):
+        def select(path, filename):
+            self._load_file(filename[0])
+            self.dismiss_popup()
+
+        content = LoadDialog(load=select, cancel=self.dismiss_popup)
+        self._popup = Popup(title='Load from file', content=content, size_hint=(.9, .9))
+        self._popup.open()
+
     def search_view(self):
         self.manager.transition = SlideTransition(direction='up')
         self.manager.current = 'search'

@@ -251,6 +251,10 @@
                         text: 'Facebook Targets (<Enter> separated)'
                     Button:
                         size_hint: (0.2, 0.6)
+                        text: 'Load from file'
+                        on_release: root.load_file()
+                    Button:
+                        size_hint: (0.2, 0.6)
                         text: 'Find Targets'
                         on_release: root.search_view()
                 TextInput:

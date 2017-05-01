@@ -188,6 +188,8 @@ class Settings(Screen):
         self.dismiss_popup()
         self.manager.transition = SlideTransition(direction='right')
         self.manager.current = 'settings'
+        app = App.get_running_app()
+        app.controller.restart()  # restart the scraper
 
 
     def choosedir(self):

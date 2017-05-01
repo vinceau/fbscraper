@@ -284,6 +284,7 @@ class FBScraperApp(App):
         self.infile = infile
 
     def on_stop(self):
+        self.controller.interrupt()
         self.controller.driver.quit()
 
     def build(self):

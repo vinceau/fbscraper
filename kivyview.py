@@ -72,6 +72,7 @@ class CompleteDialog(FloatLayout):
 class LoadDialog(FloatLayout):
     load = ObjectProperty(None)
     cancel = ObjectProperty(None)
+    hide_files = ObjectProperty(False)  # will only show directories if True
 
     def __init__(self, **kwargs):
         FloatLayout.__init__(self, **kwargs)
@@ -79,6 +80,8 @@ class LoadDialog(FloatLayout):
         self.ids.filechooser.path = expanduser('~')
 
     def is_dir(self, folder, filename):
+        """Will be used as a selection filter if hide_files is True
+        """
         return isdir(join(folder, filename))
 
 
@@ -179,7 +182,16 @@ class Settings(Screen):
 
 
     def choosedir(self):
-        content = LoadDialog(load=self.dirsel, cancel=self.dismiss_popup)
+        def dirsel(path, filename):
+            if len(filename) == 0:
+                self.ids.pathbox.text = path
+            else:
+                self.ids.pathbox.text = filename[0]
+            app = App.get_running_app()
+            app.controller.set_output_dir(self.ids.pathbox.text)
+            self.dismiss_popup()
+
+        content = LoadDialog(load=dirsel, cancel=self.dismiss_popup, hide_files=True)
         self._popup = Popup(title='Output Directory', content=content, size_hint=(.9, .9))
         self._popup.open()
 
@@ -190,15 +202,6 @@ class Settings(Screen):
 
     def dismiss_popup(self):
         self._popup.dismiss()
-
-    def dirsel(self, path, filename):
-        if len(filename) == 0:
-            self.ids.pathbox.text = path
-        else:
-            self.ids.pathbox.text = filename[0]
-        app = App.get_running_app()
-        app.controller.set_output_dir(self.ids.pathbox.text)
-        self.dismiss_popup()
 
 
 class Logging(Screen):

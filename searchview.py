@@ -71,6 +71,14 @@ class SearchResults(FloatLayout):
         FloatLayout.__init__(self, **kwargs)
         self._search_worker()
 
+    def _reset_view(self):
+        self.ids.grid.count = 0
+        self.ids.grid.clear_widgets()
+        self.ids.pause.text = 'Pause'
+        self.ids.pause.disabled = False
+        self.ids.stop.disabled = False
+
+
     @background
     def load_friends(self, url):
         """Stop whatever we're doing and load the friends of the target at url
@@ -84,10 +92,7 @@ class SearchResults(FloatLayout):
         #self.has_results(1)  # hide the "no results" if currently shown
         if self.event:
             self.event.cancel()
-        self.ids.grid.count = 0
-        self.ids.grid.clear_widgets()
-        self.ids.pause.disabled = False
-        self.ids.stop.disabled = False
+        self._reset_view()
 
         # get the new list of friends
         res = fbs.crawl_friends(url, self.cb)

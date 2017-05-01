@@ -24,6 +24,19 @@ def background(func):
     return do_stuff
 
 
+def interrupt(func):
+    """This decorator ensures that the function will stop any currently running
+    functions before executing.
+    """
+    def do_stuff(*args, **kwargs):
+        fbs = App.get_running_app().controller
+        if fbs.status == 'running' or fbs.status == 'paused':
+            fbs.interrupt()
+        fbs.restart()
+        return func(*args, **kwargs)
+    return do_stuff
+
+
 class Filter(BoxLayout):
     label = ObjectProperty('')
     search_filter = ObjectProperty(None)
@@ -46,10 +59,9 @@ class ResultItem(BoxLayout):
         self.ids.check.bind(active=self.on_checkbox_active)
 
     @background
+    @interrupt
     def show_profile(self):
         fbs = App.get_running_app().controller
-        if fbs.status == 'running' or fbs.status == 'paused':
-            fbs.interrupt()
         fbs.load(self.url, scroll=False)
 
     def on_checkbox_active(self, checkbox, value):
@@ -80,14 +92,10 @@ class SearchResults(FloatLayout):
 
 
     @background
+    @interrupt
     def load_friends(self, url):
         """Stop whatever we're doing and load the friends of the target at url
         """
-        fbs = App.get_running_app().controller
-        # stop and restart the controller
-        fbs.interrupt()
-        fbs.restart()
-
         # reset the search results screen
         #self.has_results(1)  # hide the "no results" if currently shown
         if self.event:
@@ -95,6 +103,7 @@ class SearchResults(FloatLayout):
         self._reset_view()
 
         # get the new list of friends
+        fbs = App.get_running_app().controller
         res = fbs.crawl_friends(url, self.cb)
         self.has_results(res)
 
@@ -246,18 +255,15 @@ class SearchScreen(Screen):
         self.ids.search_btn.disabled = False
 
     def search(self, limit):
+        fbs = App.get_running_app().controller
+        while fbs.status != 'ready':
+            pass
         url = self.fm.execute()
         content = SearchResults(cancel=self.dismiss_popup, url=url, manager=self.manager, limit=self._check())
         self._popup = Popup(title='Search Results', content=content, size_hint=(.9, .9), auto_dismiss=False)
-
-        @background
-        def stop_search(instance):
-            fbs = App.get_running_app().controller
-            if fbs.status != 'ready' or fbs.status != 'stopped':
-                fbs.interrupt()
-
-        self._popup.bind(on_dismiss=stop_search)
         self._popup.open()
 
+    @background
+    @interrupt
     def dismiss_popup(self):
         self._popup.dismiss()

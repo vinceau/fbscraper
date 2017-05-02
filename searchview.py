@@ -29,10 +29,7 @@ def interrupt(func):
     functions before executing.
     """
     def do_stuff(*args, **kwargs):
-        fbs = App.get_running_app().controller
-        if fbs.status == 'running' or fbs.status == 'paused':
-            fbs.interrupt()
-        fbs.restart()
+        App.get_running_app().controller.interrupt(restart=True)
         return func(*args, **kwargs)
     return do_stuff
 
@@ -132,7 +129,7 @@ class SearchResults(FloatLayout):
     def stop(self):
         self.ids.stop.disabled = True
         self.ids.pause.disabled = True
-        App.get_running_app().controller.interrupt()
+        App.get_running_app().controller.interrupt(restart=True)
 
     def cb(self, name, url, imageurl, count):
         """The callback for adding profiles to the search result pane
@@ -206,7 +203,8 @@ class SearchScreen(Screen):
             self.manager.transition = SlideTransition(direction='down')
             self.manager.current = 'settings'
 
-        App.get_running_app().controller.interrupt(callback)
+        # interrupt running threads, restart, and then transition back
+        App.get_running_app().controller.interrupt(callback, True)
 
     def set_option(self):
         selected = 'down' in [x.state for x in ToggleButtonBehavior.get_widgets('options')]
@@ -264,6 +262,6 @@ class SearchScreen(Screen):
         self._popup.open()
 
     @background
-    @interrupt
     def dismiss_popup(self):
-        self._popup.dismiss()
+        self._popup.content.ids.close.disabled = True
+        App.get_running_app().controller.interrupt(self._popup.dismiss, True)

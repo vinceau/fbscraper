@@ -172,7 +172,7 @@ class Settings(Screen):
                 break
             log_screen.ids.current_user.text = n
             log_screen.ids.count.text = 'Scraping {} of {}'.format(index + 1, len(all_names))
-            app.controller.scrape(n.strip())
+            app.controller.scrape(n)
         self.scrape_complete(time() - start)
         app.stop_request = False
 
@@ -180,17 +180,16 @@ class Settings(Screen):
         hours, rem = divmod(elapsed, 3600)
         mins, secs = divmod(rem, 60)
         notice = 'Time elapsed: {:d} hours, {:d} minutes and {:d} seconds'.format(int(hours), int(mins), int(secs))
-        content = CompleteDialog(notice=notice, dismiss=self.go_back)
+
+        def go_back():
+            self.dismiss_popup()
+            self.manager.transition = SlideTransition(direction='right')
+            self.manager.current = 'settings'
+            App.get_running_app().controller.restart()  # restart the scraper
+
+        content = CompleteDialog(notice=notice, dismiss=go_back)
         self._popup = Popup(title='Scrape Complete', content=content, size_hint=(.4, .4), auto_dismiss=False)
         self._popup.open()
-
-    def go_back(self):
-        self.dismiss_popup()
-        self.manager.transition = SlideTransition(direction='right')
-        self.manager.current = 'settings'
-        app = App.get_running_app()
-        app.controller.restart()  # restart the scraper
-
 
     def choosedir(self):
         def dirsel(path, filename):

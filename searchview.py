@@ -58,8 +58,7 @@ class ResultItem(BoxLayout):
     @background
     @interrupt
     def show_profile(self):
-        fbs = App.get_running_app().controller
-        fbs.load(self.url, scroll=False)
+        App.get_running_app().controller.load(self.url, scroll=False)
 
     def on_checkbox_active(self, checkbox, value):
         """Keep track of how many check boxes have been checked
@@ -253,9 +252,6 @@ class SearchScreen(Screen):
         self.ids.search_btn.disabled = False
 
     def search(self, limit):
-        fbs = App.get_running_app().controller
-        while fbs.status != 'ready':
-            pass
         url = self.fm.execute()
         content = SearchResults(cancel=self.dismiss_popup, url=url, manager=self.manager, limit=self._check())
         self._popup = Popup(title='Search Results', content=content, size_hint=(.9, .9), auto_dismiss=False)

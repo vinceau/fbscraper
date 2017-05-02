@@ -12,7 +12,12 @@ from helpers import join_url
 
 class FBCrawler(object):
 
-    def __init__(self, min_delay=2):
+    def __init__(self, min_delay=2, dynamic_delay=True):
+        """By default the crawler will measure the average time a page takes to load and
+        waits that amount of time (minimum of 2 seconds by default). If you want it to always
+        wait a constant period of time, set dynamic_delay to False. It will then always
+        wait <min_delay> number of seconds.
+        """
         self.driver = webdriver.Firefox()
         self.min_delay = min_delay  # seconds to wait for infinite scroll items to populate
         self.loads = 0
@@ -21,6 +26,7 @@ class FBCrawler(object):
         self.pause_request = False
         self.status = 'init'
         self._set_status('ready')
+        self.dynamic_delay = dynamic_delay
 
     def __del__(self):
         self.driver.quit()
@@ -104,7 +110,7 @@ class FBCrawler(object):
         """
         self._set_status('paused')
         avg = self.load_time / self.loads
-        secs = max(avg, self.min_delay)
+        secs = max(avg, self.min_delay) if self.dynamic_delay else self.min_delay
         log.info('Sleeping %f seconds', secs)
         sleep(secs)
         while (self.pause_request) and not self.stop_request:

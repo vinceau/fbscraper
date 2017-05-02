@@ -90,7 +90,7 @@ class FBCrawler(object):
     def unpause(self):
         self.pause_request = False
 
-    def interrupt(self, callback=None):
+    def interrupt(self, callback=None, restart=False):
         self.stop_request = True
         if self.status == 'ready':
             self._set_status('stopped')
@@ -99,6 +99,8 @@ class FBCrawler(object):
             pass
         if callback:
             callback()
+        if restart:
+            self.restart()
 
     def restart(self):
         self.pause_request = False

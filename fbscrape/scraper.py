@@ -2,13 +2,10 @@
 import logging as log
 import os
 
-from selenium.common.exceptions import NoSuchElementException, ElementNotVisibleException
-
 # local imports
 import record
 
 from crawler import FBCrawler
-from custom import css_selectors, xpath_selectors, text_content
 from helpers import strip_query, timestring, path_safe, get_target, get_targeturl
 
 
@@ -51,19 +48,8 @@ class FBScraper(FBCrawler):
         filename = self._naming_keywords(self.filenaming, target, name)
         return os.path.join(self.output_dir, folder, filename)
 
-    def _valid_user(self, targeturl):
-        """Check if <targeturl> is a valid user profile.
-        Does this by checking if a certain error message text is contained inside the page body.
-        """
-        try:
-            self.load(targeturl)
-            header_text = self.driver.find_element_by_css_selector(css_selectors.get('error_header')).text
-            return text_content.get('error_header_text').lower() not in header_text.lower()
-        except NoSuchElementException:
-            return True
-
     def autotarget(func):
-        """This decorator converst the target into a target url and ensures it's a legit page.
+        """This decorator converts the target into a target url and ensures it's a legit page.
         """
         def do_stuff(self, target):
             if self.stop_request:
@@ -71,8 +57,8 @@ class FBScraper(FBCrawler):
 
             # make sure we're a proper url
             targeturl = get_targeturl(target)
-            if not self._valid_user(targeturl):
-                log.info('%s is a missing page!', targeturl)
+            if not self.is_valid_target(targeturl):
+                log.info('%s is not a valid target!', targeturl)
                 return None
 
             return func(self, targeturl)
@@ -106,32 +92,9 @@ class FBScraper(FBCrawler):
         rec = record.Record(self._output_file(target, 'posts'), ['date', 'post', 'translation', 'permalink'])
         log.info('Scraping posts into %s', rec.filename)
 
-        def callback(p, i):
-            # expand the see more links
-            try:
-                p.find_element_by_css_selector(css_selectors.get('see_more')).click()
-            except (NoSuchElementException, ElementNotVisibleException):
-                pass
-
-            # get the text before we get the translation
-            post_text = p.text
-            # expand the see translations link if it exists
-            translation = ''
-
-            try:
-                st = p.find_element_by_link_text(text_content.get('see_translation_text'))
-                st_parent = st.find_element_by_xpath('../..')
-                st.click()
-                self._delay()
-                translation = st_parent.find_element_by_css_selector(css_selectors.get('translation')).text
-            except NoSuchElementException:
-                pass
-
-            date_el = p.find_element_by_xpath(xpath_selectors.get('post_date'))
-            p_time = timestring(date_el.get_attribute('data-utime'))
-            p_link = date_el.find_element_by_xpath('..').get_attribute('href')
+        def callback(p_time, post_text, p_link, translation, i):
             rec.add_record({
-                'date': p_time,
+                'date': timestring(p_time),
                 'post': post_text,
                 'translation': translation,
                 'permalink': p_link,
@@ -152,9 +115,7 @@ class FBScraper(FBCrawler):
         rec = record.Record(self._output_file(target, 'likes'), ['name', 'url'])
         log.info('Scraping likes into %s', rec.filename)
 
-        def callback(like, i):
-            name = like.text
-            page_url = like.get_attribute('href')
+        def callback(name, page_url, i):
             rec.add_record({'name': name, 'url': page_url})
             log.info('Scraped like %d: %s', i, name)
 
@@ -189,8 +150,8 @@ class FBScraper(FBCrawler):
         # scrape main photos
         photo_album = record.Album(self._output_file(target, 'photos'), True)
 
-        def photo_cb(photo, _):
-            self._save_to_album(photo, photo_album)
+        def photo_cb(photourl, description, perma, _):
+            self._save_to_album(photourl, description, perma, photo_album)
 
         photos_scraped = self.crawl_photos(targeturl, photo_cb)
         log.info('Scraped %d photos into %s', photos_scraped, photo_album.name)
@@ -205,8 +166,8 @@ class FBScraper(FBCrawler):
             album_name = 'album-' + path_safe(name)
             album = record.Album(self._output_file(target, album_name), True)
 
-            def album_download_cb(photo, _):
-                self._save_to_album(photo, album)
+            def album_download_cb(photourl, description, perma, _):
+                self._save_to_album(photourl, description, perma, album)
 
             scraped = self.crawl_one_album(url, album_download_cb)
             log.info('Scraped %d photos into %s', scraped, album.name)
@@ -214,19 +175,15 @@ class FBScraper(FBCrawler):
         self.crawl_albums(targeturl, album_cb)
 
 
-    def _save_to_album(self, p, album):
-        img_url = p.get_attribute('data-starred-src')
+    def _save_to_album(self, photourl, description, perma, album):
         try:
             # download the image
-            album.add_image(img_url)
-            # get the metadata and store that too
-            link = p.find_element_by_css_selector('a')
-            label = link.get_attribute('aria-label')
-            href = link.get_attribute('href')
-            album.add_description(img_url, label, href)
-            log.info('Scraped photo: %s', img_url)
+            album.add_image(photourl)
+            # save the descriptions
+            album.add_description(photourl, description, perma)
+            log.info('Scraped photo: %s', photourl)
         except record.BrokenImageError:
-            log.error('Failed to download image: %s', img_url)
+            log.error('Failed to download image: %s', photourl)
 
 
     @autotarget
@@ -247,9 +204,7 @@ class FBScraper(FBCrawler):
         target = get_target(targeturl)
         rec = record.Record(self._output_file(target, 'groups'), ['name', 'url'])
 
-        def callback(g, i):
-            name = g.text
-            url = g.get_attribute('href')
+        def callback(name, url, i):
             rec.add_record({'name': name, 'url': url})
             log.info('Scraped group %d: %s', i, name)
 

@@ -1,10 +1,12 @@
 import logging as log
 
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException, ElementNotVisibleException
+
 from time import sleep, time
 
 # local imports
-from custom import css_selectors, xpath_selectors, page_references
+from custom import css_selectors, xpath_selectors, page_references, text_content
 from helpers import join_url
 
 
@@ -22,6 +24,17 @@ class FBCrawler(object):
 
     def __del__(self):
         self.driver.quit()
+
+    def is_valid_target(self, targeturl):
+        """Returns True if <targeturl> is a valid profile.
+        Does this by checking if a certain error message text is contained inside the page body.
+        """
+        try:
+            self.load(targeturl)
+            header_text = self.driver.find_element_by_css_selector(css_selectors.get('error_header')).text
+            return text_content.get('error_header_text').lower() not in header_text.lower()
+        except NoSuchElementException:
+            return True
 
     def _set_status(self, s):
         """Sets s as the new status. Returns the previous status as result.
@@ -134,8 +147,35 @@ class FBCrawler(object):
             for p in all_posts[count:]:
                 if self.stop_request:
                     return count
+
+                # expand the see more links if it exists
+                try:
+                    p.find_element_by_css_selector(css_selectors.get('see_more')).click()
+                except (NoSuchElementException, ElementNotVisibleException):
+                    pass
+
+                # get the text before we get the translation
+                # since the translation will add onto the p.text and we don't want that
+                post_text = p.text
+
+                # expand the see translations link if it exists
+                translation = ''
+                try:
+                    st = p.find_element_by_link_text(text_content.get('see_translation_text'))
+                    st_parent = st.find_element_by_xpath('../..')
+                    st.click()
+                    self._delay()
+                    translation = st_parent.find_element_by_css_selector(css_selectors.get('translation')).text
+                except NoSuchElementException:
+                    pass
+
+                date_el = p.find_element_by_xpath(xpath_selectors.get('post_date'))
+                p_time = date_el.get_attribute('data-utime')  # this is unix time!!!
+                p_link = date_el.find_element_by_xpath('..').get_attribute('href')
+
                 count += 1
-                callback(p, count)
+                # date, post_text, permalink, translation, count
+                callback(p_time, post_text, p_link, translation, count)
 
             self._scroll_to_bottom(wait=True)
 
@@ -143,6 +183,9 @@ class FBCrawler(object):
 
     @running
     def crawl_likes(self, targeturl, callback):
+        """For each like of a target, execute callback.
+        Callback format: Liked Page Name, Liked Page URL, count
+        """
         count = 0
         # load the likes page
         likesurl = join_url(targeturl, page_references.get('likes_page'))
@@ -157,8 +200,9 @@ class FBCrawler(object):
             for like in all_likes[count:]:
                 if self.stop_request:
                     return count
+
                 count += 1
-                callback(like, count)
+                callback(like.text, like.get_attribute('href'), count)
 
             self._scroll_to_bottom(wait=True)
 
@@ -213,6 +257,12 @@ class FBCrawler(object):
 
     @running
     def _album_crawler(self, albumurl, css, callback):
+        """Callback format: photo_source_url, photo_description, photo_post_permalink, count
+
+        The description is not actually the description that was posted with the photo but an
+        automatically generated description by Facebook's algorithms. It can detect objects that
+        might be contained within the image for example: "trees, person, smiling" could be a description.
+        """
         self.load(albumurl)
         count = 0
         while True:
@@ -224,8 +274,18 @@ class FBCrawler(object):
             for p in all_photos[count:]:
                 if self.stop_request:
                     return count
+
+                # url of the image
+                photo_source_url = p.get_attribute('data-starred-src')
+
+                # get the metadata and store that too
+                link = p.find_element_by_css_selector('a')
+                photo_description = link.get_attribute('aria-label')
+                # get the permalink url of the image post
+                photo_post_permalink = link.get_attribute('href')
+
                 count += 1
-                callback(p, count)
+                callback(photo_source_url, photo_description, photo_post_permalink, count)
 
             self._scroll_to_bottom(wait=True)
 
@@ -249,6 +309,8 @@ class FBCrawler(object):
 
     @running
     def crawl_groups(self, targeturl, callback):
+        """Callback format: group_name, group_url, count
+        """
         self.load(join_url(targeturl, page_references.get('groups_page')))
         count = 0
         while True:
@@ -261,8 +323,9 @@ class FBCrawler(object):
             for g in groups:
                 if self.stop_request:
                     return count
+
                 count += 1
-                callback(g, count)
+                callback(g.text, g.get_attribute('href'), count)
 
             self._scroll_to_bottom(wait=True)
 

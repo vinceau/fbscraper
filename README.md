@@ -45,26 +45,26 @@ The GUI log has been limited to displaying the last 30 messages. This was done t
 
 # Changelog
 
-## 1.4 (15 May 2017)
+## 1.4 68b6dc55 (15 May 2017)
 * Fix duplicated log message issue
 * GUI mode is enabled by default when executing `python main.py`
 
-## 1.3 (2 May 2017)
+## 1.3 e106bf4a (2 May 2017)
 * Added option for constant delay
 * Fix issues with threads not terminating properly (hopefully)
 
-## 1.2 (1 May 2017)
+## 1.2 dcf04096 (1 May 2017)
 * Added load targets list from file
 * Targets can now be searched for using in-built target search
 
-## 1.1 (27 March 2017)
+## 1.1 d911941d (27 March 2017)
 * Login button is now disabled while logging in
 * Fixed randomly appearing red dots on click
 * Scrape complete dialog box now appears on scrape completion
 * Scrape progress is now displayed during scrape
 * Scrape can now be paused and unpaused while running
 
-## 1.0 (6 March 2017)
+## 1.0 72cc031d (6 March 2017)
 * Initial release
 
 

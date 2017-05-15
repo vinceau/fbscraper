@@ -1,4 +1,4 @@
-PY_SOURCES = fbscrape/*.py main.py kivyview.py searchview.py
+PY_SOURCES = fbscrape/*.py gui/*.py main.py
 KV_SOURCES = *.kv
 ADMIN = README.md requirements.txt setup.sh
 

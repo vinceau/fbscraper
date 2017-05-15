@@ -4,6 +4,15 @@ This program is an extensible webscraper for Facebook that can scrape entire pro
 
 Since this is a hand-crafted webscraper, whenever Facebook updates their source code, there is a high possibility that it will break this webscraper. That means that this webscraper will need to be actively maintained and updated whenever Facebook modifies their source code. custom.py is the file that contains all the CSS and XPATH selectors. These are the selectors that must be updated. The future maintainer should be well versed in CSS and XPATH before familiarising themselves with the fbscrape.crawler source code. Once they have a good understanding, it should not be too hard to examine Facebook's source code to update the selectors in custom.py appropriately.
 
+
+# Installation
+Open a Terminal shell and type in `sudo ./setup.sh`. Follow the prompts to install all dependencies. You may need to hit 'Y' a couple of times to proceed with the install.
+
+
+# Running the Program
+Open a Terminal shell and type in the command `python2.7 main.py`. If a whole bunch of errors come up try running it in `sudo` mode, i.e. running the command `sudo python2.7 main.py`. It shouldn't need `sudo` access but sometimes the GUI package Kivy complains without it.
+
+
 # Important Information
 
 ## Python Version Compatibility
@@ -24,9 +33,6 @@ The fbscrape.crawler is responsible for opening/loading/processing through webpa
 
 # Known Issues
 
-## Duplicated Log Messages
-When the GUI version is activated by `python main.py --gui` the log messages are duplicated. Not sure why. If you only ever intend on using the GUI version and not the commandline version, you can run `python kivyview.py` instead.
-
 ## Unicode Problems
 The GUI version of the scraping program can not display certain unicode. This is a limitation with the Kivy graphics library. It could have been solved by using a completely different graphics library but Kivy was the least painful to use. What this means to the end user is that foreign names not in English are often replaced with question marks (?) in the Python GUI. Using a terminal/shell with a larger unicode support will solve this problem since the log displayed by the GUI window reflects the log in the terminal anyway.
 
@@ -38,6 +44,10 @@ The GUI log has been limited to displaying the last 30 messages. This was done t
 
 
 # Changelog
+
+## 1.4 (15 May 2017)
+* Fix duplicated log message issue
+* GUI mode is enabled by default when executing `python main.py`
 
 ## 1.3 (2 May 2017)
 * Added option for constant delay

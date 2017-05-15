@@ -8,11 +8,21 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.screenmanager import Screen, SlideTransition
 
+import os
+import sys
 from threading import Thread
 
+file_path = os.path.dirname(os.path.abspath(__file__))
+# add the parent directory to the path to import fbscrape
+sys.path.append(os.path.dirname(file_path))
+
+# local imports
 from fbscrape import search
 
-Builder.load_file('searchview.kv')
+
+KIVY_FILE = 'searchview.kv'
+kivy_file_path = os.path.join(file_path, KIVY_FILE)
+Builder.load_file(kivy_file_path)
 
 
 def background(func):

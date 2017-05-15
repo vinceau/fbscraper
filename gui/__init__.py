@@ -1,0 +1,1 @@
+from kivyview import FBScraperApp

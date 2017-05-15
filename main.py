@@ -10,7 +10,7 @@ except NameError:
     pass
 
 import argparse
-import logging as log
+import logging
 
 from builtins import input
 from getpass import getpass
@@ -21,14 +21,27 @@ from fbscrape import FBScraper
 
 def main(args):
     output_dir = args.outputdir if args.outputdir else ''
+    loginfile = args.loginfile if args.loginfile else 'login.txt'
+    infile = args.inputfile if args.inputfile else ''
     fbs = FBScraper(output_dir)
 
+    # run the gui version if there's no --nogui flag
+    if not args.nogui:
+        # hide the current arguments from kivy
+        sys.argv = [sys.argv[0]]
+        from gui import FBScraperApp
+        return FBScraperApp(fbs, loginfile, infile).run()
+
+    # configure logging level
+    logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+    log = logging.getLogger('fbscraper')
+
+    # not running the gui version
+    # attempt to login
     fb_user = ''
     fb_pass = ''
-
-    # attempt to login
-    if args.loginfile:
-        with open(args.loginfile, 'r') as f:
+    if loginfile:
+        with open(loginfile, 'r') as f:
             lines = f.readlines()
             fb_user = lines[0].strip()
             fb_pass = lines[1].strip()
@@ -39,8 +52,8 @@ def main(args):
         sys.exit('Failed to log into Facebook. Check your credentials and try again.')
 
     # login successful
-    if args.inputfile:
-        with open(args.inputfile, 'r') as input_f:
+    if infile:
+        with open(infile, 'r') as input_f:
             for line in input_f:
                 fbs.scrape(line.strip())
     else:
@@ -56,12 +69,9 @@ def main(args):
 
 
 if __name__ == "__main__":
-    # configure logging level
-    log.basicConfig(format='%(levelname)s:%(message)s', level=log.INFO)
-
     parser = argparse.ArgumentParser(description='Crawl a bunch of Facebook sites and record the posts.')
-    parser.add_argument('--gui', '-g', dest='gui', action='store_true', required=False,
-                        help='run the program with a graphical user interface')
+    parser.add_argument('--nogui', '-n', dest='nogui', action='store_true', required=False,
+                        help='run the program without the graphical user interface')
     parser.add_argument('--input', '-i', dest='inputfile', required=False,
                         help='a file to read a list of Facebook usernames from')
     parser.add_argument('--outputdir', '-o', dest='outputdir', required=False,
@@ -69,13 +79,4 @@ if __name__ == "__main__":
     parser.add_argument('--loginfile', '-l', dest='loginfile', required=False,
                         help='the file to read login credentials from (username/email on the first line, and password on the second line)')
     args = parser.parse_args()
-    if args.gui:
-        output_dir = args.outputdir if args.outputdir else ''
-        loginfile = args.loginfile if args.loginfile else 'login.txt'
-        infile = args.inputfile if args.inputfile else ''
-        # hide the current arguments from kivy
-        sys.argv = [sys.argv[0]]
-        from kivyview import run_app
-        run_app(output_dir, loginfile, infile)
-    else:
-        main(args)
+    main(args)

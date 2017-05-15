@@ -14,11 +14,12 @@ from kivy.uix.popup import Popup
 from kivy.properties import ObjectProperty
 
 # local imports
-from fbscrape import FBScraper
 from searchview import SearchScreen, background
 
-version = '1.3'
-last_updated = '2 May 2017'
+version = '1.4'
+last_updated = '15 May 2017'
+
+Config.set('input', 'mouse', 'mouse,disable_multitouch')
 
 
 class Login(Screen):
@@ -289,10 +290,14 @@ class FBScraperApp(App):
     version = version
     last_updated = last_updated
 
-    def __init__(self, outputdir='', loginfile='login.txt', infile=''):
+    def __init__(self, controller, loginfile='login.txt', infile=''):
+        """<controller> is an instance of fbscrape.FBScraper
+        <loginfile> is the default file to store credentials in
+        <infile> is the file to read targets into the target list
+        """
         App.__init__(self)
         self.stop_request = False
-        self.controller = FBScraper(outputdir)
+        self.controller = controller
         self.loginfile = loginfile
         self.infile = infile
 
@@ -311,12 +316,3 @@ class FBScraperApp(App):
         manager.add_widget(logscreen)
 
         return manager
-
-
-def run_app(outputdir='', loginfile='login.txt', infile=''):
-    Config.set('input', 'mouse', 'mouse,disable_multitouch')
-    FBScraperApp(outputdir, loginfile, infile).run()
-
-
-if __name__ == '__main__':
-    run_app()

@@ -45,6 +45,9 @@ The GUI log has been limited to displaying the last 30 messages. This was done t
 
 # Changelog
 
+## 1.5 a5b4359c (22 May 2017)
+* Fix crash when clicking "See More" in externally shared Notes
+
 ## 1.4 68b6dc55 (15 May 2017)
 * Fix duplicated log message issue
 * GUI mode is enabled by default when executing `python main.py`

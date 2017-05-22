@@ -158,7 +158,7 @@ class FBCrawler(object):
 
                 # expand the see more links if it exists
                 try:
-                    p.find_element_by_css_selector(css_selectors.get('see_more')).click()
+                    p.find_element_by_xpath(xpath_selectors.get('see_more')).click()
                 except (NoSuchElementException, ElementNotVisibleException):
                     pass
 

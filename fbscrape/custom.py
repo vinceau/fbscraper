@@ -29,8 +29,6 @@ css_selectors = {
     'indiv_albums': "#pagelet_timeline_medley_photos table.fbPhotosGrid a.photoTextTitle",
     # once inside an album, select the different photos
     'album_photo': "#fbTimelinePhotosContent div.fbPhotoStarGridElement",
-    # see more links
-    'see_more': "a.see_more_link",
     # translations
     'translation': "div:last-child > span:first-of-type",
     # people search results
@@ -50,6 +48,8 @@ xpath_selectors = {
     'post_date': ".//abbr/span[contains(@class, 'timestampContent')]/..",
     # individual groups in the groups page
     'groups': "//div[@id='timeline-medley']//ul/li//a[@data-hovercard and not (*)]",
+    # see more links
+    'see_more': ".//a[contains(@class, 'see_more_link') and span]",
 }
 
 

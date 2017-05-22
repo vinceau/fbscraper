@@ -16,8 +16,8 @@ from kivy.properties import ObjectProperty
 # local imports
 from searchview import SearchScreen, background
 
-version = '1.4'
-last_updated = '15 May 2017'
+version = '1.5'
+last_updated = '22 May 2017'
 
 Config.set('input', 'mouse', 'mouse,disable_multitouch')
 

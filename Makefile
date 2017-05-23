@@ -1,5 +1,5 @@
 PY_SOURCES = fbscrape/*.py gui/*.py main.py
-KV_SOURCES = *.kv
+KV_SOURCES = gui/*.kv
 ADMIN = README.md requirements.txt setup.sh
 
 VERSION = 1.5

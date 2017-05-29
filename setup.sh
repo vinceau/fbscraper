@@ -37,8 +37,8 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
   fi
 
-  # install kivy and dependencies
-  brew install wget sdl2 sdl2_image sdl2_ttf sdl2_mixer gstreamer
+  # install wget and kivy dependencies
+  brew install wget pkg-config sdl2 sdl2_image sdl2_ttf sdl2_mixer gstreamer
 
   # get geckodriver
   wget https://github.com/mozilla/geckodriver/releases/download/v0.14.0/geckodriver-v0.14.0-macos.tar.gz
@@ -52,6 +52,12 @@ chmod +x geckodriver
 mv geckodriver /usr/local/bin
 
 easy_install pip
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # we are Mac OS X
+  pip install -U Cython
+  pip install kivy
+fi
 
 #install dependencies for fbscraper
 pip install -r requirements.txt

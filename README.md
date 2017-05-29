@@ -2,7 +2,7 @@
 
 This program is an extensible webscraper for Facebook that can scrape entire profiles of users, including: posts, photos, albums, friends list, groups, likes, and their about page (profile information).
 
-Since this is a hand-crafted webscraper, whenever Facebook updates their source code, there is a high possibility that it will break this webscraper. That means that this webscraper will need to be actively maintained and updated whenever Facebook modifies their source code. custom.py is the file that contains all the CSS and XPATH selectors. These are the selectors that must be updated. The future maintainer should be well versed in CSS and XPATH before familiarising themselves with the fbscrape.crawler source code. Once they have a good understanding, it should not be too hard to examine Facebook's source code to update the selectors in custom.py appropriately.
+Since this is a hand-crafted webscraper, whenever Facebook updates their source code, there is a high possibility that it will break this webscraper. That means that this webscraper will need to be actively maintained and updated whenever Facebook modifies their source code. `custom.py` is the file that contains all the CSS and XPATH selectors. These are the selectors that must be updated. The future maintainer should be well versed in CSS and XPATH before familiarising themselves with the fbscrape.crawler source code. Once they have a good understanding, it should not be too hard to examine Facebook's source code to update the selectors in custom.py appropriately.
 
 
 # Installation
@@ -26,9 +26,9 @@ Facebook has two main methods of identifying users -- a unique ID number (a roug
 
 
 # Inner Workings
-The program is composed of a backend module called fbscrape and a frontend main.py file. It uses an Model-view-controller (MVC) model with the fbscrape module as the model, the .py files as the controllers, and the .kv files as the view. 
+The program is composed of a backend module called fbscrape and a frontend main.py file. It uses an Model-view-controller (MVC) model with the fbscrape module as the model, the `gui/*.py` files as the controllers, and the `gui/*.kv` files as the view. 
 
-The fbscrape.crawler is responsible for opening/loading/processing through webpages whilst the fbscraper.scraper extends this by storing the information crawled by the crawler and saving it onto the local hard disk. The storing component is generally handled by record.py.
+The fbscrape.crawler is responsible for opening/loading/processing through webpages whilst the fbscrape.scraper extends this by storing the information crawled by the crawler and saving it onto the local hard disk. The storing component is generally handled by record.py.
 
 
 # Known Issues

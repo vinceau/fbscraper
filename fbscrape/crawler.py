@@ -107,12 +107,15 @@ class FBCrawler(object):
         self.stop_request = False
         self._set_status('ready')
 
-    def _delay(self):
+    def _delay(self, multiplier=1):
         """Sleeps the average amount of time it has taken to load a page or at least self.min_delay seconds.
+        Multiplier is how much more or less time you want to wait. e.g. multiplier=2 would wait 2 times
+        as long as usual.
         """
         self._set_status('paused')
         avg = self.load_time / self.loads
         secs = max(avg, self.min_delay) if self.dynamic_delay else self.min_delay
+        secs *= multiplier
         log.info('Sleeping %f seconds', secs)
         sleep(secs)
         while (self.pause_request) and not self.stop_request:

@@ -1,3 +1,4 @@
+import logging as log
 import os
 import errno
 
@@ -42,6 +43,7 @@ class Record(object):
         self.file = open(self.filename, 'w')
         self.writer = csv.DictWriter(self.file, fieldnames=schema)
         self.writer.writeheader()
+        log.info('Created a new record file at: %s', self.filename)
 
     def __del__(self):
         self.file.close()

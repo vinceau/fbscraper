@@ -5,8 +5,6 @@ try:
 except ImportError:
     from urllib.parse import urljoin, urlparse, parse_qs
 
-unsafe_chars = [' ', '/', '\\']
-
 
 def join_url(base, query):
     """Joins a query to a url.
@@ -36,10 +34,13 @@ def timestring(unix=None):
 def path_safe(path):
     """Makes a path a bit safer by replacing the unsafe characters found in unsafe_char with '-'.
     """
+    # replace the unsafe characters with replacement
+    unsafe_chars = [' ', '/', '\\']
+    replacement = '-'
     new_path = path
     for c in unsafe_chars:
-        new_path = new_path.replace(c, '-')
-    return new_path
+        new_path = new_path.replace(c, replacement)
+    return new_path.strip(replacement)
 
 
 def get_targeturl(target):

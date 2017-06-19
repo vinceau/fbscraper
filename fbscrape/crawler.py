@@ -28,6 +28,9 @@ class FBCrawler(object):
         self._set_status('ready')
         self.dynamic_delay = dynamic_delay
 
+        # shorter funciton for executing javascript
+        self._js = self.driver.execute_script
+
     def __del__(self):
         self.driver.quit()
 
@@ -76,9 +79,6 @@ class FBCrawler(object):
         self._js("document.querySelector('{}').submit();".format(css_selectors.get('login_form')))
         self._delay()
         return 'login' not in self.driver.current_url
-
-    def _js(self, code):
-        return self.driver.execute_script(code)
 
     def _update_delay(self, seconds):
         self.load_time += seconds

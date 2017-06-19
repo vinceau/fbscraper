@@ -1,6 +1,7 @@
-
 import logging as log
 import os
+
+from urlparse import urlparse
 
 # local imports
 import record
@@ -210,3 +211,16 @@ class FBScraper(FBCrawler):
 
         scraped = self.crawl_groups(targeturl, callback)
         log.info('Scraped %d groups into %s', scraped, rec.filename)
+
+
+    def scrape_event_guests(self, eventurl, guest_filter=None):
+        rec_name = path_safe(urlparse(eventurl).path)
+        rec_name = os.path.join(self.output_dir, rec_name)
+        rec = record.Record(rec_name, ['response', 'name', 'profile'])
+
+        def callback(label, name, url, imgurl, i):
+            rec.add_record({'response': label, 'name': name, 'profile': url})
+            log.info('%s is %s in the event %s', name, label, eventurl)
+
+        scraped = self.crawl_event_guests(eventurl, callback, guest_filter)
+        log.info('Scraped %d invitees for event %s', scraped, eventurl)

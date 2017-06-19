@@ -367,3 +367,44 @@ class FBCrawler(object):
             self._scroll_to_bottom(wait=True)
 
         return count
+
+    @running
+    def crawl_event_guests(self, url, callback, guest_filter=None):
+        if guest_filter is None:
+            guest_filter = ['interested', 'going', 'invited']
+        self.load(url, scroll=False)
+        total = 0
+        # open guests list
+        guest_list = self.driver.find_element_by_css_selector(css_selectors.get('event_guests'))
+        guest_list.click()
+        self._delay()
+        buttons = self.driver.find_elements_by_css_selector(css_selectors.get('guest_buttons'))
+        dialog = buttons[0].find_element_by_xpath('../../..')
+        for b in buttons:
+            count = 0
+            b.click()
+            self._delay()
+            label = b.text.strip().split(' ')[0].lower()
+            if label not in guest_filter:
+                continue
+            scroller = dialog.find_element_by_css_selector(css_selectors.get('guest_scroller'))
+            while True:
+                results = dialog.find_elements_by_css_selector(css_selectors.get('guest_list'))
+                if len(results) <= count:
+                    break
+
+                for friend in results[count:]:
+                    if self.stop_request:
+                        return total
+                    friend_info = friend.find_element_by_xpath(xpath_selectors.get('friend_info'))
+                    name = friend_info.text
+                    url = friend_info.get_attribute('href')
+                    imgurl = friend.find_element_by_css_selector(css_selectors.get('friend_image')).get_attribute('src')
+                    count += 1
+                    total += 1
+                    callback(label, name, url, imgurl, total)
+
+                self._js('a = arguments[0]; a.scrollTo(0, a.scrollHeight);', scroller)
+                self._delay()
+
+        return total

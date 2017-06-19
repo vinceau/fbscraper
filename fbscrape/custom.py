@@ -35,7 +35,7 @@ css_selectors = {
     'search_results': '#initial_browse_result div[data-bt] > div[data-gt]',
     # the following two selectors are used after 'search_results' is used
     'search_pics': 'div.clearfix > a > img',
-    'search_link': 'div.clearfix div.clearfix > div > div > a[data-testid]',
+    'search_link': 'div.clearfix div.clearfix > div > div a[data-testid]',
     'event_guests': "#event_guest_list a[rel='dialog']",
     'guest_buttons': 'span.className > a',
     # guests in the event attending page
@@ -48,7 +48,8 @@ css_selectors = {
 Only use XPath when you can't express it in CSS.
 """
 xpath_selectors = {
-    'friend_info': ".//div//a[@data-hovercard and span[not(*)]]",
+    'friend_info': ".//div//a[@data-hovercard and not(*)]",
+    'event_friend_info': ".//div//a[@data-hovercard and span[not(*)]]",
     'likes_selector': "//div[@id='pagelet_timeline_medley_likes']//li//a[@data-hovercard and not(*)]",
     'post_date': ".//abbr/span[contains(@class, 'timestampContent')]/..",
     # individual groups in the groups page

@@ -359,7 +359,7 @@ class FBCrawler(object):
                 if self.stop_request or limit > 0 and count >= limit:
                     return count
                 imageurl = r.find_element_by_css_selector(css_selectors.get('search_pics')).get_attribute('src')
-                url = r.find_element_by_css_selector(css_selectors.get('search_link'))
+                url = r.find_elements_by_css_selector(css_selectors.get('search_link'))[1]
                 name = url.text
                 count += 1
                 callback(name, url.get_attribute('href'), imageurl, count)
@@ -396,7 +396,7 @@ class FBCrawler(object):
                 for friend in results[count:]:
                     if self.stop_request:
                         return total
-                    friend_info = friend.find_element_by_xpath(xpath_selectors.get('friend_info'))
+                    friend_info = friend.find_element_by_xpath(xpath_selectors.get('event_friend_info'))
                     name = friend_info.text
                     url = friend_info.get_attribute('href')
                     imgurl = friend.find_element_by_css_selector(css_selectors.get('friend_image')).get_attribute('src')

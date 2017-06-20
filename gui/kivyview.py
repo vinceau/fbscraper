@@ -15,6 +15,7 @@ from kivy.properties import ObjectProperty
 
 # local imports
 from searchview import SearchScreen, background
+from preaction import BaseAction
 
 version = '1.5'
 last_updated = '22 May 2017'
@@ -63,11 +64,6 @@ class Login(Screen):
             else:
                 self.ids.fail.opacity = 1
             self.ids.loginbutton.disabled = False
-
-
-class CompleteDialog(FloatLayout):
-    dismiss = ObjectProperty(None)
-    notice = ObjectProperty(None)
 
 
 class LoadDialog(FloatLayout):
@@ -130,11 +126,11 @@ class AdvancedSettings(FloatLayout):
             x.active = tally.count(True) / len(tally) < 0.5
 
 
-class Settings(Screen):
+class Settings(BaseAction):
     infile = ObjectProperty(None)
 
     def __init__(self, **kwargs):
-        Screen.__init__(self, **kwargs)
+        BaseAction.__init__(self, **kwargs)
         if self.infile:
             self._load_file(self.infile)
 
@@ -177,21 +173,6 @@ class Settings(Screen):
         self.scrape_complete(time() - start)
         app.stop_request = False
 
-    def scrape_complete(self, elapsed):
-        hours, rem = divmod(elapsed, 3600)
-        mins, secs = divmod(rem, 60)
-        notice = 'Time elapsed: {:d} hours, {:d} minutes and {:d} seconds'.format(int(hours), int(mins), int(secs))
-
-        def go_back():
-            self.dismiss_popup()
-            self.manager.transition = SlideTransition(direction='right')
-            self.manager.current = 'settings'
-            App.get_running_app().controller.restart()  # restart the scraper
-
-        content = CompleteDialog(notice=notice, dismiss=go_back)
-        self._popup = Popup(title='Scrape Complete', content=content, size_hint=(.4, .4), auto_dismiss=False)
-        self._popup.open()
-
     def choosedir(self):
         def dirsel(path, filename):
             if len(filename) == 0:
@@ -210,9 +191,6 @@ class Settings(Screen):
         content = AdvancedSettings(cancel=self.dismiss_popup)
         self._popup = Popup(title='Advanced Settings', content=content, size_hint=(.9, .9))
         self._popup.open()
-
-    def dismiss_popup(self):
-        self._popup.dismiss()
 
 
 class Logging(Screen):

@@ -48,7 +48,7 @@ function osx_install ()
 
 #make sure we are running as root
 if [ "$EUID" -ne 0 ]
-  then echo "Please re-run as root.\n"
+  then echo "Please re-run as root."
   exit
 fi
 
@@ -68,7 +68,7 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
   # we are Mac OS X
   osx_install
 else
-  echo "Your platform isn't supported. Sorry.\n"
+  echo "Your platform isn't supported. Sorry."
   exit
 fi
 

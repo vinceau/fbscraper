@@ -2,7 +2,7 @@ from kivy.app import App
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty
 from kivy.clock import Clock
-from kivy.uix.behaviors.togglebutton import ToggleButtonBehavior
+from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout

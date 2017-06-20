@@ -381,12 +381,15 @@ class FBCrawler(object):
         buttons = self.driver.find_elements_by_css_selector(css_selectors.get('guest_buttons'))
         dialog = buttons[0].find_element_by_xpath('../../..')
         for b in buttons:
-            count = 0
-            b.click()
-            self._delay()
+            # check to see if we want to scrape these guests
             label = b.text.strip().split(' ')[0].lower()
             if label not in guest_filter:
                 continue
+
+            # we want to scrape these guests
+            count = 0
+            b.click()
+            self._delay()
             scroller = dialog.find_element_by_css_selector(css_selectors.get('guest_scroller'))
             while True:
                 results = dialog.find_elements_by_css_selector(css_selectors.get('guest_list'))

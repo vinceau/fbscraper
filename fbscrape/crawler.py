@@ -186,6 +186,8 @@ class FBCrawler(object):
                     while post_text == p.text:
                         sm.click()
                         self._delay()
+                    # cool our text is different now so update the post_text
+                    post_text = p.text
                 except (NoSuchElementException, ElementNotVisibleException):
                     pass
 

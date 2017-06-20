@@ -265,11 +265,12 @@
             size_hint_y: 0.1
             padding: [0, 20, 0, 0]
             Button:
-                size_hint_x: 0.5
                 text: 'Advanced Settings'
                 on_release: root.adv_settings()
             Button:
-                size_hint_x: 0.5
+                text: 'Scrape Event Guest List'
+                on_release: root.event_view()
+            Button:
                 text: 'Start Scrape'
                 on_release: root.do_scrape(names.text)
                 disabled: len(names.text) == 0

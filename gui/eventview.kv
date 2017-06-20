@@ -1,0 +1,71 @@
+
+<EventSettings>:
+    VertiBox:
+        padding: [40]*4
+        canvas:
+            Color:
+                rgb: 1, 1, 1
+            Rectangle:
+                size: self.size
+        VertiBox:
+            size_hint_y: 0.2
+            BlackLabel:
+                text_size: self.size
+                valign: 'bottom'
+                text: 'Event Guests to scrape'
+            BoxLayout:
+                BoxLayout:
+                    CheckBox:
+                        id: interested
+                        active: True
+                        size_hint_x: 0.2
+                    BlackLabel:
+                        text: 'Interested'
+                        text_size: self.size
+                        valign: 'middle'
+                BoxLayout:
+                    CheckBox:
+                        id: going
+                        active: True
+                        size_hint_x: 0.2
+                    BlackLabel:
+                        text: 'Going'
+                        text_size: self.size
+                        valign: 'middle'
+                BoxLayout:
+                    CheckBox:
+                        id: invited
+                        active: True
+                        size_hint_x: 0.2
+                    BlackLabel:
+                        text: 'Invited'
+                        text_size: self.size
+                        valign: 'middle'
+        BoxLayout:
+            size_hint_y: 0.7
+            VertiBox:
+                BoxLayout:
+                    size_hint_y: 0.2
+                    BlackLabel:
+                        size_hint_x: 0.8
+                        text_size: self.size
+                        valign: 'bottom'
+                        text: 'Facebook Event URLs (<Enter> separated)'
+                TextInput:
+                    id: names
+                    size_hint: (1, 0.8)
+                    hint_text: 'https://www.facebook.com/event/123456789'
+        BoxLayout:
+            size_hint_y: 0.1
+            padding: [0, 20, 0, 0]
+            Button:
+                size_hint_x: 0.5
+                text: 'Back'
+                id: back_btn
+                on_release: root.go_back()
+            Button:
+                size_hint_x: 0.5
+                text: 'Start Scrape'
+                on_release: root.do_scrape(names.text)
+                disabled: len(names.text) == 0 or not (interested.active or going.active or invited.active)
+

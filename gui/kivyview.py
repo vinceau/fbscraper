@@ -16,6 +16,7 @@ from kivy.properties import ObjectProperty
 # local imports
 from searchview import SearchScreen, background
 from preaction import BaseAction
+from eventview import EventSettings
 
 version = '1.5'
 last_updated = '22 May 2017'
@@ -154,6 +155,10 @@ class Settings(BaseAction):
         self.manager.transition = SlideTransition(direction='up')
         self.manager.current = 'search'
 
+    def event_view(self):
+        self.manager.transition = SlideTransition(direction='up')
+        self.manager.current = 'events'
+
     @background
     def do_scrape(self, names):
         self.manager.transition = SlideTransition(direction='left')
@@ -288,6 +293,7 @@ class FBScraperApp(App):
         manager.add_widget(Login(name='login', login_file=self.loginfile))
         manager.add_widget(Settings(name='settings', infile=self.infile))
         manager.add_widget(SearchScreen(name='search'))
+        manager.add_widget(EventSettings(name='events'))
         logscreen = Logging(name='logging')
         log = logging.getLogger()
         log.addHandler(LogHandler(logscreen))

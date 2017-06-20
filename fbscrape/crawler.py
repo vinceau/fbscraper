@@ -57,18 +57,25 @@ class FBCrawler(object):
         and the status as ready when action is complete
         """
         def do_stuff(self, *args, **kwargs):
-            # don't do anything if we've got a stop request
-            if self.stop_request:
-                return None
+            try:
+                # don't do anything if we've got a stop request
+                if self.stop_request:
+                    return None
 
-            # we're ready to runble
-            old = self._set_status('running')
-            ret = func(self, *args, **kwargs)
-            if self.stop_request:
+                # we're ready to runble
+                old = self._set_status('running')
+                ret = func(self, *args, **kwargs)
+                if self.stop_request:
+                    self._set_status('stopped')
+                else:
+                    self._set_status(old)
+                return ret
+            except Exception, e:
+                log.error(e)
+                log.error('An unexpected error occured. Maybe close the program and try again. If error persists Facebook\'s probably updated their code, thus breaking this scraper. Contact whoever\'s in charge of maintining this script and ask them to fix it.')
                 self._set_status('stopped')
-            else:
-                self._set_status(old)
-            return ret
+                self.interrupt(None, True)
+                return None
         return do_stuff
 
     @running

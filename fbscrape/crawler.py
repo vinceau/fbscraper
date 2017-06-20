@@ -382,7 +382,7 @@ class FBCrawler(object):
         dialog = buttons[0].find_element_by_xpath('../../..')
         for b in buttons:
             count = 0
-            b.click(2)
+            b.click()
             self._delay()
             label = b.text.strip().split(' ')[0].lower()
             if label not in guest_filter:

@@ -377,7 +377,7 @@ class FBCrawler(object):
         # open guests list
         guest_list = self.driver.find_element_by_css_selector(css_selectors.get('event_guests'))
         guest_list.click()
-        self._delay(2)
+        self._delay(1.5)
         buttons = self.driver.find_elements_by_css_selector(css_selectors.get('guest_buttons'))
         dialog = buttons[0].find_element_by_xpath('../../..')
         for b in buttons:

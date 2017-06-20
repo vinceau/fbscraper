@@ -1,34 +1,21 @@
 #!/usr/bin/env bash
 
-#make sure we are running as root
-if [ "$EUID" -ne 0 ]
-  then echo "Please re-run as root.\n"
-  exit
-fi
+function ubuntu_install ()
+{
+  # add the kivy PPA and update
+  add-apt-repository ppa:kivy-team/kivy
+  apt-get update
 
-if [[ "$OSTYPE" == "linux-gnu" ]]; then
-  # we are a linux distro of some sort
+  #install pip and python-kivy for gui
+  apt-get install python-setuptools python-dev build-essential python-kivy
 
-  if command -v apt-get > /dev/null 2>&1; then
-    # we are a debian/Ubuntu distro
-    # add the kivy PPA and update
-    add-apt-repository ppa:kivy-team/kivy
-    apt-get update
-  
-    #install pip and python-kivy for gui
-    apt-get install python-setuptools python-dev build-essential python-kivy
-  
-    #install geckodriver
-    wget https://github.com/mozilla/geckodriver/releases/download/v0.14.0/geckodriver-v0.14.0-linux64.tar.gz
-  else
-    # we are not a debian/Ubuntu distro so quit
-    echo "Your Linux distribution is not supported. Sorry."
-    exit
-  fi
+  #install geckodriver
+  wget https://github.com/mozilla/geckodriver/releases/download/v0.14.0/geckodriver-v0.14.0-linux64.tar.gz
+}
 
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-  # we are Mac OS X
 
+function osx_install ()
+{
   if command -v brew > /dev/null 2>&1; then
     echo "Brew found. Skipping installation."
   else
@@ -42,6 +29,30 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
 
   # get geckodriver
   wget https://github.com/mozilla/geckodriver/releases/download/v0.14.0/geckodriver-v0.14.0-macos.tar.gz
+}
+
+
+#make sure we are running as root
+if [ "$EUID" -ne 0 ]
+  then echo "Please re-run as root.\n"
+  exit
+fi
+
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+  # we are a linux distro of some sort
+
+  if command -v apt-get > /dev/null 2>&1; then
+    # we are a debian/Ubuntu distro
+    ubuntu_install
+  else
+    # we are not a debian/Ubuntu distro so quit
+    echo "Your Linux distribution is not supported. Sorry."
+    exit
+  fi
+
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  # we are Mac OS X
+  osx_install
 else
   echo "Your platform isn't supported. Sorry.\n"
   exit

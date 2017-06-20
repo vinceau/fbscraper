@@ -65,13 +65,20 @@ class Album(object):
         Thread(target=self._image_dl(url), args=(url)).start()
 
     def _image_dl(self, url):
-        img_bin = urlopen(url).read()
-        if not img_bin:
-            raise BrokenImageError
-        filename = urlparse(url).path.split('/')[-1]
-        fullpath = os.path.join(self.name, filename)
-        with open(fullpath, 'wb') as f:
-            f.write(img_bin)
+        try:
+            img_bin = urlopen(url).read()
+            if img_bin:
+                filename = urlparse(url).path.split('/')[-1]
+                fullpath = os.path.join(self.name, filename)
+                with open(fullpath, 'wb') as f:
+                    f.write(img_bin)
+            return
+        except IOError:
+            # there was some issue with the connection
+            # raise the Broken Image Error
+            pass
+        raise BrokenImageError
+
 
     def add_description(self, imgurl, desc, perma):
         if self.record:

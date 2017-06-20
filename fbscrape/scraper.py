@@ -167,8 +167,8 @@ class FBScraper(FBCrawler):
             album_name = 'album-' + path_safe(name)
             album = record.Album(self._output_file(target, album_name), True)
 
-            def album_download_cb(photourl, description, perma, _):
-                self._save_to_album(photourl, description, perma, album)
+            def album_download_cb(photourl, perma, _):
+                self._save_to_album(photourl, '', perma, album)
 
             scraped = self.crawl_one_album(url, album_download_cb)
             log.info('Scraped %d photos into %s', scraped, album.name)

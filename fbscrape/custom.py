@@ -29,7 +29,7 @@ css_selectors = {
     # selects the different albums
     'indiv_albums': "#pagelet_timeline_medley_photos table.fbPhotosGrid a.photoTextTitle",
     # once inside an album, select the different photos
-    'album_photo': "#fbTimelinePhotosContent div.fbPhotoStarGridElement",
+    'album_photo': "#fbTimelinePhotosContent > div > div > a",
     # translations
     'translation': "div:last-child > span:first-of-type",
     # people search results

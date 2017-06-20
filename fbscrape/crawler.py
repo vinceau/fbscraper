@@ -266,38 +266,20 @@ class FBCrawler(object):
 
         return count
 
+    @running
     def crawl_photos(self, targeturl, callback):
-        photos_url = join_url(targeturl, page_references.get('photos_page'))
-        return self._album_crawler(photos_url, 'photo_selector', callback)
-
-    @running
-    def crawl_albums(self, targeturl, callback):
-        # scrape all albums
-        self.load(join_url(targeturl, page_references.get('albums')))
-        albums = self.driver.find_elements_by_css_selector(css_selectors.get('indiv_albums'))
-        count = 0
-        for album_name, album_url in [(a.text, a.get_attribute('href')) for a in albums]:
-            if self.stop_request:
-                return count
-            count += 1
-            callback(album_name, album_url, count)
-        return count
-
-    def crawl_one_album(self, album_url, callback):
-        return self._album_crawler(album_url, 'album_photo', callback)
-
-    @running
-    def _album_crawler(self, albumurl, css, callback):
         """Callback format: photo_source_url, photo_description, photo_post_permalink, count
 
         The description is not actually the description that was posted with the photo but an
         automatically generated description by Facebook's algorithms. It can detect objects that
         might be contained within the image for example: "trees, person, smiling" could be a description.
         """
+        albumurl = join_url(targeturl, page_references.get('photos_page'))
         self.load(albumurl)
+
         count = 0
         while True:
-            all_photos = self.driver.find_elements_by_css_selector(css_selectors.get(css))
+            all_photos = self.driver.find_elements_by_css_selector(css_selectors.get('photo_selector'))
             # break if no more photos
             if len(all_photos) <= count:
                 break
@@ -317,6 +299,67 @@ class FBCrawler(object):
 
                 count += 1
                 callback(photo_source_url, photo_description, photo_post_permalink, count)
+
+            self._scroll_to_bottom(wait=True)
+
+        return count
+
+    @running
+    def crawl_albums(self, targeturl, callback):
+        # scrape all albums
+        self.load(join_url(targeturl, page_references.get('albums')))
+        albums = self.driver.find_elements_by_css_selector(css_selectors.get('indiv_albums'))
+        count = 0
+        for album_name, album_url in [(a.text, a.get_attribute('href')) for a in albums]:
+            if self.stop_request:
+                return count
+            count += 1
+            callback(album_name, album_url, count)
+        return count
+
+    @running
+    def crawl_one_album(self, albumurl, callback):
+        """Callback format: photo_source_url, photo_post_permalink, count
+        """
+
+        def bg_img_url(el):
+            """Gets the image url of the element el with css style background-image
+            """
+            # get the img
+            img = self._js("""var element = arguments[0],
+            style = element.currentStyle || window.getComputedStyle(element, false);
+            return style['background-image'];""", el)
+            # strip the img part
+            if img[:4] == 'url(':
+                img = img[4:]
+            if img[-1] == ')':
+                img = img[:-1]
+            return img.strip("'").strip('"')
+
+
+        self.load(albumurl)
+        count = 0
+        while True:
+            all_photos = self.driver.find_elements_by_css_selector(css_selectors.get('album_photo'))
+            # break if no more photos
+            if len(all_photos) <= count:
+                break
+
+            for p in all_photos[count:]:
+                if self.stop_request:
+                    return count
+
+                # url of the image
+                try:
+                    img = p.find_element_by_css_selector('img')
+                except NoSuchElementException:
+                    # this is probably a video in the video folder
+                    img = p.find_element_by_css_selector('span > div')
+
+                photo_source_url = bg_img_url(img)
+                photo_post_permalink = p.get_attribute('ajaxify')
+                count += 1
+                callback(photo_source_url, photo_post_permalink, count)
 
             self._scroll_to_bottom(wait=True)
 

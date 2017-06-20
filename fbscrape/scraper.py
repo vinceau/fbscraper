@@ -220,7 +220,7 @@ class FBScraper(FBCrawler):
 
         def callback(label, name, url, imgurl, i):
             rec.add_record({'response': label, 'name': name, 'profile': url})
-            log.info('%s is %s in the event %s', name, label, eventurl)
+            log.info('%s is %s', name, label)
 
         scraped = self.crawl_event_guests(eventurl, callback, guest_filter)
         log.info('Scraped %d invitees for event %s', scraped, eventurl)

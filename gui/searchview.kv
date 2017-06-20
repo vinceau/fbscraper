@@ -174,9 +174,9 @@
                 hint_text: str(root.limit)
         BoxLayout:
             size_hint_y: 0.1
-            id: back_btn
             Button:
                 text: 'Back'
+                id: back_btn
                 on_release: root.go_back()
             Button:
                 id: search_btn

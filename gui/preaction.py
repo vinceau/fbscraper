@@ -11,7 +11,6 @@ class CompleteDialog(FloatLayout):
 
 
 class BaseAction(Screen):
-    scrape_func = ObjectProperty(None)
 
     def scrape_complete(self, elapsed):
         hours, rem = divmod(elapsed, 3600)

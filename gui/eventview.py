@@ -5,14 +5,11 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import SlideTransition
 
 import os
-import sys
 
 from preaction import BaseAction
 from searchview import background
 
 file_path = os.path.dirname(os.path.abspath(__file__))
-# add the parent directory to the path to import fbscrape
-sys.path.append(os.path.dirname(file_path))
 
 KIVY_FILE = 'eventview.kv'
 kivy_file_path = os.path.join(file_path, KIVY_FILE)

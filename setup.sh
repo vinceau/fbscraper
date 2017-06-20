@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
 
+# function for generating the Ubuntu icon onto the desktop
+function gen_ubuntu_icon ()
+{
+  FBSpath="$HOME/Documents/fbscraper/main.py"
+  ShortcutContents="[Desktop Entry]\nName=FBScraper\nType=Application\nIcon=facebook\nExec=python $FBSpath\nTerminal=false\nStartupNotify=true"
+  ShortcutLocation="$HOME/Desktop/fbscraper.desktop"
+  printf "$ShortcutContents" > "$ShortcutLocation"
+  chmod +x "$ShortcutLocation"
+}
+
+
 function ubuntu_install ()
 {
   # add the kivy PPA and update
@@ -11,6 +22,9 @@ function ubuntu_install ()
 
   #install geckodriver
   wget https://github.com/mozilla/geckodriver/releases/download/v0.14.0/geckodriver-v0.14.0-linux64.tar.gz
+
+  # make the fbscraper icon
+  gen_ubuntu_icon
 }
 
 

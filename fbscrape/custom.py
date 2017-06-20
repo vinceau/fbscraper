@@ -15,7 +15,7 @@ css_selectors = {
     # the login form to submit
     'login_form': '#login_form',
     # the individual photos in the photos page
-    'photo_selector': '#pagelet_timeline_medley_photos div.fbPhotoStarGridElement',
+    'photo_selector': '#pagelet_timeline_medley_photos .fbPhotoStarGridElement',
     'friends_selector': "ul[data-pnref='friends'] div[data-testid='friend_list_item']",
     'friend_image': "a[data-hovercard] img",
     'user_posts': "#recent_capsule_container div.fbUserContent > div:first-of-type",

@@ -41,7 +41,7 @@ class Record(object):
         if (os.path.dirname(self.filename)):
             make_path(os.path.dirname(self.filename))
         self.file = open(self.filename, 'w')
-        self.writer = csv.DictWriter(self.file, fieldnames=schema)
+        self.writer = csv.DictWriter(self.file, fieldnames=schema, quoting=csv.QUOTE_ALL, strict=True)
         self.writer.writeheader()
         log.info('Created a new record file at: %s', self.filename)
 

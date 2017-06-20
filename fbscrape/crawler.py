@@ -142,6 +142,11 @@ class FBCrawler(object):
         if scroll:
             self._scroll_to_bottom()
 
+    def _centre_on_element(self, el, wait=False):
+        self._js('window.scrollTo(0, arguments[0].getBoundingClientRect().top + window.pageYOffset - window.innerHeight /2)', el)
+        if wait:
+            self._delay()
+
     def _scroll_to_bottom(self, wait=False):
         """Scrolls to the bottom of the page. Useful for triggering infinite scroll.
         If wait is true (false by default), it will wait for potential items to populate before returning.
@@ -166,15 +171,23 @@ class FBCrawler(object):
                 if self.stop_request:
                     return count
 
-                # expand the see more links if it exists
-                try:
-                    p.find_element_by_xpath(xpath_selectors.get('see_more')).click()
-                except (NoSuchElementException, ElementNotVisibleException):
-                    pass
-
                 # get the text before we get the translation
                 # since the translation will add onto the p.text and we don't want that
                 post_text = p.text
+
+                # expand the see more links if it exists
+                try:
+                    # clicking the see more link can be quite unpredictable
+                    # sometimes it takes a while for it to load and sometimes clicking it seems
+                    # to do nothing. so wrap it in a while loop.
+                    sm = p.find_element_by_css_selector(css_selectors.get('see_more'))
+                    # centre-ing the element onto the middle of the page seems to help
+                    self._centre_on_element(sm)
+                    while post_text == p.text:
+                        sm.click()
+                        self._delay()
+                except (NoSuchElementException, ElementNotVisibleException):
+                    pass
 
                 # expand the see translations link if it exists
                 translation = ''

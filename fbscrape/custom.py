@@ -19,6 +19,7 @@ css_selectors = {
     'friends_selector': "ul[data-pnref='friends'] div[data-testid='friend_list_item']",
     'friend_image': "a[data-hovercard] img",
     'user_posts': "#recent_capsule_container div.fbUserContent > div:first-of-type",
+    'see_more': "a.see_more_link span.see_more_link_inner",
     # the left hand side of the about page with the different sections
     'about_links': "ul[data-pnref='about'] > li ul[data-testid='info_section_left_nav'] > li",
     # the main about page with all the content of the individual section
@@ -54,8 +55,6 @@ xpath_selectors = {
     'post_date': ".//abbr/span[contains(@class, 'timestampContent')]/..",
     # individual groups in the groups page
     'groups': "//div[@id='timeline-medley']//ul/li//a[@data-hovercard and not (*)]",
-    # see more links
-    'see_more': ".//a[contains(@class, 'see_more_link') and span]",
 }
 
 

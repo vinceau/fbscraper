@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 
 # function for generating the Ubuntu icon onto the desktop
-function gen_ubuntu_icon ()
-{
+function gen_ubuntu_icon() {
   FBSpath="$HOME/Documents/fbscraper/main.py"
   ShortcutContents="[Desktop Entry]\nName=FBScraper\nType=Application\nIcon=facebook\nExec=python $FBSpath\nTerminal=false\nStartupNotify=true"
   ShortcutLocation="$HOME/Desktop/fbscraper.desktop"
   printf "$ShortcutContents" > "$ShortcutLocation"
   chmod +x "$ShortcutLocation"
+
+  return 0
 }
 
 
-function ubuntu_install ()
-{
+function ubuntu_install() {
   # add the kivy PPA and update
   add-apt-repository ppa:kivy-team/kivy
   apt-get update
@@ -25,11 +25,12 @@ function ubuntu_install ()
 
   # make the fbscraper icon
   gen_ubuntu_icon
+
+  return 0
 }
 
 
-function osx_install ()
-{
+function osx_install() {
   if command -v brew > /dev/null 2>&1; then
     echo "Brew found. Skipping installation."
   else
@@ -43,6 +44,8 @@ function osx_install ()
 
   # get geckodriver
   wget https://github.com/mozilla/geckodriver/releases/download/v0.14.0/geckodriver-v0.14.0-macos.tar.gz
+
+  return 0
 }
 
 

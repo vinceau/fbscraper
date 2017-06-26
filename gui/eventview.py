@@ -4,6 +4,8 @@ from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import SlideTransition
 
+from urlparse import urlparse
+
 import os
 
 from preaction import BaseAction
@@ -41,7 +43,7 @@ class EventSettings(BaseAction):
         for index, n in enumerate(all_names):
             if app.stop_request:
                 break
-            log_screen.ids.current_user.text = n
+            log_screen.ids.current_user.text = no_query(n)
             log_screen.ids.count.text = 'Scraping {} of {}'.format(index + 1, len(all_names))
             app.controller.scrape_event_guests(n, self.which_guests())
         self.scrape_complete(time() - start)
@@ -58,3 +60,8 @@ class EventSettings(BaseAction):
 
         # interrupt running threads, restart, and then transition back
         App.get_running_app().controller.interrupt(callback, True)
+
+
+def no_query(url):
+    o = urlparse(url)
+    return o.scheme + '://' + o.netloc + o.path

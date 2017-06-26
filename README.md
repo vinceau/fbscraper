@@ -45,6 +45,11 @@ The GUI log has been limited to displaying the last 30 messages. This was done t
 
 # Changelog
 
+## 1.6 b27ecf37 (26 June 2017)
+* Add event guest list scraping
+* Fix broken photos selector
+* Fix broken friends selector
+
 ## 1.5 a5b4359c (22 May 2017)
 * Fix crash when clicking "See More" in externally shared Notes
 

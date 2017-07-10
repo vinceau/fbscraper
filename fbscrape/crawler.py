@@ -411,6 +411,32 @@ class FBCrawler(object):
 
         return count
 
+
+    @running
+    def crawl_checkins(self, targeturl, callback):
+        """Callback format: check_in_name, check_in_url, count
+        """
+        self.load(join_url(targeturl, page_references.get('checkins')))
+        count = 0
+        while True:
+            # get groups, break if no more groups
+            checkins = self.driver.find_elements_by_css_selector(css_selectors.get('checkins'))
+            if len(checkins) <= count:
+                break
+
+            # extract check in info
+            for p in checkins:
+                if self.stop_request:
+                    return count
+
+                count += 1
+                callback(p.text, p.get_attribute('href'), count)
+
+            self._scroll_to_bottom(wait=True)
+
+        return count
+
+
     @running
     def crawl_search_results(self, url, callback, limit=0):
         """Accepts a callback method which has search result's name, url, imageurl,

@@ -16,18 +16,19 @@ class FBScraper(FBCrawler):
         FBCrawler.__init__(self)
         # store in the current directory by default
         self.output_dir = output_dir if output_dir else ''
-        self.settings = {
-            'posts': True,
-            'friends': True,
-            'photos': True,
-            'likes': True,
-            'about': True,
-            'groups': True,
-        }
+        self.settings = self._def_settings()
         self.def_foldername = '%TARGET%'
         self.def_filename = '%TIMESTAMP%-%TYPE%'
         self.foldernaming = self.def_foldername
         self.filenaming = self.def_filename
+
+    def _def_settings(self):
+        names = ['posts', 'friends', 'photos', 'likes', 'about', 'groups',
+                 'checkins']
+        s = {}
+        for n in names:
+            s[n] = True
+        return s
 
     def set_output_dir(self, folder):
         self.output_dir = folder
@@ -85,6 +86,8 @@ class FBScraper(FBCrawler):
             self.scrape_about(targeturl)
         if self.settings['groups']:
             self.scrape_groups(targeturl)
+        if self.settings['checkins']:
+            self.scrape_checkins(targeturl)
         log.info('Finished scraping user %s', target)
 
     @autotarget
@@ -211,6 +214,19 @@ class FBScraper(FBCrawler):
 
         scraped = self.crawl_groups(targeturl, callback)
         log.info('Scraped %d groups into %s', scraped, rec.filename)
+
+
+    @autotarget
+    def scrape_checkins(self, targeturl):
+        target = get_target(targeturl)
+        rec = record.Record(self._output_file(target, 'checkins'), ['name', 'url'])
+
+        def callback(name, url, i):
+            rec.add_record({'name': name, 'url': url})
+            log.info('Scraped check in %d: %s', i, name)
+
+        scraped = self.crawl_checkins(targeturl, callback)
+        log.info('Scraped %d checkins into %s', scraped, rec.filename)
 
 
     def scrape_event_guests(self, eventurl, guest_filter=None):

@@ -44,6 +44,8 @@ css_selectors = {
     'guest_list': 'div > div table',
     # individual groups in the groups page
     'groups': "#timeline-medley ul li a[data-hovercard]",
+    # checkins
+    'checkins': "#pagelet_timeline_medley_map ul li div div a",
 }
 
 
@@ -67,6 +69,7 @@ page_references = {
     'about_page': 'sk=about',
     'groups_page': 'sk=groups',
     'albums': 'sk=photos_albums',
+    'checkins': 'sk=map',
 }
 
 

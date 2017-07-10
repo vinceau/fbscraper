@@ -24,7 +24,7 @@ class FBScraper(FBCrawler):
 
     def _def_settings(self):
         names = ['posts', 'friends', 'photos', 'likes', 'about', 'groups',
-                 'checkins']
+                 'albums', 'checkins']
         s = {}
         for n in names:
             s[n] = True
@@ -79,13 +79,15 @@ class FBScraper(FBCrawler):
         if self.settings['friends']:
             self.scrape_friends(targeturl)
         if self.settings['photos']:
-            self.scrape_all_photos(targeturl)
+            self.scrape_photos(targeturl)
         if self.settings['likes']:
             self.scrape_likes(targeturl)
         if self.settings['about']:
             self.scrape_about(targeturl)
         if self.settings['groups']:
             self.scrape_groups(targeturl)
+        if self.settings['albums']:
+            self.scrape_all_albums(targeturl)
         if self.settings['checkins']:
             self.scrape_checkins(targeturl)
         log.info('Finished scraping user %s', target)
@@ -139,11 +141,6 @@ class FBScraper(FBCrawler):
 
         friends_scraped = self.crawl_friends(targeturl, callback)
         log.info('Scraped %d friends into %s', friends_scraped, rec.filename)
-
-    @autotarget
-    def scrape_all_photos(self, targeturl):
-        self.scrape_photos(targeturl)
-        self.scrape_all_albums(targeturl)
 
     @autotarget
     def scrape_photos(self, targeturl):

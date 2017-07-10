@@ -102,6 +102,7 @@ class AdvancedSettings(FloatLayout):
         self.ids.likes.active = s['likes']
         self.ids.about.active = s['about']
         self.ids.groups.active = s['groups']
+        self.ids.albums.active = s['albums']
         self.ids.checkins.active = s['checkins']
 
 
@@ -117,13 +118,14 @@ class AdvancedSettings(FloatLayout):
         s['likes'] = self.ids.likes.active
         s['about'] = self.ids.about.active
         s['groups'] = self.ids.groups.active
+        s['albums'] = self.ids.albums.active
         s['checkins'] = self.ids.checkins.active
         # close popup
         self.cancel()
 
     def toggle(self):
         all_boxes = [self.ids.posts, self.ids.friends, self.ids.photos,
-                     self.ids.checkins,
+                     self.ids.albums, self.ids.checkins,
                      self.ids.likes, self.ids.about, self.ids.groups]
         tally = [x.active for x in all_boxes]
         for x in all_boxes:

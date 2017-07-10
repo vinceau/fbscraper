@@ -16,17 +16,26 @@ class FBScraper(FBCrawler):
         FBCrawler.__init__(self)
         # store in the current directory by default
         self.output_dir = output_dir if output_dir else ''
-        self.settings = self._def_settings()
         self.def_foldername = '%TARGET%'
         self.def_filename = '%TIMESTAMP%-%TYPE%'
         self.foldernaming = self.def_foldername
         self.filenaming = self.def_filename
 
+        self.mapping = {
+            'posts': self.scrape_posts,
+            'friends': self.scrape_friends,
+            'photos': self.scrape_photos,
+            'likes': self.scrape_likes,
+            'about': self.scrape_about,
+            'groups': self.scrape_groups,
+            'albums': self.scrape_all_albums,
+            'checkins': self.scrape_checkins,
+        }
+        self.settings = self._def_settings()
+
     def _def_settings(self):
-        names = ['posts', 'friends', 'photos', 'likes', 'about', 'groups',
-                 'albums', 'checkins']
         s = {}
-        for n in names:
+        for n in self.mapping.keys():
             s[n] = True
         return s
 
@@ -74,22 +83,9 @@ class FBScraper(FBCrawler):
     def scrape(self, targeturl):
         target = get_target(targeturl)
         log.info('Scraping user %s at URL: %s', target, targeturl)
-        if self.settings['posts']:
-            self.scrape_posts(targeturl)
-        if self.settings['friends']:
-            self.scrape_friends(targeturl)
-        if self.settings['photos']:
-            self.scrape_photos(targeturl)
-        if self.settings['likes']:
-            self.scrape_likes(targeturl)
-        if self.settings['about']:
-            self.scrape_about(targeturl)
-        if self.settings['groups']:
-            self.scrape_groups(targeturl)
-        if self.settings['albums']:
-            self.scrape_all_albums(targeturl)
-        if self.settings['checkins']:
-            self.scrape_checkins(targeturl)
+        for key, value in self.settings.iteritems():
+            if value:
+                self.mapping[key](targeturl)
         log.info('Finished scraping user %s', target)
 
     @autotarget

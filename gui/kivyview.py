@@ -88,6 +88,9 @@ class AdvancedSettings(FloatLayout):
 
     def __init__(self, **kwargs):
         FloatLayout.__init__(self, **kwargs)
+        self.all_boxes = [self.ids.posts, self.ids.friends, self.ids.photos,
+                          self.ids.albums, self.ids.checkins,
+                          self.ids.likes, self.ids.about, self.ids.groups]
         self.load_settings()
 
     def load_settings(self):
@@ -96,15 +99,8 @@ class AdvancedSettings(FloatLayout):
         self.ids.filename.text = fbs.filenaming
 
         s = fbs.settings
-        self.ids.posts.active = s['posts']
-        self.ids.friends.active = s['friends']
-        self.ids.photos.active = s['photos']
-        self.ids.likes.active = s['likes']
-        self.ids.about.active = s['about']
-        self.ids.groups.active = s['groups']
-        self.ids.albums.active = s['albums']
-        self.ids.checkins.active = s['checkins']
-
+        for b in self.all_boxes:
+            b.active = s[b.ref]
 
     def save_settings(self):
         fbs = App.get_running_app().controller
@@ -112,23 +108,14 @@ class AdvancedSettings(FloatLayout):
         fbs.filenaming = self.ids.filename.text
 
         s = fbs.settings
-        s['posts'] = self.ids.posts.active
-        s['friends'] = self.ids.friends.active
-        s['photos'] = self.ids.photos.active
-        s['likes'] = self.ids.likes.active
-        s['about'] = self.ids.about.active
-        s['groups'] = self.ids.groups.active
-        s['albums'] = self.ids.albums.active
-        s['checkins'] = self.ids.checkins.active
+        for b in self.all_boxes:
+            s[b.ref] = b.active
         # close popup
         self.cancel()
 
     def toggle(self):
-        all_boxes = [self.ids.posts, self.ids.friends, self.ids.photos,
-                     self.ids.albums, self.ids.checkins,
-                     self.ids.likes, self.ids.about, self.ids.groups]
-        tally = [x.active for x in all_boxes]
-        for x in all_boxes:
+        tally = [x.active for x in self.all_boxes]
+        for x in self.all_boxes:
             x.active = tally.count(True) / len(tally) < 0.5
 
 

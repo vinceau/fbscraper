@@ -1,7 +1,7 @@
 import logging as log
 
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException, ElementNotVisibleException
+from selenium.common.exceptions import NoSuchElementException, ElementNotVisibleException, WebDriverException
 
 from time import sleep, time
 
@@ -80,12 +80,16 @@ class FBCrawler(object):
 
     @running
     def login(self, user, password):
-        self.load('https://www.facebook.com/login.php')
-        self._js("document.querySelector('{}').value = '{}';".format(css_selectors.get('email_field'), user))
-        self._js("document.querySelector('{}').value = '{}';".format(css_selectors.get('password_field'), password))
-        self._js("document.querySelector('{}').submit();".format(css_selectors.get('login_form')))
-        self._delay()
-        return 'login' not in self.driver.current_url
+        try:
+            self.load('https://www.facebook.com/login.php')
+            self._js("document.querySelector('{}').value = '{}';".format(css_selectors.get('email_field'), user))
+            self._js("document.querySelector('{}').value = '{}';".format(css_selectors.get('password_field'), password))
+            self._js("document.querySelector('{}').submit();".format(css_selectors.get('login_form')))
+            self._delay()
+            return 'login' not in self.driver.current_url
+        except WebDriverException:
+            log.error('Couldn\'t load page. Are you connected to the internet?')
+            return False
 
     def _update_delay(self, seconds):
         self.load_time += seconds

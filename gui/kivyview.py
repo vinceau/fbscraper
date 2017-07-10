@@ -18,8 +18,8 @@ from searchview import SearchScreen, background
 from preaction import BaseAction
 from eventview import EventSettings
 
-version = '1.6'
-last_updated = '26 June 2017'
+version = '1.7'
+last_updated = '10 July 2017'
 
 Config.set('input', 'mouse', 'mouse,disable_multitouch')
 

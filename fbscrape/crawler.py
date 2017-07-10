@@ -395,7 +395,7 @@ class FBCrawler(object):
         count = 0
         while True:
             # get groups, break if no more groups
-            groups = self.driver.find_elements_by_xpath(xpath_selectors.get('groups'))
+            groups = self.driver.find_elements_by_css_selector(css_selectors.get('groups'))
             if len(groups) <= count:
                 break
 

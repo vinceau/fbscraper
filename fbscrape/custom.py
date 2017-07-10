@@ -42,6 +42,8 @@ css_selectors = {
     # guests in the event attending page
     'guest_scroller': 'div.uiScrollableArea > div.uiScrollableAreaWrap',
     'guest_list': 'div > div table',
+    # individual groups in the groups page
+    'groups': "#timeline-medley ul li a[data-hovercard]",
 }
 
 
@@ -53,8 +55,6 @@ xpath_selectors = {
     'event_friend_info': ".//div//a[@data-hovercard and span[not(*)]]",
     'likes_selector': "//div[@id='pagelet_timeline_medley_likes']//li//a[@data-hovercard and not(*)]",
     'post_date': ".//abbr/span[contains(@class, 'timestampContent')]/..",
-    # individual groups in the groups page
-    'groups': "//div[@id='timeline-medley']//ul/li//a[@data-hovercard and not (*)]",
 }
 
 

@@ -132,6 +132,7 @@ class FBCrawler(BaseCrawler):
             sm = p.find_element_by_css_selector(css_selectors.get('see_more'))
             if self.force_click(p, sm):
                 print('found and expanded see more')
+                post_text = p.text
         except (NoSuchElementException):
             pass
 

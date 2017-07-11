@@ -110,7 +110,7 @@ class FBCrawler(BaseCrawler):
             parts = so.find_elements_by_xpath(xpath_selectors.get('trans_splitter'))
             translation = parts[1].text
             if self.force_click(p, so):
-                print('clicked \'see original\'')
+                log.info('Found and clicked "See original"')
             # remove the translation from the post text
             post_text = p.text.replace(text_content['hide_original'], text_content['see_original'])
             post_text = post_text.replace(translation, '')
@@ -131,7 +131,7 @@ class FBCrawler(BaseCrawler):
             # to do nothing. so wrap it in a while loop.
             sm = p.find_element_by_css_selector(css_selectors.get('see_more'))
             if self.force_click(p, sm):
-                print('found and expanded see more')
+                log.info('Found and expanded "See more"')
                 post_text = p.text
         except (NoSuchElementException):
             pass
@@ -142,8 +142,8 @@ class FBCrawler(BaseCrawler):
                 st = p.find_element_by_link_text(text_content.get('see_translation_text'))
                 st_parent = st.find_element_by_xpath('../..')
                 if self.force_click(p, st):
+                    log.info('Found post translation')
                     translation = st_parent.find_element_by_css_selector(css_selectors.get('translation')).text
-                    print('found translation')
             except (NoSuchElementException):
                 pass
 

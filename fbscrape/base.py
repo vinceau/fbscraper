@@ -85,6 +85,11 @@ class BaseCrawler(object):
 
 
     def force_click(self, parent, clickable):
+        """Will attempt to click on clickable 3 times. Assume you can tell if it was successful if the text
+        of the parent changes.
+        Waits 0.5 seconds after each click. On the last attempt, wait the full delay duration.
+        Returns True if the text of the parent changed.
+        """
         try:
             post_text = parent.text
             attempts = 3
@@ -92,7 +97,9 @@ class BaseCrawler(object):
             while post_text == parent.text and attempts > 0:
                 attempts -= 1
                 clickable.click()
-                self.delay()
+                sleep(0.5)
+                if attempts == 1:
+                    self.delay()
             return post_text != parent.text
         except (WebDriverException, ElementNotVisibleException):
             return False

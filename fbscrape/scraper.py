@@ -12,7 +12,7 @@ from helpers import strip_query, timestring, path_safe, get_target, get_targetur
 
 class FBScraper(FBCrawler):
 
-    def __init__(self, output_dir=None, min_delay=2):
+    def __init__(self, output_dir=None):
         FBCrawler.__init__(self)
         # store in the current directory by default
         self.output_dir = output_dir if output_dir else ''

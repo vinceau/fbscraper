@@ -379,7 +379,7 @@ class FBCrawler(BaseCrawler):
                 count += 1
                 callback(p.text, p.get_attribute('href'), count)
 
-            self._scroll_to_bottom(wait=True)
+            self.scroll_to_bottom(wait=True)
 
         return count
 

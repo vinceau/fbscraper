@@ -96,6 +96,58 @@ class FBCrawler(BaseCrawler):
         self._set_status('running')
 
 
+    def _grab_post_content(self, p, with_translation=True):
+        translation = ''
+
+        # if there's original content grab it
+        # sometimes facebook automatically shows the translated text and not
+        # the original.
+        try:
+            so = p.find_element_by_link_text(text_content['see_original'])
+            # split the post text into the original post and translation
+            parts = so.find_elements_by_xpath(xpath_selectors.get('trans_splitter'))
+            translation = parts[1].text
+            if self.force_click(p, so):
+                print('clicked \'see original\'')
+            # remove the translation from the post text
+            post_text = p.text.replace(text_content['hide_original'], text_content['see_original'])
+            post_text = post_text.replace(translation, '')
+            if with_translation:
+                return post_text, translation
+            else:
+                return post_text, ''
+        except (NoSuchElementException):
+            pass
+
+        # grab the text normally
+        post_text = p.text
+
+        # expand the see more links if it exists
+        try:
+            # clicking the see more link can be quite unpredictable
+            # sometimes it takes a while for it to load andetimes clicking it seems
+            # to do nothing. so wrap it in a while loop.
+            sm = p.find_element_by_css_selector(css_selectors.get('see_more'))
+            if self.force_click(p, sm):
+                print('found and expanded see more')
+        except (NoSuchElementException):
+            pass
+
+        # grab the translation if it exists and is needed
+        if with_translation:
+            try:
+                st = p.find_element_by_link_text(text_content.get('see_translation_text'))
+                st_parent = st.find_element_by_xpath('../..')
+                if self.force_click(p, st):
+                    translation = st_parent.find_element_by_css_selector(css_selectors.get('translation')).text
+                    print('found translation')
+            except (NoSuchElementException):
+                pass
+
+
+        return post_text, translation
+
+
     @running
     def crawl_posts(self, targeturl, callback):
         count = 0
@@ -112,36 +164,7 @@ class FBCrawler(BaseCrawler):
                 if self.stop_request:
                     return count
 
-                # get the text before we get the translation
-                # since the translation will add onto the p.text and we don't want that
-                post_text = p.text
-
-                # expand the see more links if it exists
-                try:
-                    # clicking the see more link can be quite unpredictable
-                    # sometimes it takes a while for it to load and sometimes clicking it seems
-                    # to do nothing. so wrap it in a while loop.
-                    sm = p.find_element_by_css_selector(css_selectors.get('see_more'))
-                    # centre-ing the element onto the middle of the page seems to help
-                    self.centre_on_element(sm)
-                    while post_text == p.text:
-                        sm.click()
-                        self.delay()
-                    # cool our text is different now so update the post_text
-                    post_text = p.text
-                except (NoSuchElementException, ElementNotVisibleException):
-                    pass
-
-                # expand the see translations link if it exists
-                translation = ''
-                try:
-                    st = p.find_element_by_link_text(text_content.get('see_translation_text'))
-                    st_parent = st.find_element_by_xpath('../..')
-                    st.click()
-                    self.delay()
-                    translation = st_parent.find_element_by_css_selector(css_selectors.get('translation')).text
-                except NoSuchElementException:
-                    pass
+                post_text, translation = self._grab_post_content(p)
 
                 date_el = p.find_element_by_xpath(xpath_selectors.get('post_date'))
                 p_time = date_el.get_attribute('data-utime')  # this is unix time!!!

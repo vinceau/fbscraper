@@ -57,6 +57,8 @@ xpath_selectors = {
     'event_friend_info': ".//div//a[@data-hovercard and span[not(*)]]",
     'likes_selector': "//div[@id='pagelet_timeline_medley_likes']//li//a[@data-hovercard and not(*)]",
     'post_date': ".//abbr/span[contains(@class, 'timestampContent')]/..",
+    # split original text and translation text
+    'trans_splitter': ".//ancestor::div[contains(@class,'userContent')]/div/div",
 }
 
 
@@ -80,4 +82,6 @@ text_content = {
     'error_header_text': 'isn\'t available',
     # used for getting the See Translation button
     'see_translation_text': 'See Translation',
+    'see_original': 'See original',
+    'hide_original': 'Hide original',
 }

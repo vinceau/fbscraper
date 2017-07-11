@@ -1,38 +1,19 @@
-import logging as log
-
-from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException, ElementNotVisibleException, WebDriverException
-
-from time import sleep, time
+from selenium.common.exceptions import NoSuchElementException, WebDriverException
 
 # local imports
+from base import BaseCrawler
 from custom import css_selectors, xpath_selectors, page_references, text_content
 from helpers import join_url
 
 
-class FBCrawler(object):
+class FBCrawler(BaseCrawler):
 
-    def __init__(self, min_delay=2, dynamic_delay=True):
-        """By default the crawler will measure the average time a page takes to load and
-        waits that amount of time (minimum of 2 seconds by default). If you want it to always
-        wait a constant period of time, set dynamic_delay to False. It will then always
-        wait <min_delay> number of seconds.
-        """
-        self.driver = webdriver.Firefox()
-        self.min_delay = min_delay  # seconds to wait for infinite scroll items to populate
-        self.loads = 0
-        self.load_time = 0
+    def __init__(self):
+        BaseCrawler.__init__(self)
         self.stop_request = False
         self.pause_request = False
         self.status = 'init'
         self._set_status('ready')
-        self.dynamic_delay = dynamic_delay
-
-        # shorter funciton for executing javascript
-        self._js = self.driver.execute_script
-
-    def __del__(self):
-        self.driver.quit()
 
     def is_valid_target(self, targeturl):
         """Returns True if <targeturl> is a valid profile.
@@ -75,18 +56,14 @@ class FBCrawler(object):
     def login(self, user, password):
         try:
             self.load('https://www.facebook.com/login.php')
-            self._js("document.querySelector('{}').value = '{}';".format(css_selectors.get('email_field'), user))
-            self._js("document.querySelector('{}').value = '{}';".format(css_selectors.get('password_field'), password))
-            self._js("document.querySelector('{}').submit();".format(css_selectors.get('login_form')))
-            self._delay()
+            self.js("document.querySelector('{}').value = '{}';".format(css_selectors.get('email_field'), user))
+            self.js("document.querySelector('{}').value = '{}';".format(css_selectors.get('password_field'), password))
+            self.js("document.querySelector('{}').submit();".format(css_selectors.get('login_form')))
+            self.delay()
             return 'login' not in self.driver.current_url
         except WebDriverException:
             log.error('Couldn\'t load page. Are you connected to the internet?')
             return False
-
-    def _update_delay(self, seconds):
-        self.load_time += seconds
-        self.loads += 1
 
     def pause(self):
         self.pause_request = True
@@ -111,46 +88,13 @@ class FBCrawler(object):
         self.stop_request = False
         self._set_status('ready')
 
-    def _delay(self, multiplier=1):
-        """Sleeps the average amount of time it has taken to load a page or at least self.min_delay seconds.
-        Multiplier is how much more or less time you want to wait. e.g. multiplier=2 would wait 2 times
-        as long as usual.
-        """
+    def delay(self, multiplier=1):
         self._set_status('paused')
-        avg = self.load_time / self.loads
-        secs = max(avg, self.min_delay) if self.dynamic_delay else self.min_delay
-        secs *= multiplier
-        log.info('Sleeping %f seconds', secs)
-        sleep(secs)
+        BaseCrawler.delay(self, multiplier)
         while (self.pause_request) and not self.stop_request:
             pass
         self._set_status('running')
 
-    def load(self, url, force=False, scroll=True):
-        """Load url in the browser if it's not already loaded. Use force=True to force a reload.
-        Also keeps track of how long it has taken to load.
-        If scroll is True (default) it will scroll to the bottom once load is complete (to trigger infinite scroll).
-        """
-        if url == self.driver.current_url and not force:
-            return
-        start = time()
-        self.driver.get(url)
-        self._update_delay(time() - start)
-        if scroll:
-            self._scroll_to_bottom()
-
-    def _centre_on_element(self, el, wait=False):
-        self._js('window.scrollTo(0, arguments[0].getBoundingClientRect().top + window.pageYOffset - window.innerHeight /2)', el)
-        if wait:
-            self._delay()
-
-    def _scroll_to_bottom(self, wait=False):
-        """Scrolls to the bottom of the page. Useful for triggering infinite scroll.
-        If wait is true (false by default), it will wait for potential items to populate before returning.
-        """
-        self._js("window.scrollTo(0, document.body.scrollHeight);")
-        if wait:
-            self._delay()
 
     @running
     def crawl_posts(self, targeturl, callback):
@@ -179,10 +123,10 @@ class FBCrawler(object):
                     # to do nothing. so wrap it in a while loop.
                     sm = p.find_element_by_css_selector(css_selectors.get('see_more'))
                     # centre-ing the element onto the middle of the page seems to help
-                    self._centre_on_element(sm)
+                    self.centre_on_element(sm)
                     while post_text == p.text:
                         sm.click()
-                        self._delay()
+                        self.delay()
                     # cool our text is different now so update the post_text
                     post_text = p.text
                 except (NoSuchElementException, ElementNotVisibleException):
@@ -194,7 +138,7 @@ class FBCrawler(object):
                     st = p.find_element_by_link_text(text_content.get('see_translation_text'))
                     st_parent = st.find_element_by_xpath('../..')
                     st.click()
-                    self._delay()
+                    self.delay()
                     translation = st_parent.find_element_by_css_selector(css_selectors.get('translation')).text
                 except NoSuchElementException:
                     pass
@@ -207,7 +151,7 @@ class FBCrawler(object):
                 # date, post_text, permalink, translation, count
                 callback(p_time, post_text, p_link, translation, count)
 
-            self._scroll_to_bottom(wait=True)
+            self.scroll_to_bottom(wait=True)
 
         return count
 
@@ -234,7 +178,7 @@ class FBCrawler(object):
                 count += 1
                 callback(like.text, like.get_attribute('href'), count)
 
-            self._scroll_to_bottom(wait=True)
+            self.scroll_to_bottom(wait=True)
 
         return count
 
@@ -261,7 +205,7 @@ class FBCrawler(object):
                 imgurl = friend.find_element_by_css_selector(css_selectors.get('friend_image')).get_attribute('src')
                 callback(name, url, imgurl, count)
 
-            self._scroll_to_bottom(wait=True)
+            self.scroll_to_bottom(wait=True)
 
         return count
 
@@ -299,7 +243,7 @@ class FBCrawler(object):
                 count += 1
                 callback(photo_source_url, photo_description, photo_post_permalink, count)
 
-            self._scroll_to_bottom(wait=True)
+            self.scroll_to_bottom(wait=True)
 
         return count
 
@@ -321,21 +265,6 @@ class FBCrawler(object):
         """Callback format: photo_source_url, photo_post_permalink, count
         """
 
-        def bg_img_url(el):
-            """Gets the image url of the element el with css style background-image
-            """
-            # get the img
-            img = self._js("""var element = arguments[0],
-            style = element.currentStyle || window.getComputedStyle(element, false);
-            return style['background-image'];""", el)
-            # strip the img part
-            if img[:4] == 'url(':
-                img = img[4:]
-            if img[-1] == ')':
-                img = img[:-1]
-            return img.strip("'").strip('"')
-
-
         self.load(albumurl)
         count = 0
         while True:
@@ -355,12 +284,12 @@ class FBCrawler(object):
                     # this is probably a video in the video folder
                     img = p.find_element_by_css_selector('span > div')
 
-                photo_source_url = bg_img_url(img)
+                photo_source_url = self.get_bg_img_url(img)
                 photo_post_permalink = p.get_attribute('ajaxify')
                 count += 1
                 callback(photo_source_url, photo_post_permalink, count)
 
-            self._scroll_to_bottom(wait=True)
+            self.scroll_to_bottom(wait=True)
 
         return count
 
@@ -373,7 +302,7 @@ class FBCrawler(object):
             if self.stop_request:
                 return count
             l.click()
-            self._delay()
+            self.delay()
             title = l.get_attribute('title')
             main_pane = self.driver.find_element_by_css_selector(css_selectors.get('about_main'))
             callback(title, main_pane.text)
@@ -400,7 +329,7 @@ class FBCrawler(object):
                 count += 1
                 callback(g.text, g.get_attribute('href'), count)
 
-            self._scroll_to_bottom(wait=True)
+            self.scroll_to_bottom(wait=True)
 
         return count
 
@@ -452,7 +381,7 @@ class FBCrawler(object):
                 count += 1
                 callback(name, url.get_attribute('href'), imageurl, count)
 
-            self._scroll_to_bottom(wait=True)
+            self.scroll_to_bottom(wait=True)
 
         return count
 
@@ -465,7 +394,7 @@ class FBCrawler(object):
         # open guests list
         guest_list = self.driver.find_element_by_css_selector(css_selectors.get('event_guests'))
         guest_list.click()
-        self._delay(1.5)
+        self.delay(1.5)
         buttons = self.driver.find_elements_by_css_selector(css_selectors.get('guest_buttons'))
         dialog = buttons[0].find_element_by_xpath('../../..')
         for b in buttons:
@@ -477,7 +406,7 @@ class FBCrawler(object):
             # we want to scrape these guests
             count = 0
             b.click()
-            self._delay()
+            self.delay()
             scroller = dialog.find_element_by_css_selector(css_selectors.get('guest_scroller'))
             while True:
                 results = dialog.find_elements_by_css_selector(css_selectors.get('guest_list'))
@@ -495,7 +424,7 @@ class FBCrawler(object):
                     total += 1
                     callback(label, name, url, imgurl, total)
 
-                self._js('a = arguments[0]; a.scrollTo(0, a.scrollHeight);', scroller)
-                self._delay()
+                self.js('a = arguments[0]; a.scrollTo(0, a.scrollHeight);', scroller)
+                self.delay()
 
         return total

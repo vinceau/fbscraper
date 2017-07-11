@@ -1,3 +1,5 @@
+import logging as log
+
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
 
 # local imports

@@ -83,8 +83,11 @@ class FBScraper(FBCrawler):
     def scrape(self, targeturl):
         target = get_target(targeturl)
         log.info('Scraping user %s at URL: %s', target, targeturl)
+        # do posts first because we're already on the timeline
+        if self.settings['posts']:
+            self.mapping['posts'](targeturl)
         for key, value in self.settings.iteritems():
-            if value:
+            if value and key is not 'posts':
                 self.mapping[key](targeturl)
         log.info('Finished scraping user %s', target)
 

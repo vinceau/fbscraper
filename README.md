@@ -48,7 +48,7 @@ The GUI log has been limited to displaying the last 30 messages. This was done t
 
 # Changelog
 
-## 1.7 97d9fdd2 (17 July 2017)
+## 1.7 f36d4fb2 (17 July 2017)
 * Split Photos option into separate Timeline Photos and Albums option 
 * Add check-ins scraping
 * Fix skipping of groups with emojis in their name

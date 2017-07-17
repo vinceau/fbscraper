@@ -222,12 +222,14 @@
                     ScrapeInput:
                         id: startyear
                         input_filter: 'int'
+                        hint_text: '2005'
                         disabled: not scraperange.active
                     ScrapeLabel:
                         text: 'End Year'
                         halign: 'center'
                     ScrapeInput
                         id: endyear
+                        hint_text: '2010'
                         input_filter: 'int'
                         disabled: not scraperange.active
         VertiBox:

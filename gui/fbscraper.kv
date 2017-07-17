@@ -74,6 +74,7 @@
                         write_tab: False
                         on_text_validate: loginbutton.dispatch('on_release')
                 Button:
+                    disabled: len(login.text) == 0 or len(password.text) == 0
                     id: loginbutton
                     size_hint: (.2, .4)
                     text: 'Login'

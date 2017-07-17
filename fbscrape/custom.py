@@ -47,6 +47,10 @@ css_selectors = {
     # checkins
     'checkins': "#pagelet_timeline_medley_map ul li div div a",
     'sticky_header': ".fbTimelineStickyHeader",
+    # the container identifier for the most recent posts in the timeline
+    'recents_container': "#recent_capsule_container",
+    # the container identifier with the posts sorted by year
+    'year_post_container': "#pagelet_timeline_year_",  # + year but we'll add the year later
 }
 
 

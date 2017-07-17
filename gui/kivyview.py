@@ -30,33 +30,22 @@ SETTINGS_FILE = join(UPLOAD_DIR, 'fbscraper.bin')
 
 
 class Login(Screen):
-    login_file = ObjectProperty(None)
 
     def load_creds(self):
-        """Populate the form with the credentials found in login.txt
+        """Populate the form with the credentials found in pickled settings file
         """
-        try:
-            with open(self.login_file, 'r') as f:
-                lines = f.readlines()
-                if len(lines) < 2:
-                    return
-                self.ids.login.text = lines[0].strip()
-                self.ids.password.text = lines[1].strip()
-                self.ids.storecreds.active = True
-        except IOError:
-            # no login saved
-            pass
+        app = App.get_running_app()
+        self.ids.login.text = app.settings['username']
+        self.ids.storecreds.active = app.settings['storecreds']
+        if len(self.ids.login.text) > 0:
+            self.ids.password.focus = True
 
     def save_creds(self):
-        try:
-            with open(self.login_file, 'w+') as f:
-                if not self.ids.storecreds.active:
-                    return
-                fbemail = self.ids.login.text
-                fbpass = self.ids.password.text
-                f.write('{}{}{}'.format(fbemail, os.linesep, fbpass))
-        except IOError:
-            pass
+        app = App.get_running_app()
+        app.settings['storecreds'] = self.ids.storecreds.active
+        if self.ids.storecreds.active:
+            app.settings['username'] = self.ids.login.text
+        app.save_settings()
 
     @background
     def do_login(self, fbemail, fbpass):
@@ -80,7 +69,7 @@ class LoadDialog(FloatLayout):
     def __init__(self, **kwargs):
         FloatLayout.__init__(self, **kwargs)
         # set the filechooser to start at the home directory by default
-        self.ids.filechooser.path = expanduser('~')
+        self.ids.filechooser.path = App.get_running_app().settings['savedir']
 
     def is_dir(self, folder, filename):
         """Will be used as a selection filter if hide_files is True
@@ -162,6 +151,9 @@ class Settings(BaseAction):
         BaseAction.__init__(self, **kwargs)
         if self.infile:
             self._load_file(self.infile)
+        app = App.get_running_app()
+        app.controller.set_output_dir(app.settings['savedir'])
+        self.ids.pathbox.text = app.settings['savedir']
 
     def _load_file(self, filename):
         with open(filename, 'r') as f:
@@ -214,6 +206,8 @@ class Settings(BaseAction):
                 self.ids.pathbox.text = filename[0]
             app = App.get_running_app()
             app.controller.set_output_dir(self.ids.pathbox.text)
+            app.settings['savedir'] = self.ids.pathbox.text
+            app.save_settings()
             self.dismiss_popup()
 
         content = LoadDialog(load=dirsel, cancel=self.dismiss_popup, hide_files=True)
@@ -301,7 +295,7 @@ class FBScraperApp(App):
     version = version
     last_updated = last_updated
 
-    def __init__(self, controller, loginfile='login.txt', infile=''):
+    def __init__(self, controller, infile=''):
         """<controller> is an instance of fbscrape.FBScraper
         <loginfile> is the default file to store credentials in
         <infile> is the file to read targets into the target list
@@ -309,7 +303,6 @@ class FBScraperApp(App):
         App.__init__(self)
         self.stop_request = False
         self.controller = controller
-        self.loginfile = loginfile
         self.infile = infile
         self.default_settings = {
             'scraperange': False,
@@ -318,6 +311,9 @@ class FBScraperApp(App):
             'foldername': controller.foldernaming,
             'filename': controller.filenaming,
             'controller_settings': controller.settings,
+            'username': '',
+            'storecreds': False,
+            'savedir': expanduser('~'),
         }
         self.settings = self.get_settings()
         self.save_settings()
@@ -345,7 +341,7 @@ class FBScraperApp(App):
 
     def build(self):
         manager = ScreenManager()
-        manager.add_widget(Login(name='login', login_file=self.loginfile))
+        manager.add_widget(Login(name='login'))
         manager.add_widget(Settings(name='settings', infile=self.infile))
         manager.add_widget(SearchScreen(name='search'))
         manager.add_widget(EventSettings(name='events'))

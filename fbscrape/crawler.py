@@ -164,7 +164,6 @@ class FBCrawler(BaseCrawler):
 
         return post_text, translation
 
-
     def _click_on_year(self, year):
         self.reload(scroll=False)  # we rely on the 'recent' button so make sure we've unclicked it
         self.scroll_to_bottom(wait=True)

@@ -32,7 +32,7 @@ def main(args):
         # hide the current arguments from kivy
         sys.argv = [sys.argv[0]]
         from gui import FBScraperApp
-        return FBScraperApp(fbs, loginfile, infile).run()
+        return FBScraperApp(fbs, infile).run()
 
     # configure logging level
     logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)

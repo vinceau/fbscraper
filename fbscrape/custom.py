@@ -18,7 +18,7 @@ css_selectors = {
     'photo_selector': '#pagelet_timeline_medley_photos .fbPhotoStarGridElement',
     'friends_selector': "ul[data-pnref='friends'] div[data-testid='friend_list_item']",
     'friend_image': "a[data-hovercard] img",
-    'user_posts': "#recent_capsule_container div.fbUserContent > div:first-of-type",
+    'user_posts': "div.fbUserContent > div:first-of-type",
     'see_more': "a.see_more_link span.see_more_link_inner",
     # the left hand side of the about page with the different sections
     'about_links': "ul[data-pnref='about'] > li ul[data-testid='info_section_left_nav'] > li",
@@ -46,6 +46,7 @@ css_selectors = {
     'groups': "#timeline-medley ul li a[data-hovercard]",
     # checkins
     'checkins': "#pagelet_timeline_medley_map ul li div div a",
+    'sticky_header': ".fbTimelineStickyHeader",
 }
 
 
@@ -59,6 +60,8 @@ xpath_selectors = {
     'post_date': ".//abbr/span[contains(@class, 'timestampContent')]/..",
     # split original text and translation text
     'trans_splitter': ".//ancestor::div[contains(@class,'userContent')]/div/div",
+    # the list of years that person has posted for in the sticky header
+    'all_years': "//following-sibling::li[@data-label]",
 }
 
 
@@ -84,4 +87,5 @@ text_content = {
     'see_translation_text': 'See Translation',
     'see_original': 'See original',
     'hide_original': 'Hide original',
+    'recent': 'Recent',
 }

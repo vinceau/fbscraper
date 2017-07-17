@@ -8,6 +8,13 @@ from custom import css_selectors, xpath_selectors, page_references, text_content
 from helpers import join_url
 
 
+def _posts_selector(year=None):
+    prefix = "#recent_capsule_container"
+    if year:
+        prefix = '#pagelet_timeline_year_' + str(year)
+    return prefix + ' ' + css_selectors['user_posts']
+
+
 class FBCrawler(BaseCrawler):
 
     def __init__(self):
@@ -150,14 +157,33 @@ class FBCrawler(BaseCrawler):
 
         return post_text, translation
 
+    def _click_on_year(self, year):
+        self.scroll_to_bottom(wait=True)
+        # we want to get a list of all the years a person has been posting
+        # get the sticky header
+        sticky_header = self.driver.find_element_by_css_selector(css_selectors['sticky_header'])
+        # get the recents button
+        recent = sticky_header.find_element_by_link_text(text_content['recent'])
+        # click the recents button
+        recent.click()
+        self.delay()
+        # search sibling elements for a list of all the years
+        years = recent.find_elements_by_xpath(xpath_selectors['all_years'])
+        for y in years:
+            if y.text == str(year):
+                y.click()
+                # allow time for loading posts before returning
+                self.delay()
+                return True
+        return False
 
-    @running
-    def crawl_posts(self, targeturl, callback):
+    def _crawl_posts_helper(self, select_func, selector, callback):
+        """Callback is time, text, url, translation, count
+        """
+        # will not load the page, expects the page to already be loaded
         count = 0
-        # load their timeline page
-        self.load(targeturl)
         while True:
-            all_posts = self.driver.find_elements_by_css_selector(css_selectors.get('user_posts'))
+            all_posts = select_func(selector)
             # break if there are no more posts left
             if len(all_posts) <= count:
                 break
@@ -179,6 +205,20 @@ class FBCrawler(BaseCrawler):
 
             self.scroll_to_bottom(wait=True)
 
+        return count
+
+
+    @running
+    def crawl_posts(self, targeturl, callback, year=None):
+        # load their timeline page
+        self.load(targeturl, scroll=True)
+        if year:
+            if not self._click_on_year(year):
+                log.error('Couldn\'t find the year {} in the profile {}'.format(year, targeturl))
+                return 0
+        count = self._crawl_posts_helper(self.driver.find_elements_by_css_selector,
+                                         _posts_selector(year),
+                                         callback)
         return count
 
     @running

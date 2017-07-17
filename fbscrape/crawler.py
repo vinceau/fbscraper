@@ -1,6 +1,7 @@
 import logging as log
 
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
+from datetime import date
 
 # local imports
 from base import BaseCrawler
@@ -11,7 +12,13 @@ from helpers import join_url
 def _posts_selector(year=None):
     prefix = "#recent_capsule_container"
     if year:
-        prefix = '#pagelet_timeline_year_' + str(year)
+        year_str = str(year)
+        this_year = date.today().year
+        if year_str == str(this_year):
+            year_str = 'current'
+        elif year_str == str(this_year - 1):
+            year_str = 'last'
+        prefix = '#pagelet_timeline_year_' + year_str
     return prefix + ' ' + css_selectors['user_posts']
 
 

@@ -320,12 +320,18 @@ class FBScraperApp(App):
             'controller_settings': controller.settings,
         }
         self.settings = self.get_settings()
+        self.save_settings()
 
 
     def get_settings(self):
         if isfile(SETTINGS_FILE):
             with open(SETTINGS_FILE, 'r') as f:
-                return pickle.load(f)
+                settings = pickle.load(f)
+            # update our settings if there are new default settings
+            for key, value in self.default_settings.iteritems():
+                if settings.get(key) is None:
+                    settings[key] = value
+                return settings
         return self.default_settings
 
     def save_settings(self):

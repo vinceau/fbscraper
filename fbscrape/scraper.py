@@ -20,6 +20,7 @@ class FBScraper(FBCrawler):
         self.def_filename = '%TIMESTAMP%-%TYPE%'
         self.foldernaming = self.def_foldername
         self.filenaming = self.def_filename
+        self.post_range = []  # a list of years of posts to scrape
 
         self.mapping = {
             'posts': self.scrape_posts,
@@ -62,7 +63,7 @@ class FBScraper(FBCrawler):
     def autotarget(func):
         """This decorator converts the target into a target url and ensures it's a legit page.
         """
-        def do_stuff(self, target):
+        def do_stuff(self, target, *args):
             if self.stop_request:
                 return None
 
@@ -72,7 +73,7 @@ class FBScraper(FBCrawler):
                 log.info('%s is not a valid target!', targeturl)
                 return None
 
-            return func(self, targeturl)
+            return func(self, targeturl, *args)
 
         return do_stuff
 
@@ -93,8 +94,19 @@ class FBScraper(FBCrawler):
 
     @autotarget
     def scrape_posts(self, targeturl):
+        if len(self.post_range) == 0:
+            self.scrape_posts_by_year(targeturl)
+        else:
+            for y in self.post_range:
+                self.scrape_posts_by_year(targeturl, y)
+
+    @autotarget
+    def scrape_posts_by_year(self, targeturl, year=None):
         target = get_target(targeturl)
-        rec = record.Record(self._output_file(target, 'posts'), ['date', 'post', 'translation', 'permalink'])
+        rec_name = 'posts'
+        if year:
+            rec_name += '_' + str(year)
+        rec = record.Record(self._output_file(target, rec_name), ['date', 'post', 'translation', 'permalink'])
         log.info('Scraping posts into %s', rec.filename)
 
         def callback(p_time, post_text, p_link, translation, i):
@@ -111,7 +123,7 @@ class FBScraper(FBCrawler):
             log.info(('Scraped post %d\n\n#### START POST ####\n%s\n%s'
                       '####  END POST  ####\n'), i, post_text, translation)
 
-        posts_scraped = self.crawl_posts(targeturl, callback)
+        posts_scraped = self.crawl_posts(targeturl, callback, year)
         log.info('Scraped %d posts into %s', posts_scraped, rec.filename)
 
     @autotarget

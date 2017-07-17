@@ -33,6 +33,9 @@ The fbscrape.crawler is responsible for opening/loading/processing through webpa
 
 # Known Issues
 
+## Not All Posts included in Current Year Scraping
+At the time of writing, Facebook separates posts from the current year into "Recents" and "Current Year". The posts split into recents are placed in a different container compared to that of the current year and as a result might not be included. A planned fix is to allow stopping the scraper after a certain date has been reached. For example, adding an option to scrape from the latest post up until a certain year, then proceeding to do a scrape range from the past up until that year would allow all posts to be scraped without duplicates. This fix is not ready yet so for the time being, avoid using the year ranges with the end year of the current year.
+
 ## Unicode Problems
 The GUI version of the scraping program can not display certain unicode. This is a limitation with the Kivy graphics library. It could have been solved by using a completely different graphics library but Kivy was the least painful to use. What this means to the end user is that foreign names not in English are often replaced with question marks (?) in the Python GUI. Using a terminal/shell with a larger unicode support will solve this problem since the log displayed by the GUI window reflects the log in the terminal anyway.
 

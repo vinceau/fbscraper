@@ -104,6 +104,9 @@ class AdvancedSettings(FloatLayout):
         app = App.get_running_app()
         self.ids.foldername.text = app.settings['foldername']
         self.ids.filename.text = app.settings['filename']
+        self.ids.scraperange.active = app.settings['scraperange']
+        self.ids.startyear.text = app.settings['startyear']
+        self.ids.endyear.text = app.settings['endyear']
 
         s = app.settings['controller_settings']
         for b in self.all_boxes:
@@ -116,6 +119,15 @@ class AdvancedSettings(FloatLayout):
         fbs.foldernaming = self.ids.foldername.text
         fbs.filenaming = self.ids.filename.text
 
+        fbs.post_range = []
+        if self.ids.scraperange.active:
+            try:
+                sy = int(self.ids.startyear.text)
+                ey = int(self.ids.endyear.text) + 1
+                fbs.post_range = range(sy, ey)
+            except ValueError:
+                pass
+
         for b in self.all_boxes:
             fbs.settings[b.ref] = b.active
 
@@ -125,6 +137,9 @@ class AdvancedSettings(FloatLayout):
         app = App.get_running_app()
         app.settings['foldername'] = self.ids.foldername.text
         app.settings['filename'] = self.ids.filename.text
+        app.settings['scraperange'] = self.ids.scraperange.active
+        app.settings['startyear'] = self.ids.startyear.text
+        app.settings['endyear'] = self.ids.endyear.text
 
         for b in self.all_boxes:
             app.settings['controller_settings'][b.ref] = b.active
@@ -297,6 +312,9 @@ class FBScraperApp(App):
         self.loginfile = loginfile
         self.infile = infile
         self.default_settings = {
+            'scraperange': False,
+            'startyear': '',
+            'endyear': '',
             'foldername': controller.foldernaming,
             'filename': controller.filenaming,
             'controller_settings': controller.settings,

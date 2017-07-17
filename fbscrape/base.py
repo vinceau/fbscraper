@@ -118,3 +118,8 @@ class BaseCrawler(object):
         if img[-1] == ')':
             img = img[:-1]
         return img.strip("'").strip('"')
+
+    def reload(self, scroll=True):
+        """Force a reload of the current page.
+        """
+        self.load(self.driver.current_url, force=True, scroll=scroll)

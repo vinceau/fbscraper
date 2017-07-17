@@ -1,10 +1,12 @@
 from __future__ import division
 
+import pickle
 import logging
 import os
 
-from os.path import join, isdir, expanduser
+from os.path import join, isdir, expanduser, isfile
 from time import time
+from tempfile import gettempdir
 
 from kivy.app import App
 from kivy.config import Config
@@ -22,6 +24,9 @@ version = '1.7'
 last_updated = '10 July 2017'
 
 Config.set('input', 'mouse', 'mouse,disable_multitouch')
+
+UPLOAD_DIR = gettempdir()
+SETTINGS_FILE = join(UPLOAD_DIR, 'fbscraper.bin')
 
 
 class Login(Screen):
@@ -94,23 +99,39 @@ class AdvancedSettings(FloatLayout):
         self.load_settings()
 
     def load_settings(self):
-        fbs = App.get_running_app().controller
-        self.ids.foldername.text = fbs.foldernaming
-        self.ids.filename.text = fbs.filenaming
+        """Load the settings from app settings.
+        """
+        app = App.get_running_app()
+        self.ids.foldername.text = app.settings['foldername']
+        self.ids.filename.text = app.settings['filename']
 
-        s = fbs.settings
+        s = app.settings['controller_settings']
         for b in self.all_boxes:
             b.active = s[b.ref]
 
-    def save_settings(self):
+    def activate_settings(self):
+        """Push the current settings onto the controller.
+        """
         fbs = App.get_running_app().controller
         fbs.foldernaming = self.ids.foldername.text
         fbs.filenaming = self.ids.filename.text
 
-        s = fbs.settings
         for b in self.all_boxes:
-            s[b.ref] = b.active
-        # close popup
+            fbs.settings[b.ref] = b.active
+
+    def save_settings(self):
+        """Save the settings back to app settings
+        """
+        app = App.get_running_app()
+        app.settings['foldername'] = self.ids.foldername.text
+        app.settings['filename'] = self.ids.filename.text
+
+        for b in self.all_boxes:
+            app.settings['controller_settings'][b.ref] = b.active
+
+        app.save_settings()
+
+        self.activate_settings()
         self.cancel()
 
     def toggle(self):
@@ -275,8 +296,26 @@ class FBScraperApp(App):
         self.controller = controller
         self.loginfile = loginfile
         self.infile = infile
+        self.default_settings = {
+            'foldername': controller.foldernaming,
+            'filename': controller.filenaming,
+            'controller_settings': controller.settings,
+        }
+        self.settings = self.get_settings()
+
+
+    def get_settings(self):
+        if isfile(SETTINGS_FILE):
+            with open(SETTINGS_FILE, 'r') as f:
+                return pickle.load(f)
+        return self.default_settings
+
+    def save_settings(self):
+        with open(SETTINGS_FILE, 'wb') as f:
+            pickle.dump(self.settings, f)
 
     def on_stop(self):
+        self.save_settings()
         self.controller.interrupt()
         self.controller.driver.quit()
 

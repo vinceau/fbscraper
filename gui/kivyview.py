@@ -21,7 +21,7 @@ from preaction import BaseAction
 from eventview import EventSettings
 
 version = '1.7'
-last_updated = '10 July 2017'
+last_updated = '17 July 2017'
 
 Config.set('input', 'mouse', 'mouse,disable_multitouch')
 

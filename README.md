@@ -1,3 +1,9 @@
+# Important Announcement
+
+This project is no longer maintained and has been archived. Feel free to fork this project and update the codebase as your heart desires.
+
+-----------------------------------------------------
+
 # Introduction
 
 This program is an extensible webscraper for Facebook that can scrape entire profiles of users, including: posts, photos, albums, friends list, groups, likes, and their about page (profile information).
@@ -45,6 +51,9 @@ When running the search (for Facebook targets) several times can eventually caus
 ## GUI Log Limit
 The GUI log has been limited to displaying the last 30 messages. This was done to avoid an issue where the Kivy Label Widget disappears once the label text has reached a certain size. It is unconfirmed whether or not exceeding a text character limit inside a Label Widget is the cause of this issue but limiting the messages to 30 seems to fix it.
 
+# License
+
+This project is licensed under the MIT License. See `LICENSE.txt` for more details.
 
 # Changelog
 

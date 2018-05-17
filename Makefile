@@ -1,6 +1,6 @@
 PY_SOURCES = fbscrape/*.py gui/*.py main.py
 KV_SOURCES = gui/*.kv
-ADMIN = README.md requirements.txt setup.sh
+ADMIN = LICENSE.txt README.md requirements.txt setup.sh
 
 VERSION = 1.7
 TARGET = fbscraper.$(VERSION).zip

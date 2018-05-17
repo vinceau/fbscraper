@@ -51,10 +51,6 @@ When running the search (for Facebook targets) several times can eventually caus
 ## GUI Log Limit
 The GUI log has been limited to displaying the last 30 messages. This was done to avoid an issue where the Kivy Label Widget disappears once the label text has reached a certain size. It is unconfirmed whether or not exceeding a text character limit inside a Label Widget is the cause of this issue but limiting the messages to 30 seems to fix it.
 
-# License
-
-This project is licensed under the MIT License. See `LICENSE.txt` for more details.
-
 # Changelog
 
 ## 1.7 f36d4fb2 (17 July 2017)
@@ -95,6 +91,11 @@ This project is licensed under the MIT License. See `LICENSE.txt` for more detai
 
 ## 1.0 72cc031d (6 March 2017)
 * Initial release
+
+
+# License
+
+This project is licensed under the MIT License. See `LICENSE.txt` for more details.
 
 
 # Author
